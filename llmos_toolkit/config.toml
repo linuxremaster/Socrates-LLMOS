@@ -1,0 +1,30 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+# LLMOS Toolkit plugin configuration
+
+# Directories to scan for plugins, relative to this file (or absolute).
+# Each is scanned non-recursively for: a subdirectory containing
+# plugin.py, or a top-level *_plugin.py file.
+plugin_dirs = ["plugins"]
+
+# If set, ONLY these plugin names are loaded even if others are
+# discovered. Leave commented out to allow everything discovered.
+# enabled = ["growth_budget"]
+
+# These plugin names are always skipped, even if discovered and even if
+# also listed in `enabled`.
+disabled = []
+
+# Security hardening (see core/security.py and README's Security section).
+# When true, a plugin only loads if its plugin.py's sha256 matches the
+# value pinned for it below. Compute a pin with:
+#   PYTHONPATH=<dir containing llmos_toolkit> python -m llmos_toolkit trust-plugin <name> <path/to/plugin.py>
+# Default is false: dynamic import behaves as an ordinary plugin loader,
+# with advisory (non-blocking) permission/pattern warnings only.
+require_trust = false
+
+[trust]
+# growth_budget = "···64-hex-char sha256···"
+# example_hello = "···64-hex-char sha256···"

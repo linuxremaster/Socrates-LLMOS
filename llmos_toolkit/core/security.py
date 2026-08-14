@@ -1,0 +1,81 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+"""
+Security utilities for the plugin loader and kernel-file handling.
+
+Scope, stated honestly: these are hardening measures appropriate for a
+local, single-user CLI tool with a dynamic-import plugin mechanism. They
+are NOT a sandbox. A plugin that passes every check here still runs with
+full process privileges once imported — nothing in this file stops a
+trusted-but-malicious plugin from doing anything Python itself can do.
+What this DOES meaningfully change:
+
+  - an unreviewed file dropped into plugins/ no longer auto-executes
+    silently when trust mode is on — it's refused unless its hash
+    matches a value you explicitly pinned. This is the real control.
+  - group/world-writable plugin sources are flagged: on a shared
+    machine, either is a local-privilege-escalation path (another
+    account edits the file, your next run silently executes it).
+  - a lightweight pattern scan flags plugins using subprocess/network/
+    eval-family calls, as an advisory signal for human review.
+
+The static pattern scan is explicitly NOT a security boundary — it's
+regex-based and trivially bypassed (string building, base64, getattr
+indirection, etc.). Treat its output as "worth a human look," never as
+"cleared." The only actual enforcement mechanism here is the hash pin.
+"""
+from __future__ import annotations
+
+import hashlib
+import re
+import stat
+from dataclasses import dataclass
+from pathlib import Path
+
+SUSPICIOUS_PATTERNS: dict[str, re.Pattern] = {
+    "subprocess": re.compile(r"\bimport\s+subprocess\b|\bsubprocess\."),
+    "os.system": re.compile(r"\bos\.system\("),
+    "eval(": re.compile(r"\beval\("),
+    "exec(": re.compile(r"\bexec\("),
+    "dynamic __import__": re.compile(r"__import__\("),
+    "network: socket": re.compile(r"\bimport\s+socket\b"),
+    "network: urllib": re.compile(r"\bimport\s+urllib\b|\burllib\."),
+    "network: requests": re.compile(r"\bimport\s+requests\b"),
+    "network: http.client": re.compile(r"\bimport\s+http\.client\b"),
+}
+
+
+def compute_sha256(path: Path) -> str:
+    """Full-length hex digest — used for trust pins (unlike the 12-char
+    truncated hash growth_budget.py uses for readable diffs, a trust pin
+    needs the full digest to actually mean something)."""
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+@dataclass
+class PermissionFinding:
+    path: str
+    issue: str
+
+
+def check_permissions(path: Path) -> list[PermissionFinding]:
+    """Flag a group/world-writable plugin file or its parent directory."""
+    findings: list[PermissionFinding] = []
+    for p in (path, path.parent):
+        try:
+            mode = p.stat().st_mode
+        except OSError:
+            continue
+        if mode & stat.S_IWGRP:
+            findings.append(PermissionFinding(str(p), "group-writable"))
+        if mode & stat.S_IWOTH:
+            findings.append(PermissionFinding(str(p), "world-writable"))
+    return findings
+
+
+def static_scan(path: Path) -> list[str]:
+    """Advisory only — see module docstring. Returns matched pattern labels."""
+    text = path.read_text(encoding="utf-8", errors="replace")
+    return [label for label, pattern in SUSPICIOUS_PATTERNS.items() if pattern.search(text)]

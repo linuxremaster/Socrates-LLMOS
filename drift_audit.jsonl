@@ -1,0 +1,1 @@
+{"timestamp": "2026-08-14T09:52:14.785234+00:00", "artifacts": ["kernel/HCF_LLMOS_Kernel_v1.3.6-C.md"], "action": "check", "newly_baselined": ["kernel/HCF_LLMOS_Kernel_v1.3.6-C.md"], "findings": [], "suppressed_count": 0}

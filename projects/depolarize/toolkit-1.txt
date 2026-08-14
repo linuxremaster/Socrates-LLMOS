@@ -1,0 +1,467 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+"""
+
+Prompt maintenance toolkit.
+
+
+Keeps a running, append-only record of every deliberate fix made to a prompt
+
+(requirements.json), and runs a full check pass on demand or automatically
+
+after every edit. Nothing here understands grammar or meaning - it only
+
+enforces invariants a human (or model) explicitly decided must hold. See
+
+README.md for what this catches and what it can't.
+
+"""
+
+import json
+
+import re
+
+from pathlib import Path
+
+
+TOOLKIT_DIR = Path(__file__).parent
+
+REQ_FILE = TOOLKIT_DIR / "requirements.json"
+
+PROMPT_FILE = TOOLKIT_DIR / "prompt.txt"
+
+LOG_FILE = TOOLKIT_DIR / "changelog.txt"
+
+
+CHAR_LIMIT = 8400  # raised from 7600 - that limit was set against a stale
+                    # 7477-char snapshot (post-Sweep-23). Since then,
+                    # untracked-in-comment sweeps added book-length/chunk
+                    # handling (merge rules, local-peak flagging, cross-chunk
+                    # JUSTIFIED, fallacy-list expansion - all present in
+                    # requirements.json) pushing actual prompt.txt to 8178
+                    # chars without CHAR_LIMIT ever being updated to match.
+                    # Found 2026-08-09 via a routine dry-run check that
+                    # unexpectedly failed on length alone. New limit set with
+                    # ~220 chars of real headroom above the current 8178,
+                    # not tightly to the exact count, so small future edits
+                    # don't immediately trip length checks again.
+
+
+# Header order that must hold: neutral/reporting sections before
+
+# correction/critique sections (established for reader-attention reasons).
+
+HEADER_ORDER = [
+
+    "The Facts",
+
+    "The Divide",
+
+    "What Would Help",
+
+    "Correcting Perceptions",
+
+    "The Arguments",
+
+    "The Framing",
+
+    "Polarization Rating",
+
+]
+
+
+
+def load_requirements():
+
+    return json.loads(REQ_FILE.read_text()) if REQ_FILE.exists() else []
+
+
+
+def save_requirements(reqs):
+
+    REQ_FILE.write_text(json.dumps(reqs, indent=2))
+
+
+
+def add_requirement(term, reason, req_type="contains", case_sensitive=True, whole_word=False):
+
+    """Append a new fix to the permanent record. Idempotent on (term, type).
+
+
+    req_type: "contains" / "not_contains" (substring, or whole-word if
+
+    whole_word=True), or "regex" / "regex_not_contains" (term is a regex
+
+    pattern - must be present / must be absent respectively; case_sensitive
+
+    controls re.IGNORECASE).
+
+    whole_word: for contains/not_contains only - matches on word boundaries
+
+    so e.g. term="myth" won't match inside "mythology".
+
+    """
+
+    reqs = load_requirements()
+
+    if any(r["term"] == term and r["type"] == req_type for r in reqs):
+
+        return reqs  # already tracked, don't duplicate
+
+    reqs.append({
+
+        "term": term, "type": req_type, "reason": reason,
+
+        "case_sensitive": case_sensitive, "whole_word": whole_word,
+
+    })
+
+    save_requirements(reqs)
+
+    return reqs
+
+
+
+def load_prompt():
+
+    return PROMPT_FILE.read_text()
+
+
+
+def save_prompt(text):
+
+    PROMPT_FILE.write_text(text)
+
+
+
+def check_punctuation(text):
+
+    issues = []
+
+    if text.count('"') % 2 != 0:
+
+        issues.append("Unbalanced double quotes")
+
+    if text.count("(") != text.count(")"):
+
+        issues.append(f"Unbalanced parens: {text.count('(')} open, {text.count(')')} close")
+
+    if text.count("[") != text.count("]"):
+
+        issues.append(f"Unbalanced brackets: {text.count('[')} open, {text.count(']')} close")
+
+    return issues
+
+
+
+def check_requirements(text, reqs):
+
+    missing, forbidden_found = [], []
+
+    for r in reqs:
+
+        req_type = r["type"]
+
+        case_sensitive = r.get("case_sensitive", True)
+
+
+        if req_type == "regex":
+
+            flags = 0 if case_sensitive else re.IGNORECASE
+
+            present = re.search(r["term"], text, flags) is not None
+
+            if not present:
+
+                missing.append(r)
+
+            continue
+
+
+        if req_type == "regex_not_contains":
+
+            flags = 0 if case_sensitive else re.IGNORECASE
+
+            present = re.search(r["term"], text, flags) is not None
+
+            if present:
+
+                forbidden_found.append(r)
+
+            continue
+
+
+        if r.get("whole_word", False):
+
+            flags = 0 if case_sensitive else re.IGNORECASE
+
+            present = re.search(rf"\b{re.escape(r['term'])}\b", text, flags) is not None
+
+        else:
+
+            haystack = text if case_sensitive else text.lower()
+
+            needle = r["term"] if case_sensitive else r["term"].lower()
+
+            present = needle in haystack
+
+
+        if req_type == "contains" and not present:
+
+            missing.append(r)
+
+        elif req_type == "not_contains" and present:
+
+            forbidden_found.append(r)
+
+    return missing, forbidden_found
+
+
+
+def check_header_order(text):
+
+    # Search from the OUTPUT section only. Headers are allowed to be named
+
+    # in earlier prose (e.g. a process step pointing a reader at "TRANSLATING
+
+    # SLANTED FRAMING" by name) without that mention counting as the header's
+
+    # position for ordering purposes. Within the scoped section, a header
+
+    # only counts if it starts a line - this stops a header string appearing
+
+    # inside another line's text (e.g. a bracketed example) from being
+
+    # mistaken for the real header.
+
+    search_from = text.find("OUTPUT:")
+
+    scoped = text[search_from:] if search_from != -1 else text
+
+    positions, issues = [], []
+
+    for h in HEADER_ORDER:
+
+        match = re.search(rf"^{re.escape(h)}", scoped, re.MULTILINE)
+
+        if match is None:
+
+            issues.append(f"Header missing entirely: {h}")
+
+            continue
+
+        positions.append((h, match.start()))
+
+    for i in range(len(positions) - 1):
+
+        if positions[i][1] > positions[i + 1][1]:
+
+            issues.append(f"Out of order: '{positions[i][0]}' should come before '{positions[i+1][0]}'")
+
+    return issues
+
+
+
+def check_length(text, limit=CHAR_LIMIT):
+
+    n = len(text)
+
+    return [] if n <= limit else [f"Over limit: {n}/{limit} chars ({n - limit} over)"]
+
+
+
+def run_all_checks(text, reqs=None, limit=CHAR_LIMIT, verbose=True):
+
+    reqs = reqs if reqs is not None else load_requirements()
+
+    missing, forbidden = check_requirements(text, reqs)
+
+    report = {
+
+        "length": len(text),
+
+        "length_issues": check_length(text, limit),
+
+        "punctuation_issues": check_punctuation(text),
+
+        "missing_requirements": missing,
+
+        "forbidden_found": forbidden,
+
+        "header_order_issues": check_header_order(text),
+
+    }
+
+    report["passed"] = not any([
+
+        report["length_issues"], report["punctuation_issues"],
+
+        report["missing_requirements"], report["forbidden_found"],
+
+        report["header_order_issues"],
+
+    ])
+
+    if verbose:
+
+        _print_report(report)
+
+    return report
+
+
+
+def _print_report(report):
+
+    pct = round(100 * report["length"] / CHAR_LIMIT, 1)
+
+    print(f"Length: {report['length']}/{CHAR_LIMIT} chars ({pct}% of limit)")
+
+    for label, key in [
+
+        ("Length", "length_issues"),
+
+        ("Punctuation", "punctuation_issues"),
+
+        ("Header order", "header_order_issues"),
+
+    ]:
+
+        items = report[key]
+
+        print(f"{label}: {'OK' if not items else 'ISSUES -> ' + '; '.join(items)}")
+
+    if report["missing_requirements"]:
+
+        print("MISSING requirements:")
+
+        for r in report["missing_requirements"]:
+
+            print(f"  - '{r['term']}': {r['reason']}")
+
+    else:
+
+        print("Requirements present: OK (all tracked fixes still in place)")
+
+    if report["forbidden_found"]:
+
+        print("FORBIDDEN text reappeared:")
+
+        for r in report["forbidden_found"]:
+
+            print(f"  - '{r['term']}': {r['reason']}")
+
+    print("RESULT:", "PASS" if report["passed"] else "FAIL - review issues above")
+
+
+
+def apply_edit(old, new, note=None, new_requirement=None, force=False):
+
+    """
+
+    Replace `old` with `new` in the canonical prompt file, optionally log a
+
+    new permanent requirement, then run the full check suite.
+
+    Refuses to save if `old` doesn't match exactly once (same safety property
+
+    as memory_str_replace / str_replace elsewhere in this environment).
+
+    Also refuses to save if the resulting text fails any check - a tool meant
+
+    to prevent regressions shouldn't write a regression to disk. Pass
+
+    force=True to save anyway (e.g. a deliberate temporary exception).
+
+    Nothing is written to prompt.txt OR requirements.json unless the edit
+
+    is actually going to be saved - a refused edit must have zero side effects.
+
+    """
+
+    text = load_prompt()
+
+    count = text.count(old)
+
+    if count != 1:
+
+        print(f"REFUSED: '{old[:50]}...' matched {count} times (need exactly 1)")
+
+        return None
+
+    text = text.replace(old, new)
+
+
+    reqs = load_requirements()
+
+    check_reqs = reqs
+
+    if new_requirement:
+
+        already = any(
+
+            r["term"] == new_requirement["term"] and r["type"] == new_requirement.get("req_type", "contains")
+
+            for r in reqs
+
+        )
+
+        if not already:
+
+            check_reqs = reqs + [{
+
+                "term": new_requirement["term"],
+
+                "type": new_requirement.get("req_type", "contains"),
+
+                "reason": new_requirement["reason"],
+
+                "case_sensitive": new_requirement.get("case_sensitive", True),
+
+                "whole_word": new_requirement.get("whole_word", False),
+
+            }]
+
+
+    report = run_all_checks(text, check_reqs, verbose=False)
+
+
+    if not report["passed"] and not force:
+
+        print("REFUSED: edit would fail checks - not saved. Details:")
+
+        _print_report(report)
+
+        print("(pass force=True to save anyway)")
+
+        return report
+
+
+    if new_requirement:
+
+        add_requirement(**new_requirement)
+
+    save_prompt(text)
+
+    with LOG_FILE.open("a") as f:
+
+        f.write(f"EDIT: {old[:60]!r} -> {new[:60]!r} | note={note}\n")
+
+
+    print(f"Applied. {'PASS' if report['passed'] else 'FAIL (forced)'} - see details:")
+
+    _print_report(report)
+
+    return report
+
+
+
+if __name__ == "__main__":
+
+    text = load_prompt()
+
+    run_all_checks(text)
+
+
+

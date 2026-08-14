@@ -1,0 +1,433 @@
+[
+  {
+    "term": "myth",
+    "type": "contains",
+    "reason": "Antecedent for 'correcting that ___' - without it the pronoun dangles."
+  },
+  {
+    "term": "fix",
+    "type": "contains",
+    "reason": "Verb needed in Step 2's 'only real exaggeration' clause, or it's a sentence fragment."
+  },
+  {
+    "term": "with a reason",
+    "type": "contains",
+    "reason": "Missing article collides with the idiom 'with reason' (= justifiably)."
+  },
+  {
+    "term": "FACTS",
+    "type": "contains",
+    "reason": "Step 2 must route named-figure factual claims to the FACTS section, not PERCEPTIONS."
+  },
+  {
+    "term": "group label",
+    "type": "contains",
+    "reason": "Core rule: swap named political figures for their group label before correcting a caricature."
+  },
+  {
+    "term": "no ranking legitimacy",
+    "type": "contains",
+    "reason": "Step 2 must not imply either side's actual view is more/less legitimate."
+  },
+  {
+    "term": "never persuade",
+    "type": "contains",
+    "reason": "Core neutrality constraint - tool corrects perception, doesn't argue a side."
+  },
+  {
+    "term": "monolithic",
+    "type": "contains",
+    "reason": "Core corrected-caricature claim - the other side isn't a monolith."
+  },
+  {
+    "term": "no charged words",
+    "type": "contains",
+    "reason": "Step 3 rewrite rule - never reuse the original charged language."
+  },
+  {
+    "term": "LOADED PHRASES",
+    "type": "not_contains",
+    "reason": "Superseded by TRANSLATING SLANTED FRAMING - LOADED PHRASES was too narrow once Bias expanded to cover omission/source-selection, which are not phrases."
+  },
+  {
+    "term": "say so and stop",
+    "type": "contains",
+    "reason": "Step 5 must explicitly state when no genuine divide remains, not silently skip."
+  },
+  {
+    "term": "report only categories present",
+    "type": "contains",
+    "reason": "Replaces old keep all three wording, which was ambiguous (could force-invent empty categories). New wording: report real claims in whichever categories they fall into; never invent one to fill a gap.",
+    "case_sensitive": false
+  },
+  {
+    "term": "never say \"you\"",
+    "type": "contains",
+    "reason": "Critique must target the passage, never address the reader directly.",
+    "case_sensitive": false
+  },
+  {
+    "term": "don't force",
+    "type": "contains",
+    "reason": "Asymmetry rule - if one side draws more flags, say so rather than artificially equalizing. (string updated to match post-trim wording)"
+  },
+  {
+    "term": "skip, unreported",
+    "type": "contains",
+    "reason": "Neutral-bucket content in Step 1 must not be silently rendered anywhere in output."
+  },
+  {
+    "term": "BIASED/POLARIZING LANGUAGE",
+    "type": "not_contains",
+    "reason": "Old judgmental header - replaced by LOADED PHRASES; should never reappear."
+  },
+  {
+    "term": "US partisans",
+    "type": "not_contains",
+    "reason": "Prompt was generalized beyond US politics to any polarizing source."
+  },
+  {
+    "term": "for present",
+    "type": "not_contains",
+    "reason": "Placeholder guard - catches leftover template scaffolding accidentally left in."
+  },
+  {
+    "term": "never invented",
+    "type": "contains",
+    "reason": "Prevents forcing an empty Verified/Unverified/Contradicted bucket to be filled with an invented claim.",
+    "case_sensitive": true
+  },
+  {
+    "term": "don't assume they're true",
+    "type": "contains",
+    "reason": "A named figure's statement is a claim to check, not an automatically-true fact. (string updated - old phrasing was a dangling modifier, fixed in hallucination/error sweep)",
+    "case_sensitive": true
+  },
+  {
+    "term": "merge lists directly",
+    "type": "contains",
+    "reason": "Without this, only the divide-paragraph merge behavior is specified; the other four sections have no stated merge rule across chunks.",
+    "case_sensitive": true
+  },
+  {
+    "term": "omission/selective evidence",
+    "type": "contains",
+    "reason": "Bias definition was too narrow (loaded language only); must also cover omission, framing, selective evidence, asymmetric standards, source selection.",
+    "case_sensitive": true
+  },
+  {
+    "term": "cherry-picking, false balance",
+    "type": "contains",
+    "reason": "Original 7-fallacy list was too restrictive; missing cherry-picking, false balance, misleading statistics, causal fallacies, appeal to authority, equivocation.",
+    "case_sensitive": true
+  },
+  {
+    "term": "ideologically mixed sources",
+    "type": "contains",
+    "reason": "VERIFY step had no source-quality rule; must weigh source quality/conflicting evidence and avoid forcing Verified/Contradicted when evidence is genuinely thin.",
+    "case_sensitive": true
+  },
+  {
+    "term": "never invent a citation",
+    "type": "contains",
+    "reason": "VERIFY implied live source-checking without specifying a fallback, risking fabricated citations when no search tool is present.",
+    "case_sensitive": true
+  },
+  {
+    "term": "judge by what is missing or skewed",
+    "type": "contains",
+    "reason": "The single neutral-rewrite test only works for language-level bias; omission/source-selection need a different test since there is no rewrite of an absence.",
+    "case_sensitive": true
+  },
+  {
+    "term": "The Framing",
+    "type": "contains",
+    "reason": "Replaces TRANSLATING LOADED PHRASES, which only fit language-level bias; new header covers the full expanded Bias category. (header text later shortened to THE FRAMING per reviewer feedback)",
+    "case_sensitive": true
+  },
+  {
+    "term": "report it once",
+    "type": "contains",
+    "reason": "A single passage can be a caricature, a named fallacy, and biased framing simultaneously; without a priority rule it could be reported three times across three output sections.",
+    "case_sensitive": true
+  },
+  {
+    "term": "Reframer for any divide",
+    "type": "contains",
+    "reason": "ROLE line read 'Reframer, any divide' with no preposition, making it a fragment rather than a role description.",
+    "case_sensitive": true
+  },
+  {
+    "term": "despite the myth",
+    "type": "contains",
+    "reason": "Previously 'myth' had no explicit noun phrase to refer back to - 'Naming that myth' pointed at an implied idea, not a stated one.",
+    "case_sensitive": true
+  },
+  {
+    "term": "not certainty",
+    "type": "contains",
+    "reason": "Contradicted was flatly equated with 'false', overstating evidentiary conflict as metaphysical certainty; softened to reflect what the evidence actually establishes.",
+    "case_sensitive": true
+  },
+  {
+    "term": "Never infer bias from disagreement",
+    "type": "contains",
+    "reason": "Nothing previously stopped the model from flagging 'bias' just because a passage disagreed with something or carried emotional tone - bias must show in the content/framing itself.",
+    "case_sensitive": true
+  },
+  {
+    "term": "neurally",
+    "type": "not_contains",
+    "reason": "Implies a specific neuroscience claim the prompt isn't equipped to justify; removed in favor of 'emotionally' alone, which keeps the hedge without the vulnerability.",
+    "case_sensitive": true
+  },
+  {
+    "term": "only when generalizing to the whole side",
+    "type": "contains",
+    "reason": "Without this, swapping a named figure for a group label could broaden a claim that was never meant to represent the whole group (e.g. 'Senator X believes Y' becoming 'Conservatives believe Y').",
+    "case_sensitive": true
+  },
+  {
+    "term": "Polarization Rating",
+    "type": "contains",
+    "reason": "New output section - an overall Low/Medium/High score for the passage's rhetorical intensity, added at the user's request.",
+    "case_sensitive": true
+  },
+  {
+    "term": "never by which side seems right",
+    "type": "contains",
+    "reason": "The polarization rating must score rhetorical intensity (caricature/fallacy/framing density), not which side's position is more correct - otherwise it would violate the 'no ranking legitimacy' / 'never persuade' core constraints.",
+    "case_sensitive": true
+  },
+  {
+    "term": "enough to change the claim's reading",
+    "type": "contains",
+    "reason": "Omission/skew bias must clear a materiality bar - two reviewers shouldn't be able to disagree on whether trivial omissions count.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "or stereotypes",
+    "type": "contains",
+    "reason": "Caricature correction must also catch group stereotypes that don't invoke extremists specifically.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "memory alone doesn't count",
+    "type": "contains",
+    "reason": "Prevents rating a claim Verified/Contradicted based on the model's own unaided recall when no external source was actually checked.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "no second rewrite",
+    "type": "contains",
+    "reason": "Lets a passage's secondary issue (e.g. also a hasty generalization) be noted without triggering a duplicate rewrite of the same passage.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "settled claims just need one reputable source",
+    "type": "contains",
+    "reason": "Ideological source-mixing only makes sense for contested/political claims - forcing it on settled technical claims (chemistry, medicine) adds no verification value.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "one contradicting source isn't enough",
+    "type": "contains",
+    "reason": "Sets a minimum evidentiary bar for Contradicted so a single outlier source can't trigger it on its own.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "not necessarily persuasive",
+    "type": "contains",
+    "reason": "Clarifies that 'valid reasoning' means internally coherent motivation, not a claim that the reasoning is correct or convincing - keeps this step consistent with 'no ranking legitimacy'.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "not the last chunk",
+    "type": "contains",
+    "reason": "Book-length input runs many chunks; without this, POLARIZATION RATING and the divide paragraph could silently reflect only the final chunk seen rather than the whole work.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "up to 3 divide paragraphs",
+    "type": "contains",
+    "reason": "A book-length work can have more than one genuine values-split; without a bounded exception, forcing everything into one paragraph flattens distinct divides together, or an unbounded allowance could sprawl into a divide-per-chapter.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "name the mechanism, not the judgment",
+    "type": "contains",
+    "reason": "Core tone-tightening rule from the critical-thinking-vs-tone discussion: de-escalation should come from stripping moralizing language, not from reducing analytical substance (fact/bias partition, fallacy detection, verification stay untouched).",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "Some extremists",
+    "type": "not_contains",
+    "reason": "Superseded by the 'Highly polarized rhetoric' framing - old wording made an unsupported empirical claim about extremists as people rather than describing an effect of charged rhetoric.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "Highly polarized rhetoric",
+    "type": "contains",
+    "reason": "Replaces the 'Some extremists react more emotionally' opening - keeps the same hedge/motivational intent without characterizing a group of people; the claim is now about rhetoric's effect, not about who extremists are.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "valid reasoning",
+    "type": "not_contains",
+    "reason": "Superseded by 'coherent reasoning' - 'valid' has a formal logical-validity meaning that could be misread; kept as a guard so the old phrasing doesn't silently reappear.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "coherent reasoning",
+    "type": "contains",
+    "reason": "Renamed from 'valid reasoning' - 'valid' has a formal logical-validity meaning that could be misread; 'coherent reasoning' keeps the intended sense (internally consistent, not necessarily persuasive) without that ambiguity.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "markedly higher than that overall average",
+    "type": "contains",
+    "reason": "A whole-work density rating can mask a small but extremely inflammatory section (e.g. 10 intense pages inside a 500-page calm work). This adds a local-peak flag alongside the overall rating for book-length input, without replacing the single overall score.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "LENGTH CAP",
+    "type": "contains",
+    "reason": "User-requested constraint on the model's output length (distinct from CHAR_LIMIT, which caps the instructions themselves, not runtime output). Includes a trim order so shortening never silently drops a required section.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "primary, official, or established",
+    "type": "contains",
+    "reason": "Defines what 'reputable' means for source-quality checks in VERIFY - without it, source selection is more subjective. Sweep 12 removed this as a seemingly-removable parenthetical aside; a reviewer flagged that it's actually load-bearing. Now tracked so it can't be silently stripped again.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "retrieve or use available text transcripts",
+    "type": "contains",
+    "reason": "Enables processing of URLs, images, and videos by leveraging available transcripts and metadata rather than halting.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "one full Low/Medium/High tier above it",
+    "type": "contains",
+    "reason": "Gives 'markedly higher' a concrete, deterministic threshold (a full rating tier, not a vague impression) so local-peak flagging behaves consistently across different model implementations, per reviewer note.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "documented pattern",
+    "type": "contains",
+    "reason": "Without this check, a caricature-correction gets applied even when the extreme framing is backed by verifiable evidence, not a cherry-picked outlier - e.g. Philippines corruption case.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "What Would Help",
+    "type": "contains",
+    "reason": "SOLUTIONS branch needs its own output section, separate from NAMING THE REAL DIVIDE, for documented-injustice cases where forcing a values-symmetric split would be dishonest. (header text later shortened to WHAT WOULD HELP per reviewer feedback)",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "assess JUSTIFIED",
+    "type": "contains",
+    "reason": "Without cross-chunk aggregation, a documented pattern spread across many chunks of a book would look like a single example in any one chunk, causing SOLUTIONS to misfire exactly where it matters most.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "may need both sections",
+    "type": "contains",
+    "reason": "A book-length work can contain both a genuine ideological divide and a separate documented-injustice section; without this, it was ambiguous whether JUSTIFIED anywhere suppressed REAL DIVIDE everywhere.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "never print a placeholder",
+    "type": "contains",
+    "reason": "Live test showed the model printing \"None known\" for a passage that was not JUSTIFIED at all, instead of skipping the section - the two cases were ambiguous in the old bracket wording.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "acknowledge the genuine concern",
+    "type": "contains",
+    "reason": "Correcting a caricature without first acknowledging the real concern behind it reads as \"you're wrong\" to a reader who shares that concern, increasing defensiveness rather than reducing it.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "don't end on the score alone",
+    "type": "contains",
+    "reason": "POLARIZATION RATING sits last in output order; ending there with no callback contradicts the neutral-first/confrontational-last ordering logic established earlier - reader's last impression was a numeric verdict, not a note of common ground.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "final conviction is not required",
+    "type": "contains",
+    "reason": "Two live tests on comparably-evidenced content produced opposite JUSTIFIED determinations - traced to ambiguity over whether pending (not yet finally adjudicated) cases count as documented. Without this, SOLUTIONS structurally cannot fire on decades-long-impunity cases, which is exactly the scenario it was built for.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "not a policy prescription",
+    "type": "contains",
+    "reason": "Live test showed the model recommending specific legislative/institutional fixes instead of posing an open question - taking a policy position conflicts with the never persuade rule.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "never re-opening the same documented claim",
+    "type": "contains",
+    "reason": "When both sections fire, The Divide was found treating the same underlying grievance as symmetric that What Would Help had just treated as evidence-backed - an internal contradiction within one output.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "never one blanket label for all claims",
+    "type": "contains",
+    "reason": "Facts tags failed 4/4 tests using inline-per-claim format across at least two models and a session reset - restructured to grouped-by-rating instead of re-wording the same ask again.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "not automatically a fallacy",
+    "type": "contains",
+    "reason": "A confirmed-current-version live test still produced a non-fallacy legal-dispute summary in The Arguments despite the bracket already saying if present and never a neutral summary - the actual detection judgment happens in DETECT & DE-ESCALATE, so the no-match rule needs to live there too.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "never invent a new fallacy name",
+    "type": "contains",
+    "reason": "A confirmed-current-version test on a different model produced an invented fallacy category not on the Step 3 list, rather than either picking a listed fallacy or correctly omitting the section - this is a distinct failure mode from none-applies, needing its own explicit constraint.",
+    "case_sensitive": true,
+    "whole_word": false
+  },
+  {
+    "term": "before any scope correction",
+    "type": "contains",
+    "reason": "Sequencing invariant, added after Claude+Gemini+ChatGPT adversarial review (2026-08-09): the supported concern must be stated before the unsupported scope is narrowed/corrected. Chosen as an observable output-order rule rather than a psychological empathy construct, specifically because earlier drafts using \"cognitive empathy\" invited models to infer unsupported emotions. Scoped to the one-example branch only; the JUSTIFIED (documented-pattern) branch is untouched by this edit.",
+    "case_sensitive": true,
+    "whole_word": false
+  }
+]

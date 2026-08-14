@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# LLMOS Toolkit pre-commit hook.
+#
+# NOT installed automatically — this is a template. To activate it in a
+# git repo:
+#   cp llmos_toolkit/hooks/pre-commit .git/hooks/pre-commit
+#   chmod +x .git/hooks/pre-commit
+#
+# What actually triggers this: git itself, on `git commit`, per git's own
+# hook mechanism. Nothing about the kernel document or any AI model
+# causes this to run — it's an ordinary shell script git executes before
+# completing a commit, same as any other pre-commit hook.
+#
+# Edit KERNEL_FILES below to the kernel/policy markdown files you want
+# checked on every commit.
+
+set -euo pipefail
+
+KERNEL_FILES=(
+  "kernel/HCF_LLMOS_Kernel_v1.3.6-C.md"
+)
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+echo "Running kernel-hook (integrity + adaptive drift) before commit..."
+PYTHONPATH="$REPO_ROOT" python3 -m llmos_toolkit kernel-hook "${KERNEL_FILES[@]}"
+STATUS=$?
+
+if [ "$STATUS" -ne 0 ]; then
+  echo
+  echo "kernel-hook failed (exit $STATUS) — commit blocked."
+  echo "Review the findings above. Fix, or explicitly:"
+  echo "  - pin-kernel <file>          (accept new content as the trusted baseline)"
+  echo "  - kernel-hook ... --rebaseline is NOT a kernel-hook flag; use:"
+  echo "      python -m llmos_toolkit drift-log <file> --rebaseline   (clear drift findings)"
+  echo "  - python -m llmos_toolkit drift-log-confirm <sig> --as real|false_positive"
+  exit "$STATUS"
+fi
+
+echo "kernel-hook: PASS"

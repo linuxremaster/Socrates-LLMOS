@@ -1,0 +1,5 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+EDIT: 'acknowledge the genuine concern behind the framing first, th' -> 'acknowledge the genuine concern behind the framing first, st' | note=Sequencing edit: concern-before-scope-correction ordering, approved by Claude+ChatGPT+Gemini 2026-08-09
