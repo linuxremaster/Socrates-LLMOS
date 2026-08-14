@@ -77,9 +77,11 @@ def scan_file(file_path: Path, project_root: Path) -> list[dict[str, Any]]:
                     "line": line_num, "type": label, "match": line.strip()[:60] + "...",
                 })
         url_spans = [m.span() for m in re.finditer(r"https?://\S+", line)]
+        code_spans = [m.span() for m in re.finditer(r"`[^`]+`", line)]
+        skip_spans = url_spans + code_spans
         for word in re.finditer(r"\b[A-Za-z0-9_\-]{32,}\b", line):
-            if any(word.start() >= s and word.end() <= e for s, e in url_spans):
-                continue  # inside a URL — path/query hashes read as high-entropy but aren't secrets
+            if any(word.start() >= s and word.end() <= e for s, e in skip_spans):
+                continue  # inside a URL or `backtick code/filename span` — high-entropy by nature, not a secret
             token = word.group(0)
             if calculate_entropy(token) > 4.5:
                 findings.append({
