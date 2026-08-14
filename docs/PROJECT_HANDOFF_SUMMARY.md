@@ -27,8 +27,8 @@ Two things, kept deliberately separate:
 - **`llmos_toolkit/`** — a small, dependency-light Python CLI that
   checks whether those rules are actually being followed: drift
   detection, integrity pinning, secret scanning, retrieval, git-based
-  sync. 11 plugins, all tested against real files during development,
-  not just written and assumed to work.
+  sync. 13 plugins as of 2026-08-14, all tested against real files
+  during development, not just written and assumed to work.
 
 The name "Socrates LLMOS" is a nickname earned over the course of
 building it, not a product or a rebrand of any code — `llmos_toolkit`
@@ -39,17 +39,18 @@ stays that name because renaming it breaks Python's import resolution
 
 ```
 llmos_project/
-├── LICENSE, NOTICE.md          MPL 2.0, in every major folder
-├── MANUAL_START_HERE.md         plain-language project walkthrough
+├── LICENSE                      MPL 2.0, in every major folder
 ├── pyproject.toml               pip-installable, no PYTHONPATH needed
-├── kernel/                      hand-maintained behavioral spec (3 files)
+├── kernel/                      hand-maintained behavioral spec (6 files)
 ├── llmos_toolkit/                the CLI package — see §3
-├── state/                       tool-generated files, regenerable, safe to delete
+├── docs/                        narrative docs — README, manuals, this file, CHANGELOG
+├── state/                       audit/integrity artifacts — ledgers, pins, drift baselines
+├── rag/                         retrieval artifacts — index db, generated handoff doc
 ├── projects/                    real work-product (depolarize prompt, threat-response ref)
 └── reference/                   archived history, not actively maintained
 ```
 
-## 3. The toolkit — all 11 plugins, current as of last test pass
+## 3. The toolkit — all 13 plugins, current as of last test pass
 
 | Command(s) | What it does | Tested how |
 |---|---|---|
@@ -57,12 +58,14 @@ llmos_project/
 | `drift-check`, `drift-add-rule` | Surface-pattern drift rules (requirements.json-style) | Ran against real kernel text |
 | `flag-claims` | Advisory scan for absolute language / unsourced claims | Caught a planted overclaim in testing |
 | `token-audit`, `token-log` | Rough chars/4 token estimate + ledger | — |
-| `drift-log`, `drift-log-signatures`, `drift-log-confirm` | 5-class adaptive drift check (growth/semantic/cross-artifact/embedded/structural), conservative self-adaptation | Two real bugs found and fixed during build (baseline-run findings were being discarded; semantic findings could be wrongly suppressed) |
+| `drift-log`, `drift-log-signatures`, `drift-log-confirm` | 5-class adaptive drift check (growth/semantic/cross-artifact/embedded/structural), conservative self-adaptation | Two real bugs found and fixed during build; this session confirmed it correctly localizes a deliberately-planted single-word semantic drift |
 | `sync-status` | Pointer to sync options | — |
 | `git-sync-status/-pull/-push` | One-shot git-based multi-device sync — **no daemon, no live connection** | Real two-clone round trip: commit in one, pulled by the other |
-| `rag-index`, `rag-query`, `rag-handoff` | Local TF-IDF keyword retrieval + handoff generation — **not semantic search**, stated explicitly | Indexed the real 40-file project, real queries returned correct files |
-| `scan-secrets` | Regex + entropy scan for hardcoded credentials | Ran against all 95 project files; self-exclusion confirmed (doesn't flag itself) |
+| `rag-index`, `rag-query`, `rag-handoff` | Local TF-IDF keyword retrieval + handoff generation — **not semantic search**, stated explicitly | Indexed the real 41-file project, real queries returned correct files |
+| `scan-secrets` | Regex + entropy scan for hardcoded credentials | Ran against all 109 project files; self-exclusion confirmed; URL and backtick-filename false positives fixed this session |
 | `audit-all` | Chains secret scan + **real SHA-256** kernel verification | Full lifecycle tested: unpinned→fail, pinned→pass, tampered→caught with exact hash mismatch shown |
+| `session-close` | Re-index → handoff regen → drift-log → commit → ledger compact, one call | Full pipeline tested end-to-end, including a forced compaction run on the real ledger |
+| `ledger-compact` | Rolls old ledger entries into a permanent skeleton summary, keeps recent entries raw | Tested on a scratch copy before any real use; idempotence confirmed (skeleton never re-summarized) |
 | Built-ins: `trust-plugin`, `scan-plugin`, `pin-kernel`, `verify-kernel`, `kernel-hook` | Plugin trust pinning, kernel integrity | `require_trust` mode tested: tampered plugin correctly refused before import, never executed |
 
 Full detail on every command: `llmos_toolkit/README.md` (technical) and

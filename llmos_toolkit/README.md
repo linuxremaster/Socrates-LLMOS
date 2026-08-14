@@ -91,6 +91,8 @@ Beyond the built-ins (`trust-plugin`, `scan-plugin`, `pin-kernel`,
 | `git-sync-status`, `git-sync-pull`, `git-sync-push` | git_sync | Multi-instance/multi-device coordination via plain git. **One-shot commands only — no daemon, no webhook, no live connection.** Tested with a real two-clone round trip during development. |
 | `scan-secrets` | secret_scanner | Regex + Shannon-entropy scan for hardcoded credentials. Advisory, same as `security.py`'s scan. Excludes its own plugin directory from every check — a scanner named "secret" would otherwise flag itself on its own filename every run. |
 | `audit-all` | audit_all | Runs `scan-secrets` + a **real** SHA-256 kernel-pin check in one pass. Fails clearly if the kernel is unpinned or tampered — no stub, no fake PASS. |
+| `session-close` | session_close | Re-index → regenerate `rag/SESSION_HANDOFF.md` → drift-log all kernel files → commit → compact ledgers, in one call. Run at the end of a working session so retrieval and drift baselines never go stale from someone forgetting a manual step. `--no-commit`, `--no-compact`, `--compact-keep N`, `--message` available. |
+| `ledger-compact` | ledger_compact | Rolls old raw entries in a jsonl ledger into one permanent skeleton summary (event counts, date range, files touched), keeps the N most recent raw entries in full (`--keep`, default 20). Idempotent — an existing skeleton is never re-summarized. Runs automatically as `session-close` step 5, or standalone on any ledger file. |
 
 ## Hooks
 
@@ -137,7 +139,9 @@ by the package; all are plain JSON/JSONL, safe to inspect or delete:
 | `drift_rules.json` | `drift-add-rule` | Tracked surface-drift rules |
 | `kernel_pins.json` | `pin-kernel`, `kernel-hook` | Kernel file integrity baselines |
 | `.drift_state.json` | `drift-log` | Adaptive drift logger baselines + learned signatures |
-| `drift_audit.jsonl` | `drift-log` | Append-only history of every drift-log run |
+| `drift_audit.jsonl` | `drift-log` | Append-only history of every drift-log run — periodically compacted by `ledger-compact`/`session-close`, older entries roll into a permanent skeleton summary rather than growing forever |
+| `rag/handoff_rag.db` | `rag-index` | TF-IDF retrieval index — separate `rag/` folder, not `state/`, so a full RAG rebuild never touches audit history |
+| `rag/SESSION_HANDOFF.md` | `rag-handoff`, `session-close` | Generated pointer doc for a fresh instance to read first |
 
 ## Security
 

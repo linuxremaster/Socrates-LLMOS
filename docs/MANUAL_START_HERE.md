@@ -34,32 +34,47 @@ You need Python 3.11 or newer. No other install required — everything
 is either in Python's standard library or already included (NumPy).
 
 ```
-cd llmos_project/state
-export PYTHONPATH=/path/to/llmos_project
-python3 -m llmos_toolkit --list-commands
+cd llmos_project
+pip install -e . --break-system-packages --no-build-isolation
+llmos --list-commands
 ```
 
 That last command shows you every tool available, in one list, with a
-one-line description of what each does. Nothing is hidden.
+one-line description of what each does. Nothing is hidden. Run
+commands from anywhere in the project — paths resolve automatically,
+you don't need to be in any particular folder.
 
 **What's the single most useful command?**
 
 ```
-python3 -m llmos_toolkit kernel-hook ../kernel/HCF_LLMOS_Kernel_v1.3.6-C.md
+llmos audit-all
 ```
 
 This checks two things at once: has the kernel file been silently
-tampered with, and has anything about it drifted since you last
-checked. If it says `PASS`, both are clean. If it says anything else,
-it tells you exactly what changed and where.
+tampered with, and are there any hardcoded credentials anywhere in the
+project. If it says `PASS`, both are clean.
+
+**What should I run when I'm done working for the day?**
+
+```
+llmos session-close
+```
+
+Re-indexes the project for retrieval, regenerates the handoff pointer
+doc (`rag/SESSION_HANDOFF.md`), runs drift detection against every
+kernel file, commits everything to git, and compacts old ledger
+entries into a permanent summary once they build up. One command, run
+automatically, so nothing goes stale just because remembering to run
+five separate steps by hand is easy to skip.
 
 **What if I break something?**
 
-Almost everything in `state/` is safe to delete — it's a record of
-past runs, not something the tools depend on to keep working. Delete
-it, run the tools again, and they'll start fresh. The only files
-that actually matter are in `kernel/`, `llmos_toolkit/`, and
-`projects/` — those are the ones a human wrote on purpose.
+Almost everything in `state/` and `rag/` is safe to delete — both are
+a record of past runs, not something the tools depend on to keep
+working. Delete either, run the tools again, and they'll start fresh.
+The only files that actually matter are in `kernel/`, `llmos_toolkit/`,
+`docs/`, and `projects/` — those are the ones a human wrote on
+purpose.
 
 **Who do I ask if something is confusing?**
 
