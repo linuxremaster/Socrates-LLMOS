@@ -1,4 +1,4 @@
-# Handoff — generated 2026-08-14T11:29:21.532982+00:00
+# Handoff — generated 2026-08-14T11:32:41.579962+00:00
 
 ## Indexed documents (most recently indexed first)
 - `kernel/ARTIFACT_DELTA_LOOP_DETECTION_POLICY.md` (indexed 2026-08-14T11:29:21.501945+00:00)
