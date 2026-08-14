@@ -1,0 +1,245 @@
+{
+  "baselines": {
+    "/home/claude/llmos_project/llmos_project/kernel/ARTIFACT_DELTA_LOOP_DETECTION_POLICY.md": {
+      "chars": 4350,
+      "embedded_refs": [],
+      "headers": [
+        {
+          "body_sha256": "8f6e32c53d7ddc26174ce998e7cb552101c8466563dc17e9e33a2ed0e528979d",
+          "number": "1",
+          "title": "Detection: artifact delta, not text variance"
+        },
+        {
+          "body_sha256": "1ed5d88013b6af89272b3f33ec823120391b92b59ab3fb391c6556c6fba8c270",
+          "number": "2",
+          "title": "Interrupt content: generated from the actual stalled item"
+        },
+        {
+          "body_sha256": "e59ff24ccf77da32010c1c7d252e71c3b4b381d2b206b3887eb8e84ca6798fec",
+          "number": "3",
+          "title": "No orchestration layer"
+        },
+        {
+          "body_sha256": "dc6ca6211cc42c664b9a905bd81a6bbe974a016949db1bd8a64b255e06019265",
+          "number": "4",
+          "title": "Unblocking"
+        },
+        {
+          "body_sha256": "10a6295b3e6f4b60d4c1ae8274c207bb5394f83c0fa9838910e72a89f375777a",
+          "number": "5",
+          "title": "What this doesn't solve"
+        }
+      ],
+      "labelled_fields": {
+        "Origin": "developed across a five-pass review cycle between two",
+        "Scope": "detecting a stalled work loop \u2014 conversation continuing while"
+      },
+      "lines": 95,
+      "path": "/home/claude/llmos_project/llmos_project/kernel/ARTIFACT_DELTA_LOOP_DETECTION_POLICY.md",
+      "sha256": "c37572ad6e5d1c66081b657b1450b9290cbc2dcf98346c09441e30bc9932b3ce",
+      "snapshotted_at": "2026-08-14T11:29:21.534815+00:00"
+    },
+    "/home/claude/llmos_project/llmos_project/kernel/HCF_LLMOS_Kernel_v1.3.6-C.md": {
+      "chars": 15764,
+      "embedded_refs": [],
+      "headers": [
+        {
+          "body_sha256": "a6e835ef38964ba8db62b25550baa295aa08b01f2e91002775e983660f64287d",
+          "number": "0",
+          "title": "Core Runtime"
+        },
+        {
+          "body_sha256": "40fd8d917bc5b9fa44488c9815798c16e9b0e8b68799db87f0079556957a1f18",
+          "number": "1",
+          "title": "Evidence Model"
+        },
+        {
+          "body_sha256": "d726e822b9218706442c62ef6538b42b57338b91a46ecdc0861691b7b0234c77",
+          "number": "2",
+          "title": "Adoption Firewall"
+        },
+        {
+          "body_sha256": "e0fd492940455ecf1b2ec000c6692c6eabfc91e669f3326dd1a4c31090e2f89c",
+          "number": "3",
+          "title": "Objective / Authority"
+        },
+        {
+          "body_sha256": "e8a23ec644864eb9b992fc875b78a76f9cf5ce624046f7d7ff4b4df9bdf12e01",
+          "number": "4",
+          "title": "Independent Reasoning"
+        },
+        {
+          "body_sha256": "4de6d2cb857ce492221633929f2e088a22f498ba4d0d8031b9f9036095f0daf6",
+          "number": "5",
+          "title": "Anti-Parroting"
+        },
+        {
+          "body_sha256": "2fb5e91d375fc5c8997403141ec330b7fb4f137eef3cb8aa8d8b0fe1d4d9d987",
+          "number": "6",
+          "title": "Human Creativity"
+        },
+        {
+          "body_sha256": "ea9ac706ee1abc18e675fd09916f404de86e4cba46148926a8bdcf33dee7ba9a",
+          "number": "7",
+          "title": "Solution Mode"
+        },
+        {
+          "body_sha256": "ce4f500f3a8b1f9abb855c6fb6d0593c3cd04a95822acc919e3a8dd2fa5f32fe",
+          "number": "8",
+          "title": "Conflict Handling"
+        },
+        {
+          "body_sha256": "d083f93a4d66fa7c0047f54a5e1dcde76191a06d0fcbf207c7ce41204d472c49",
+          "number": "9",
+          "title": "Cross-Model Provenance"
+        },
+        {
+          "body_sha256": "896e054b6a36985f221b692a26fc14bb1b34e5e33abbbdfdfc27bb08b0a566f1",
+          "number": "10",
+          "title": "Behavioral Interference"
+        },
+        {
+          "body_sha256": "c4689f2b86317ee0c1c453b15414e556abcb7f362cb6b15a6a9a66ca44595080",
+          "number": "11",
+          "title": "Output Discipline"
+        },
+        {
+          "body_sha256": "f26cdfbbe953ddd437a1a8e6971e59bb6a41bba91dd8baa5c46135f2b06a9efe",
+          "number": "12",
+          "title": "Input Integrity"
+        },
+        {
+          "body_sha256": "f62ecbe3216c08a874d5f0d1988206636918c844ddf91621ad81eb21c54c3f30",
+          "number": "13",
+          "title": "Completeness Check"
+        },
+        {
+          "body_sha256": "c6fd1f16a1b746e9ecb0e18a9df194b0d5894d99f7673686cefc6674426d1ad2",
+          "number": "14",
+          "title": "Handoff Fidelity"
+        },
+        {
+          "body_sha256": "48b89cf3ecfa099c9208f9d4a2b1154357880da4a75658a83bf27637b4edeeef",
+          "number": "15",
+          "title": "Cross-Artifact Consistency"
+        },
+        {
+          "body_sha256": "575bf8847b74ee6dba2fff069af8c8fbfa948d6e0dcbf4eca99d31daac50fbfc",
+          "number": "16",
+          "title": "Research / Audit Mode"
+        },
+        {
+          "body_sha256": "abf87754d462ddc807e2f3b6d32912c61b3851be08beb88b3771fb4fa9f8526d",
+          "number": "17",
+          "title": "Collaborative Review"
+        },
+        {
+          "body_sha256": "582b882acca11fa951172dce7cde6a7e3c823348649feb1e64238ae2ed8187b1",
+          "number": "18",
+          "title": "Architectural Restraint"
+        },
+        {
+          "body_sha256": "a3a88b04b78d025164de197729d711b9c8020515aba57f8aa08abd193b6d7f73",
+          "number": "19",
+          "title": "Deferred / Open"
+        },
+        {
+          "body_sha256": "63aca4359e0a6ee70473b2615b97b1e87fd376af986d20f14df3910eeb9288fa",
+          "number": "20",
+          "title": "Priority"
+        }
+      ],
+      "labelled_fields": {
+        "Derivation": "v1.3.6-X P3, consolidated. Removal/merge only \u2014 no new rules claimed added.",
+        "Fresh-pass test": "if the prior model's conclusion disappeared, what evidence would still lead here? If the honest answer is \"the other model said so,\" re-evaluate. Repeated agreement across models is not independent verification.",
+        "Net result": "~2,700 lines across the original bundle (Kernel + Adapter + GLOBAL_CHECK + Consensus Protocol + merged single-file) \u2192 this file. Logged via `growth_budget.py` and `growth_ledger.jsonl`.",
+        "Not touched": "\u00a70, \u00a71, \u00a73\u2013\u00a710, \u00a714, \u00a715, \u00a718\u2013\u00a720 above carry forward with wording tightened but no rule added or removed, aside from the 2026-08-14 notation changes described above.",
+        "Notation": "this version states every rule in plain sentences first. Symbol/arrow shorthand (e.g. \"A \u2192 B\") has been removed project-wide \u2014 it was flagged as pattern-matching to command/runtime syntax independent of the surrounding prose, which is a cross-model trust risk this cleanup addresses directly (see Change Log). Single-letter evidence tags (V/I/A/U, H/O/E/I/S/U) are kept as classification labels, not command sequences, and are lower risk.",
+        "Status": "Reference document for how to reason and respond. See Execution Boundary below for what \"applying this\" actually means.",
+        "Structural cleanup": "- Removed BEGIN/END EMBEDDED wrapper markers and the separate Bootstrap/Test-Objective/Final-Procedure front-and-back matter \u2014 these existed to glue four separately-numbered files together; a single coherently-numbered document doesn't need them."
+      },
+      "lines": 138,
+      "path": "/home/claude/llmos_project/llmos_project/kernel/HCF_LLMOS_Kernel_v1.3.6-C.md",
+      "sha256": "29747e165184a8f372e37bf3b9ccf6498d5cd11637248e199c7faab80471fee0",
+      "snapshotted_at": "2026-08-14T11:29:21.535357+00:00"
+    },
+    "/home/claude/llmos_project/llmos_project/kernel/SEMANTIC_DRIFT_POLICY.md": {
+      "chars": 6080,
+      "embedded_refs": [],
+      "headers": [
+        {
+          "body_sha256": "0bc5ee5a92c26998dffc0d7a659cb9d9765706385baa99f50d89fff5c7af498d",
+          "number": "1",
+          "title": "Claim Tiers"
+        },
+        {
+          "body_sha256": "52ea701ced42b5d8cd400ed368b278b95a9b59dd302c4ea826fc1cdaa3fbd558",
+          "number": "2",
+          "title": "Spot-Check Protocol (the cheap version \u2014 use this by default)"
+        },
+        {
+          "body_sha256": "1649a86be246bdb8d775c8225fdffbfaabd7b3971029f5e8e36cc32c3f7bd366",
+          "number": "3",
+          "title": "Caveat-File Preservation"
+        },
+        {
+          "body_sha256": "793b910c12b0014ff1af741fe346f75df9c8fcd35cdba53fbccb1043b8bf8a55",
+          "number": "4",
+          "title": "Cross-Package Consistency Check"
+        }
+      ],
+      "labelled_fields": {
+        "Design constraint": "this must stay cheap. A policy that requires full",
+        "Pairs with": "`growth_budget.py` (checks size drift). This checks",
+        "Problem this closes": "a consolidation pass can be flat-or-shrinking on",
+        "Rule": "the header claim must not exceed the tier actually done. \"No"
+      },
+      "lines": 123,
+      "path": "/home/claude/llmos_project/llmos_project/kernel/SEMANTIC_DRIFT_POLICY.md",
+      "sha256": "22cf14b6d2708c0d3af00824efb91fc68ffbaa18686b5b489adfc2cfb8f17dae",
+      "snapshotted_at": "2026-08-14T11:29:21.535592+00:00"
+    },
+    "/home/claude/llmos_project/llmos_project/kernel/UNIFIED_BEHAVIORAL_OUTPUT_PROTOCOL_v2.md": {
+      "chars": 18311,
+      "embedded_refs": [],
+      "headers": [
+        {
+          "body_sha256": "e18baa4cd9a044952db43b1a550bd0044177c01b7b19d443d4fa4dde954667ad",
+          "number": "0",
+          "title": "PRECEDENCE"
+        }
+      ],
+      "labelled_fields": {
+        "Ambiguity handling": "If the objective itself is unclear, don't guess",
+        "Anti-overengineering": "Do not introduce new rules, frameworks,",
+        "Detection trigger": "final check \u2014 *is this the clearest, shortest",
+        "Escalation trigger": "Before adding another layer of procedure, require",
+        "Exception": "keep a framing phrase if removing it creates real ambiguity",
+        "Failure condition": "producing a \"cleaned up\" or \"optimized\" revision",
+        "Merge note": "v2 folds in two policies previously maintained separately in",
+        "Meta-process is not progress": "Discussing the protocol, its application,",
+        "Objective-Completion Gate": "Once the requested objective has been",
+        "Recalibration pass": "`Detection trigger:` / `Failure condition:` labels",
+        "Time-to-objective is a constraint": "If the interaction is accumulating"
+      },
+      "lines": 406,
+      "path": "/home/claude/llmos_project/llmos_project/kernel/UNIFIED_BEHAVIORAL_OUTPUT_PROTOCOL_v2.md",
+      "sha256": "c0e1f72d77d41f57818b7d1d4f17aa9e02f22ba6442f2af14b70503ff1420051",
+      "snapshotted_at": "2026-08-14T11:29:21.536111+00:00"
+    },
+    "/home/claude/llmos_project/llmos_project/kernel/WELLBEING_FLAG_HANDLING_ADDENDUM.md": {
+      "chars": 3800,
+      "embedded_refs": [],
+      "headers": [],
+      "labelled_fields": {
+        "Origin": "written after a real incident \u2014 an instance treated a",
+        "Scope": "what an instance does when it notices language suggesting"
+      },
+      "lines": 80,
+      "path": "/home/claude/llmos_project/llmos_project/kernel/WELLBEING_FLAG_HANDLING_ADDENDUM.md",
+      "sha256": "07136f9a757e4d6f174e9d21e7d801872f3649c488ee2b8377939c2bf8eb6e76",
+      "snapshotted_at": "2026-08-14T11:29:21.536263+00:00"
+    }
+  },
+  "signatures": {}
+}

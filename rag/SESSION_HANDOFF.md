@@ -1,6 +1,7 @@
-# Handoff — generated 2026-08-14T11:06:46.235882+00:00
+# Handoff — generated 2026-08-14T11:29:21.532982+00:00
 
 ## Indexed documents (most recently indexed first)
+- `kernel/ARTIFACT_DELTA_LOOP_DETECTION_POLICY.md` (indexed 2026-08-14T11:29:21.501945+00:00)
 - `kernel/UNIFIED_BEHAVIORAL_OUTPUT_PROTOCOL_v2.md` (indexed 2026-08-14T11:06:46.219894+00:00)
 - `kernel/SEMANTIC_DRIFT_POLICY.md` (indexed 2026-08-14T11:06:46.218903+00:00)
 - `kernel/HCF_LLMOS_Kernel_v1.3.6-C.md` (indexed 2026-08-14T11:06:46.218002+00:00)
@@ -15,8 +16,7 @@
 - `reference/pilot_and_research/000_EXTERNAL_LLMOS_MATHMATICAL_GATEWAY.md` (indexed 2026-08-14T10:51:44.098550+00:00)
 - `reference/llmos_architecture_history/original_llmos_tangent_no_working_artifact/LLMOS_v1.0_RC1_Canonical_Runtime_Specification.md` (indexed 2026-08-14T10:51:44.088752+00:00)
 - `reference/llmos_architecture_history/original_llmos_tangent_no_working_artifact/LLMOS_Session_Handoff_Memory.md` (indexed 2026-08-14T10:51:44.088311+00:00)
-- `reference/llmos_architecture_history/original_llmos_tangent_no_working_artifact/LLMOS_Project_State_Manifest_Specification_v1.0.md` (indexed 2026-08-14T10:51:44.087992+00:00)
-- ...and 26 more. Query the index rather than reading this list further.
+- ...and 27 more. Query the index rather than reading this list further.
 
 ## How to catch up
 1. Run `rag-query "<topic>"` against this index for anything specific.

@@ -19,19 +19,24 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
-from llmos_toolkit.core.paths import PROJECT_ROOT, get_rag_path
+from llmos_toolkit.core.paths import KERNEL_DIR, PROJECT_ROOT, get_rag_path
 from llmos_toolkit.plugins.handoff_rag.plugin import DB_FILE, cmd_handoff, cmd_index
+
+try:
+    from llmos_toolkit.plugins.adaptive_drift_logger.plugin import adl
+except ImportError:
+    adl = None
 
 
 def cmd_session_close(args: argparse.Namespace) -> int:
-    print("[1/3] Re-indexing project (kernel, projects, reference)...")
+    print("[1/4] Re-indexing project (kernel, projects, reference)...")
     index_args = argparse.Namespace(dirs=["kernel", "projects", "reference"], db=str(DB_FILE))
     rc = cmd_index(index_args)
     if rc != 0:
         print("  index step failed, stopping.")
         return rc
 
-    print("[2/3] Regenerating handoff pointer doc...")
+    print("[2/4] Regenerating handoff pointer doc...")
     handoff_path = get_rag_path("SESSION_HANDOFF.md")
     handoff_args = argparse.Namespace(db=str(DB_FILE), output=str(handoff_path))
     rc = cmd_handoff(handoff_args)
@@ -39,11 +44,21 @@ def cmd_session_close(args: argparse.Namespace) -> int:
         print("  handoff step failed, stopping.")
         return rc
 
+    print("[3/4] Running drift-log against all kernel files...")
+    if adl is None:
+        print("  adaptive_drift_logger unavailable — skipping this step.")
+    else:
+        kernel_files = [str(p) for p in sorted(KERNEL_DIR.glob("*.md"))]
+        if kernel_files:
+            adl.cmd_run(kernel_files, rebaseline=False)
+        else:
+            print("  No kernel .md files found — skipping.")
+
     if args.no_commit:
-        print("[3/3] Skipped commit (--no-commit).")
+        print("[4/4] Skipped commit (--no-commit).")
         return 0
 
-    print("[3/3] Committing via git...")
+    print("[4/4] Committing via git...")
     git_dir = PROJECT_ROOT / ".git"
     if not git_dir.is_dir():
         print("  No .git repo found here — skipping commit. Run `git init` first, or pass --no-commit to suppress this message.")
