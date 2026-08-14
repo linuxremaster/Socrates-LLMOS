@@ -24,7 +24,9 @@ import json
 import re
 from pathlib import Path
 
-RULES_FILE = Path("drift_rules.json")
+from llmos_toolkit.core.paths import get_state_path
+
+RULES_FILE = get_state_path("drift_rules.json")
 
 
 def load_rules(path: Path) -> list[dict]:

@@ -19,7 +19,7 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
-from llmos_toolkit.core.paths import PROJECT_ROOT, get_state_path
+from llmos_toolkit.core.paths import PROJECT_ROOT, get_rag_path
 from llmos_toolkit.plugins.handoff_rag.plugin import DB_FILE, cmd_handoff, cmd_index
 
 
@@ -32,7 +32,7 @@ def cmd_session_close(args: argparse.Namespace) -> int:
         return rc
 
     print("[2/3] Regenerating handoff pointer doc...")
-    handoff_path = get_state_path("SESSION_HANDOFF.md")
+    handoff_path = get_rag_path("SESSION_HANDOFF.md")
     handoff_args = argparse.Namespace(db=str(DB_FILE), output=str(handoff_path))
     rc = cmd_handoff(handoff_args)
     if rc != 0:

@@ -51,8 +51,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-STATE_FILE = Path(".drift_state.json")
-AUDIT_FILE = Path("drift_audit.jsonl")
+from llmos_toolkit.core.paths import get_state_path
+
+STATE_FILE = get_state_path(".drift_state.json")
+AUDIT_FILE = get_state_path("drift_audit.jsonl")
 
 HEADER_RE = re.compile(r"^#{1,6}\s*(\d+)\.\s*(.*)$", re.MULTILINE)
 LABELLED_FIELD_RE = re.compile(r"^\*\*([A-Za-z][A-Za-z0-9 /_\-]{1,40}):\*\*\s*(.+)$", re.MULTILINE)

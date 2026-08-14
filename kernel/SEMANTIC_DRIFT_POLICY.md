@@ -110,14 +110,14 @@ This policy does **not**:
 - Replace `growth_budget.py` or content-level human review — it's a third
   check alongside both, not a substitute for either.
 
-## Compact Form
+## Compact Form (2026-08-14: symbol shorthand removed, see note)
 
-```text
-CLAIM ≤ VERIFICATION DONE
-MERGE/COMPRESS → SPOT-CHECK, don't assert
-CAVEAT DROPPED → LOG WHY, or don't drop it
-STATUS CLAIMS ACROSS PACKAGES → DIFF THEM
-Default tier: UNVERIFIED. Say so. That's not a failure state.
-```
+A one-line-per-rule summary previously lived here using arrow/inequality
+shorthand ("CLAIM ≤ VERIFICATION DONE", etc.). Removed during the
+project's cross-model trust audit — that shape reads as command syntax
+to at least one host model regardless of surrounding prose, and the
+rules it restated already exist in full above (§1–§4). No content was
+lost; only the symbol-only restatement was cut, same as the equivalent
+change in `HCF_LLMOS_Kernel_v1.3.6-C.md`.
 
 **End Semantic Drift Policy v1.0**

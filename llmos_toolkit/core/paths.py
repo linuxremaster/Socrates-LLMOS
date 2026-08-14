@@ -24,12 +24,24 @@ PROJECT_ROOT = PACKAGE_DIR.parent                      # .../llmos_project
 STATE_DIR = Path(os.getenv("LLMOS_STATE_DIR", str(PROJECT_ROOT / "state")))
 KERNEL_DIR = Path(os.getenv("LLMOS_KERNEL_DIR", str(PROJECT_ROOT / "kernel")))
 PROJECTS_DIR = Path(os.getenv("LLMOS_PROJECTS_DIR", str(PROJECT_ROOT / "projects")))
+DOCS_DIR = Path(os.getenv("LLMOS_DOCS_DIR", str(PROJECT_ROOT / "docs")))
+RAG_DIR = Path(os.getenv("LLMOS_RAG_DIR", str(PROJECT_ROOT / "rag")))
 
 
 def get_state_path(filename: str) -> Path:
     """Ensures the state directory exists; returns the full path for a state file."""
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     return STATE_DIR / filename
+
+
+def get_rag_path(filename: str) -> Path:
+    """Ensures the RAG directory exists; returns the full path for a RAG
+    artifact (index db, generated handoff doc). Kept separate from
+    STATE_DIR — state/ holds integrity/audit artifacts (pins, ledgers),
+    rag/ holds retrieval artifacts, so a full RAG rebuild never touches
+    audit history and vice versa."""
+    RAG_DIR.mkdir(parents=True, exist_ok=True)
+    return RAG_DIR / filename
 
 
 def get_default_kernel() -> Path:

@@ -21,7 +21,9 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-LEDGER_FILE = Path("token_ledger.jsonl")
+from llmos_toolkit.core.paths import get_state_path
+
+LEDGER_FILE = get_state_path("token_ledger.jsonl")
 CHARS_PER_TOKEN_ESTIMATE = 4
 
 

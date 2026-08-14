@@ -19,7 +19,9 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-LEDGER_FILE = Path("growth_ledger.jsonl")
+from llmos_toolkit.core.paths import get_state_path
+
+LEDGER_FILE = get_state_path("growth_ledger.jsonl")
 
 
 def file_stats(path: Path) -> dict:
