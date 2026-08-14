@@ -19,7 +19,8 @@ import os
 from pathlib import Path
 
 PACKAGE_DIR = Path(__file__).resolve().parent.parent  # .../llmos_toolkit
-PROJECT_ROOT = PACKAGE_DIR.parent                      # .../llmos_project
+_DEFAULT_PROJECT_ROOT = PACKAGE_DIR.parent             # .../llmos_project
+PROJECT_ROOT = Path(os.getenv("LLMOS_PROJECT_ROOT", str(_DEFAULT_PROJECT_ROOT)))
 
 STATE_DIR = Path(os.getenv("LLMOS_STATE_DIR", str(PROJECT_ROOT / "state")))
 KERNEL_DIR = Path(os.getenv("LLMOS_KERNEL_DIR", str(PROJECT_ROOT / "kernel")))

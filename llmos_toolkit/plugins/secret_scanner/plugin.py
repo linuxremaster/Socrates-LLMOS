@@ -36,6 +36,7 @@ IGNORE_DIRS = {".git", "__pycache__", ".venv", "venv", ".egg-info"}
 IGNORE_EXTS = {".png", ".jpg", ".jpeg", ".db", ".sqlite", ".pyc", ".zip"}
 
 _SELF_DIR = Path(__file__).resolve().parent  # plugins/secret_scanner/ — excluded entirely
+_TESTS_DIR_NAME = "tests"  # top-level tests/ — excluded: fixtures deliberately contain fake-secret-shaped strings
 
 
 def calculate_entropy(data: str) -> float:
@@ -50,7 +51,9 @@ def calculate_entropy(data: str) -> float:
 
 def _is_self(file_path: Path) -> bool:
     resolved = file_path.resolve()
-    return resolved == _SELF_DIR or _SELF_DIR in resolved.parents
+    if resolved == _SELF_DIR or _SELF_DIR in resolved.parents:
+        return True
+    return any(part == _TESTS_DIR_NAME for part in resolved.parts)
 
 
 def scan_file(file_path: Path, project_root: Path) -> list[dict[str, Any]]:
@@ -58,7 +61,12 @@ def scan_file(file_path: Path, project_root: Path) -> list[dict[str, Any]]:
     if _is_self(file_path):
         return findings
 
-    if "secret" in file_path.name.lower() or "credential" in file_path.name.lower():
+    name_lower = file_path.name.lower()
+    sensitive_name_markers = (
+        "secret", "credential", ".env", ".pem", "id_rsa", "id_ed25519",
+        ".npmrc", ".netrc", ".pgpass", "known_hosts",
+    )
+    if any(marker in name_lower for marker in sensitive_name_markers):
         findings.append({
             "file": str(file_path.relative_to(project_root)),
             "line": 0, "type": "Sensitive File Name", "match": file_path.name,
