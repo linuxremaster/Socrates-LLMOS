@@ -165,12 +165,12 @@ lock the session or require the flag "resolved" to continue, don't
 auto-escalate on thin evidence, and treat a stated correction as new
 evidence to incorporate — not something to be argued down.
 
-**Not yet done:** the artifact-delta loop-detection policy itself
-(`state_anchored_interrupt_policy.md` / the Gemini-Claude revision
-cycle in `policy_revision_report.md`) has not been added to this
-project yet — only reviewed and discussed. If picking this up, decide
-whether to add it as its own `kernel/` file alongside this addendum.
-
+**Done (was open, closed 2026-08-14):** the artifact-delta loop-detection
+policy is now `kernel/ARTIFACT_DELTA_LOOP_DETECTION_POLICY.md`, adapted
+from the uploaded `state_anchored_interrupt_policy.md` / the
+Gemini-Claude revision cycle in `policy_revision_report.md`, symbol
+shorthand removed per the same cross-model trust audit applied to the
+other kernel files.
 
 
 The toolkit is in a stable, tested state — nothing pending or half-built.
