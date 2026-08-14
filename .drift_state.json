@@ -124,5 +124,24 @@
       "snapshotted_at": "2026-08-14T09:52:14.784590+00:00"
     }
   },
-  "signatures": {}
+  "signatures": {
+    "growth:kernel/HCF_LLMOS_Kernel_v1.3.6-C.md": {
+      "check_class": "growth",
+      "confirmed_at": null,
+      "description": "Grew +1 lines since baseline (185 -> 186)",
+      "first_seen": "2026-08-14T10:35:35.789913+00:00",
+      "last_seen": "2026-08-14T10:35:35.789920+00:00",
+      "status": "unconfirmed",
+      "times_observed": 1
+    },
+    "semantic:changed:kernel/HCF_LLMOS_Kernel_v1.3.6-C.md:1": {
+      "check_class": "semantic",
+      "confirmed_at": null,
+      "description": "Section 1. Evidence Model content changed \u2014 textual diff only, meaning not evaluated. Needs human review.",
+      "first_seen": "2026-08-14T10:35:35.789925+00:00",
+      "last_seen": "2026-08-14T10:35:35.789929+00:00",
+      "status": "unconfirmed",
+      "times_observed": 1
+    }
+  }
 }

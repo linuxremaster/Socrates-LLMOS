@@ -37,7 +37,9 @@ from pathlib import Path
 
 import numpy as np
 
-DB_FILE = Path("handoff_rag.db")
+from llmos_toolkit.core.paths import get_state_path
+
+DB_FILE = get_state_path("handoff_rag.db")
 
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)$", re.MULTILINE)
 TOKEN_RE = re.compile(r"[a-z0-9]+")
