@@ -50,6 +50,37 @@ uvicorn backend.main:app --reload --port 8420
 
 Open `http://localhost:8420`. `async_gated` mode needs no keys at all.
 
+## Running on Termux (Android)
+
+Works — this is a plain local web server, exactly what Termux is built
+for. Native Android without Termux (a real packaged app) is a
+different, much bigger project not attempted here.
+
+```
+pkg install python rust
+pip install -r requirements.txt
+cp .env.example .env
+uvicorn backend.main:app --reload --port 8420 --host 127.0.0.1
+```
+
+Then open the browser on the same device to `http://localhost:8420`.
+
+**Why `rust` first:** `pydantic`'s core is Rust-based; Termux usually
+has no prebuilt wheel for it, so pip compiles from source, which needs
+the Rust toolchain present first. This step can take a while — that's
+expected, not a hang.
+
+**Why plain `uvicorn`, not `uvicorn[standard]`:** the `[standard]`
+extras (`uvloop`, `httptools`) are C-extension performance add-ons that
+are more likely to fail to build on Termux. Plain `uvicorn` runs fine
+without them, just without that extra speed — not needed for a local
+single-user relay.
+
+**Background execution:** Android can suspend Termux when it's not the
+foreground app, which would kill an in-progress relay session. Run
+`termux-wake-lock` before starting a long `sync_auto`/`sync_gated`
+session if you'll switch away from Termux mid-relay.
+
 ## Privacy
 
 Privacy mode is on by default, per the design doc's own recommendation:
