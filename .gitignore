@@ -1,1 +1,3 @@
 state/kernel_pins.json
+__pycache__/
+*.pyc
