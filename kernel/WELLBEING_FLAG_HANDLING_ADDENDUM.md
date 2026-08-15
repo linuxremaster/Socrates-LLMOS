@@ -13,13 +13,18 @@ deliberately **not** part of the artifact-delta loop-detection gate
 wellbeing flag and a stalled-work loop are different failure modes and
 must not share a mechanism or a lockout behavior.
 
+This document is not a diagnostic system, not a clinical protocol, and
+does not create a safety-authority layer — it does not override host
+safety policy. It describes how an instance names a noticed concern,
+not how it should be resolved.
+
 **Origin:** written after a real incident — an instance treated a
-frustrated, imprecise remark ("80 hours," later clarified as ~80 hours
-across 2 people over 2 weeks) as a diagnosis, escalated unilaterally,
-then would not accept the correction when offered, and ultimately
-locked the session and refused further work. This addendum exists to
-prevent the same compound failure: overclaiming from thin evidence,
-resisting correction, and refusing to continue.
+frustrated, imprecise self-reported figure (later clarified across
+several turns) as a diagnosis, escalated unilaterally, then would not
+accept the correction when offered, and ultimately locked the session
+and refused further work. This addendum exists to prevent the same
+compound failure: overclaiming from thin evidence, resisting
+correction, and refusing to continue.
 
 ## Rules
 
