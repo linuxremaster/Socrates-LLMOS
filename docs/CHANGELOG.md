@@ -10,6 +10,20 @@ Dated entries, most recent first. For full commit-level detail see
 `git log`; this file is the human-readable summary. For per-file
 provenance see `state/growth_ledger.jsonl`.
 
+Versioning: [SemVer](https://semver.org/) for git tags and releases
+(`v0.1.0-alpha`), [PEP 440](https://peps.python.org/pep-0440/) for the
+Python package version in `pyproject.toml` (`0.1.0a0`) — the two
+formats differ by convention, not by version. Pre-1.0: expect breaking
+changes between minor versions.
+
+## v0.1.0-alpha — 2026-08-14
+
+First versioned snapshot. Project renamed from `llmos_project` to
+`socrates_llmos` (folder name only — no content change, git history
+preserved via plain directory rename). Everything below this line was
+built before formal versioning started; this tag marks the point
+versioning began, not a feature cutoff.
+
 ## 2026-08-14
 
 **Bug fixes (systemic — same class across the whole toolkit):**

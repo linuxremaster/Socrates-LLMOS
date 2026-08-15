@@ -13,10 +13,10 @@ Prompt; on Mac or Linux it's called Terminal; on Android via Termux,
 it's the Termux app itself.
 
 **Step 2: Install it.** Replace the path below with wherever you
-actually put the `llmos_project` folder:
+actually put the `socrates_llmos` folder:
 
 ```
-cd /path/to/llmos_project
+cd /path/to/socrates_llmos
 pip install -e . --break-system-packages --no-build-isolation
 ```
 

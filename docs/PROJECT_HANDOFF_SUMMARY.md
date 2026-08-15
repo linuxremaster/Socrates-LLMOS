@@ -38,7 +38,7 @@ stays that name because renaming it breaks Python's import resolution
 ## 2. Directory structure
 
 ```
-llmos_project/
+socrates_llmos/
 ├── LICENSE                      MPL 2.0, in every major folder
 ├── pyproject.toml               pip-installable, no PYTHONPATH needed
 ├── kernel/                      hand-maintained behavioral spec (6 files)
@@ -74,14 +74,14 @@ Full detail on every command: `llmos_toolkit/README.md` (technical) and
 ## 4. How to run it
 
 ```bash
-cd llmos_project
+cd socrates_llmos
 pip install -e . --break-system-packages --no-build-isolation
 llmos --list-commands
 ```
 
 `--no-build-isolation` is required in network-restricted environments —
 confirmed necessary in this project's own dev sandbox. Without pip
-install, the fallback is `PYTHONPATH=/path/to/llmos_project` run from
+install, the fallback is `PYTHONPATH=/path/to/socrates_llmos` run from
 inside `state/`.
 
 ## 5. Licensing

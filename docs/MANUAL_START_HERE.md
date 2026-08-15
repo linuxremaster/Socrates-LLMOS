@@ -34,7 +34,7 @@ You need Python 3.11 or newer. No other install required — everything
 is either in Python's standard library or already included (NumPy).
 
 ```
-cd llmos_project
+cd socrates_llmos
 pip install -e . --break-system-packages --no-build-isolation
 llmos --list-commands
 ```

@@ -49,7 +49,7 @@ The toolkit can also be installed as a normal Python package instead of
 using the `PYTHONPATH` approach shown elsewhere in this file:
 
 ```
-cd llmos_project
+cd socrates_llmos
 pip install -e . --break-system-packages --no-build-isolation
 ```
 

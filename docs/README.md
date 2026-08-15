@@ -16,7 +16,7 @@ That's the whole taxonomy. Seven folders, no deeper nesting than
 necessary.
 
 ```
-llmos_project/
+socrates_llmos/
 ├── kernel/          hand-maintained behavioral spec — edit these directly
 ├── llmos_toolkit/     the Python package — code, not prose
 ├── docs/             narrative documentation — README, manuals, handoff summary

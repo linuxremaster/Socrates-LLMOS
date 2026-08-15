@@ -19,7 +19,7 @@ already included.
 ## Step 1: Install
 
 ```
-cd llmos_project
+cd socrates_llmos
 pip install -e . --break-system-packages --no-build-isolation
 ```
 
