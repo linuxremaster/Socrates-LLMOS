@@ -7,7 +7,7 @@ echo "[1/5] Updating packages..."
 pkg update -y && pkg upgrade -y
 
 echo "[2/5] Installing python, rust, git, tailscale..."
-pkg install -y python rust git tailscale
+pkg install -y python rust git tailscale-termux
 
 echo "[3/5] Cloning relay_console (adjust URL/path if not using git)..."
 if [ ! -d "socrates_llmos" ]; then
