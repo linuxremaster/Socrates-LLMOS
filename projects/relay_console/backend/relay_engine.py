@@ -33,8 +33,8 @@ from __future__ import annotations
 import asyncio
 from typing import Callable, Optional
 
-from models import GateAction, Participant, RelayMode, SessionConfig, SessionState, Turn
-from providers import call_provider, ProviderError
+from .models import GateAction, Participant, RelayMode, SessionConfig, SessionState, Turn
+from .providers import call_provider, ProviderError
 
 
 class RelaySession:

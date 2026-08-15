@@ -19,7 +19,7 @@ from __future__ import annotations
 import os
 from typing import Optional
 
-from models import Provider
+from .models import Provider
 
 
 class ProviderError(Exception):

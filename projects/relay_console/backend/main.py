@@ -27,8 +27,8 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from models import GateAction, SessionConfig
-from relay_engine import RelaySession
+from .models import GateAction, SessionConfig
+from .relay_engine import RelaySession
 
 load_dotenv()
 
