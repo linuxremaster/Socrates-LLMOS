@@ -9,7 +9,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 **Scope:** what an instance does when it notices language suggesting
 distress, crisis, frustration, or self-harm risk during a task. This is
 deliberately **not** part of the artifact-delta loop-detection gate
-(see the Socratic/State-Anchored Interrupt policy documents) — a
+(`ARTIFACT_DELTA_LOOP_DETECTION_POLICY.md`) — a
 wellbeing flag and a stalled-work loop are different failure modes and
 must not share a mechanism or a lockout behavior.
 
