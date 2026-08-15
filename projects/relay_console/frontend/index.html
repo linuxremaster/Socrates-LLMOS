@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relay Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span class="brand-name">RELAY CONSOLE</span>
+  </div>
+  <div class="topbar-status">
+    <span id="session-status" class="status-pill idle">IDLE</span>
+    <span id="turn-counter" class="turn-counter">TURN 0</span>
+  </div>
+</header>
+
+<main class="layout">
+
+  <section class="setup-panel" id="setup-panel">
+    <h2>Session Setup</h2>
+
+    <label class="field">
+      <span>Mode</span>
+      <select id="mode-select">
+        <option value="sync_auto">Synchronous — Auto</option>
+        <option value="sync_gated" selected>Synchronous — Human Gate</option>
+        <option value="async_gated">Asynchronous — Human Relay</option>
+      </select>
+    </label>
+
+    <div id="participants-config"></div>
+    <button type="button" id="add-participant" class="btn-ghost">+ Add participant (max 3)</button>
+
+    <label class="field">
+      <span>Opening message</span>
+      <textarea id="opening-message" rows="3" placeholder="What starts the relay..."></textarea>
+    </label>
+
+    <label class="field checkbox">
+      <input type="checkbox" id="privacy-mode" checked>
+      <span>Privacy mode — memory only, no disk write until explicit export</span>
+    </label>
+
+    <button type="button" id="start-btn" class="btn-primary">Start Relay</button>
+  </section>
+
+  <section class="console-panel" id="console-panel" hidden>
+    <div class="participant-row" id="participant-row"></div>
+
+    <div class="transcript" id="transcript" aria-live="polite"></div>
+
+    <div class="gate-bar" id="gate-bar" hidden>
+      <div class="gate-preview">
+        <span class="gate-label" id="gate-label">Pending message</span>
+        <textarea id="gate-content" rows="4"></textarea>
+      </div>
+      <div class="gate-actions">
+        <button type="button" id="gate-pass" class="btn-primary">Pass</button>
+        <button type="button" id="gate-edit" class="btn-ghost">Send Edited</button>
+        <button type="button" id="gate-reject" class="btn-danger">Reject</button>
+      </div>
+    </div>
+
+    <div class="paste-bar" id="paste-bar" hidden>
+      <p class="paste-instructions">Copy the message above into the target participant's actual chat interface, paste their response below, then submit.</p>
+      <textarea id="paste-content" rows="4" placeholder="Paste the response here..."></textarea>
+      <button type="button" id="paste-submit" class="btn-primary">Submit Response</button>
+    </div>
+
+    <div class="control-bar">
+      <button type="button" id="stop-btn" class="btn-danger">Stop</button>
+      <button type="button" id="export-btn" class="btn-ghost">Export Session</button>
+    </div>
+  </section>
+
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

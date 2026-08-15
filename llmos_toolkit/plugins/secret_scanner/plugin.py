@@ -62,11 +62,14 @@ def scan_file(file_path: Path, project_root: Path) -> list[dict[str, Any]]:
         return findings
 
     name_lower = file_path.name.lower()
+    template_suffixes = (".example", ".sample", ".template", ".dist")
+    is_template = any(name_lower.endswith(suffix) for suffix in template_suffixes)
+
     sensitive_name_markers = (
         "secret", "credential", ".env", ".pem", "id_rsa", "id_ed25519",
         ".npmrc", ".netrc", ".pgpass", "known_hosts",
     )
-    if any(marker in name_lower for marker in sensitive_name_markers):
+    if not is_template and any(marker in name_lower for marker in sensitive_name_markers):
         findings.append({
             "file": str(file_path.relative_to(project_root)),
             "line": 0, "type": "Sensitive File Name", "match": file_path.name,

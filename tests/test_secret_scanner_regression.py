@@ -59,6 +59,18 @@ class TestSecretScannerRegression(unittest.TestCase):
         types = {f["type"] for f in findings}
         self.assertIn("Sensitive File Name", types)
 
+    def test_env_example_not_flagged_by_filename(self):
+        findings = self._scan(".env.example", "ANTHROPIC_API_KEY=\nOPENAI_API_KEY=\n")
+        types = {f["type"] for f in findings}
+        self.assertNotIn("Sensitive File Name", types, ".env.example is a template by convention, never a real secret")
+
+    def test_env_example_still_content_scanned(self):
+        """Template-suffix exemption is filename-only -- a real key
+        accidentally left in a .env.example must still be caught."""
+        findings = self._scan(".env.example", 'ANTHROPIC_API_KEY="sk-realistictestkey1234567890abcdefgh"\n')
+        types = {f["type"] for f in findings}
+        self.assertTrue(types - {"Sensitive File Name"}, "content-based checks must still run on template files")
+
 
 if __name__ == "__main__":
     unittest.main()
