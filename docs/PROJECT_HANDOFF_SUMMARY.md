@@ -120,6 +120,21 @@ Exhibit A. 78 source/doc files carry the standard header notice.
   project. Contains what looks like real credential material in
   `DO-NOT-SYNC/activepieces-secrets.md` — never opened beyond confirming
   its shape, never included in anything packaged.
+- **Security hardening is on hold as of 2026-08-14** — put on hold
+  deliberately, not abandoned. If a real at-risk-user (journalist/
+  authoritarian-context) use case becomes near-term, this project stays
+  household-only and a separate, cleanly-started repo (no inherited git
+  history) is where hardened work happens — never a fork of this repo's
+  history. One specific item flagged for that future work, so it isn't
+  lost in the meantime: **`WELLBEING_FLAG_HANDLING_ADDENDUM.md` as
+  written assumes it's safe to plainly name what was noticed. In a
+  hardened context, even a locally-stored record of "flagged distress"
+  is dangerous if the device is compromised, regardless of intent — a
+  hardened variant would need to persist only that review happened, not
+  what was flagged.** The main kernel's reasoning methodology is
+  probably fine unchanged, since it isn't user data — that assessment
+  itself is unverified pending a real threat model, same as everything
+  else in this note.
 
 ## 7. What's out of scope for this handoff
 
