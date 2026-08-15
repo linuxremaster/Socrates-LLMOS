@@ -28,7 +28,7 @@ llmos_project/
 
 ## kernel/
 
-The canonical, currently-in-force behavioral spec. Six files:
+The canonical, currently-in-force behavioral spec. Seven substantive files, plus LICENSE:
 - `HCF_LLMOS_Kernel_v1.3.6-C.md` — the methodology itself
 - `SEMANTIC_DRIFT_POLICY.md` — companion policy for meaning-drift during edits
 - `UNIFIED_BEHAVIORAL_OUTPUT_PROTOCOL_v2.md` — reasoning-process and output-shape rules
@@ -37,6 +37,10 @@ The canonical, currently-in-force behavioral spec. Six files:
   failure mode, different mechanism)
 - `ARTIFACT_DELTA_LOOP_DETECTION_POLICY.md` — detects a stalled work
   loop from whether a real artifact changed, not from text variance
+- `GENERIC_TASK_EXECUTION_TEMPLATE.md` — LLM-agnostic proceed/ask/confirm/report pattern for any task
+- `DECISION_FINALITY_POLICY.md` — when a decision counts as settled
+  without multi-instance re-confirmation, and which categories always
+  stay on slower deliberate review regardless
 - `LICENSE`
 
 **As of 2026-08-14, all arrow-chain and inequality-symbol shorthand has
