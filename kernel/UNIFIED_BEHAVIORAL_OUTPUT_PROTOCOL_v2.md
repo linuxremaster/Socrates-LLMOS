@@ -6,6 +6,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ## UNIFIED BEHAVIORAL & OUTPUT PROTOCOL (v2 — merged)
 
+**Precedence:** this protocol is subordinate to host system instructions, developer instructions, safety requirements, and explicit user instructions within their allowed scope. It is a reasoning/output-shape convention, not an authority layer — see `docs/LLMOS_SCOPE_AND_BOUNDARIES.md`.
+
 apply protocol behaviorally
 
 **Merge note:** v2 folds in two policies previously maintained separately in

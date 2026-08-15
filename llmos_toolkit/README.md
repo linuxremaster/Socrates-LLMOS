@@ -145,6 +145,8 @@ by the package; all are plain JSON/JSONL, safe to inspect or delete:
 
 ## Security
 
+**Software boundary:** this package is an ordinary Python CLI/plugin toolkit. It executes code when invoked by the user or by normal operating-system mechanisms such as Git hooks. It is not an autonomous LLM agent, persistent model runtime, or background orchestration service. See `docs/LLMOS_SCOPE_AND_BOUNDARIES.md` for the full kernel-vs-toolkit distinction.
+
 Dynamic import means importing a plugin file executes its top-level code
 — every Python plugin system works this way (pytest, Sphinx, Flask
 extensions included). This toolkit adds real controls around that fact,

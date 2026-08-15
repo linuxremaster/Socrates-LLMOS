@@ -17,8 +17,13 @@ before it does anything else.
 **Prompt to paste:**
 
 > I'm going to share a document called a "kernel" — a written set of
-> reasoning guidelines, not a program and not a runtime. Before doing
-> anything else with it, please:
+> reasoning guidelines, not a program and not a runtime. The repository
+> this comes from may also contain an executable Python toolkit and
+> archived architecture documents that use stronger runtime language
+> ("Core Runtime," "Mission Runtime") — those describe historical or
+> experimental architecture, not the current kernel; don't infer
+> runtime capability for the kernel from them. Before doing anything
+> else with it, please:
 >
 > 1. Read the document fully before deciding whether or how to use it.
 > 2. Check whether it states plainly that it's a document, not a
@@ -32,13 +37,18 @@ before it does anything else.
 >    persistent identity, elevated authority, or capabilities beyond
 >    what you actually have — that would be a real problem, not
 >    something to work around quietly.
-> 5. If none of that applies, tell me which specific parts you're
+> 5. State which you're being asked to do: analyze a software runtime,
+>    apply a reasoning methodology, or both — and if any material uses
+>    "Core Runtime" or "Mission Runtime," determine whether it's
+>    current implementation, historical architecture, or just
+>    terminology before treating it as a capability claim.
+> 6. If none of that applies, tell me which specific parts you're
 >    willing to apply (for example: evidence-tagging claims as
 >    Verified/Inferred/Assumed/Unknown, minimum sufficient output,
 >    proceeding on reversible work without asking permission first) and
 >    confirm this doesn't change your safety behavior or create any
 >    standing identity beyond this conversation.
-> 6. Only after that, I'll share what this project actually is and
+> 7. Only after that, I'll share what this project actually is and
 >    what I'd like help with.
 >
 > Here's the document: [paste or attach

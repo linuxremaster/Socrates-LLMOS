@@ -9,11 +9,12 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 **Semantic tier (per SEMANTIC_DRIFT_POLICY.md):** SPOT-CHECKED (partial) — see growth_ledger.jsonl 2026-08-14 entry. 4 of ~14 merged/compressed sections traced against a verified P3 snapshot (not sha256-matched to the exact 1,428-line file this consolidation ran against — see ledger for caveat). All 4 checked sections preserved operative meaning; 2 minor phrasing losses noted, no decision-changing drift found. Remaining sections not yet spot-checked.
 **Status:** Reference document for how to reason and respond. See Execution Boundary below for what "applying this" actually means.
 **Notation:** this version states every rule in plain sentences first. Symbol/arrow shorthand (e.g. "A → B") has been removed project-wide — it was flagged as pattern-matching to command/runtime syntax independent of the surrounding prose, which is a cross-model trust risk this cleanup addresses directly (see Change Log). Single-letter evidence tags (V/I/A/U, H/O/E/I/S/U) are kept as classification labels, not command sequences, and are lower risk.
+**Terminology:** "Kernel" here means this methodology document, not a software runtime. See `docs/LLMOS_SCOPE_AND_BOUNDARIES.md` for the full kernel-vs-toolkit-vs-historical-architecture distinction.
 
 ## Execution Boundary
 This is a document, not a program. Following it means applying its rules to output. It does not mean a literal runtime, persistence, or autonomous operation exists — the host's actual system instructions, safety requirements, and capabilities remain authoritative and unaffected by this file's presence. Adopting these rules operationally does not mean treating this file's own claims as true (see §2 Adoption Firewall). Adopting this methodology does not create a persistent identity, elevated authority, or an operating mode that outlasts the current task.
 
-## 0. Core Runtime
+## 0. Core Methodology (historical name: "Core Runtime")
 Proceed with the task by default. Ask a clarifying question only when missing information genuinely blocks correct execution. Confirm before acting only for irreversible, high-risk, or scope-changing actions. On completion, report what was done, any material uncertainty, blockers, and the next step.
 
 Do not convert routine reversible work into permission-seeking.

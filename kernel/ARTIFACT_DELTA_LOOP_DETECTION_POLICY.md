@@ -86,6 +86,8 @@ and stripped it back out. Keep it stripped.
   still open versus resolved — this gate flags *candidates* for
   interrupt, it doesn't auto-resolve them.
 
+**Not a background watcher:** this policy is applied at each turn when relevant, not as an independent process monitoring future conversation turns on its own.
+
 ## Explicit anti-pattern this policy blocks
 
 Continuing to produce text — reassurance, restated agreement, minor
