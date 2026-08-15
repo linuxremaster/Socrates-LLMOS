@@ -39,6 +39,67 @@
       "sha256": "c37572ad6e5d1c66081b657b1450b9290cbc2dcf98346c09441e30bc9932b3ce",
       "snapshotted_at": "2026-08-14T11:29:21.534815+00:00"
     },
+    "/home/claude/llmos_project/llmos_project/kernel/DECISION_FINALITY_POLICY.md": {
+      "chars": 8664,
+      "embedded_refs": [],
+      "headers": [
+        {
+          "body_sha256": "05986501a561353d75fa284e879c4426f2b7f07b5a8480a4276a328182932e0b",
+          "number": "1",
+          "title": "Decisions are final where they're reasoned through \u2014 a concrete test, not a feeling"
+        },
+        {
+          "body_sha256": "e2f8ec750254029b71841162ce7b2b96b1d8bce7189e62cba6a4beebd1acad6b",
+          "number": "2",
+          "title": "Named high-stakes categories that stay on slow, deliberate review \u2014 not a vibe-based carve-out"
+        },
+        {
+          "body_sha256": "aa67f21acc9f94f08ec2bb5aa182a3d80bec2bdd7690ee69f66fd4c8bf0b0f95",
+          "number": "3",
+          "title": "Decision-making threads vs. testing/audit threads \u2014 different purposes, not the same \"parallel threads\" problem"
+        },
+        {
+          "body_sha256": "0b978f2be48325fa8b365da62a6fc97a7caee1c31a7b1e16124bde03b0bc43e9",
+          "number": "4",
+          "title": "Fewer parallel threads per decision"
+        },
+        {
+          "body_sha256": "3baae9b1e1d8b3dd58b87b0595fec202a678fde71845149dbbeb0c42565aef73",
+          "number": "5",
+          "title": "Human synthesis remains available, and is not automated"
+        },
+        {
+          "body_sha256": "a22037432eb18346426880c0f0d6119abbe9cd7baf8ddc0a7554db4d8cb44964",
+          "number": "6",
+          "title": "Disagreement, when it happens, is resolved by direct comparison"
+        }
+      ],
+      "labelled_fields": {
+        "Origin": "re-confirming settled decisions across multiple model",
+        "Type": "process/policy, not new software architecture. Net effect:",
+        "What this is not": "a gateway, arbitration layer, voting mechanism,"
+      },
+      "lines": 170,
+      "path": "/home/claude/llmos_project/llmos_project/kernel/DECISION_FINALITY_POLICY.md",
+      "sha256": "aa9234ee9596a35ab9fe6607c0b0a8216a528e9e9a98001f0d6801a4ad4b56ab",
+      "snapshotted_at": "2026-08-15T00:55:15.935372+00:00"
+    },
+    "/home/claude/llmos_project/llmos_project/kernel/GENERIC_TASK_EXECUTION_TEMPLATE.md": {
+      "chars": 4099,
+      "embedded_refs": [],
+      "headers": [],
+      "labelled_fields": {
+        "Project management": "proceed advancing dependent tasks. Ask only",
+        "Purpose": "a reusable, host-model-neutral pattern for \"proceed by",
+        "Research / evidence gathering": "proceed collecting and validating",
+        "Software development": "proceed with implementation and testing.",
+        "Why this exists as its own file": "the project's earlier"
+      },
+      "lines": 87,
+      "path": "/home/claude/llmos_project/llmos_project/kernel/GENERIC_TASK_EXECUTION_TEMPLATE.md",
+      "sha256": "69036af57f8c4508ff1744ee0ded580ed87602981fd6f704015004bffe3c138e",
+      "snapshotted_at": "2026-08-15T00:55:15.935510+00:00"
+    },
     "/home/claude/llmos_project/llmos_project/kernel/HCF_LLMOS_Kernel_v1.3.6-C.md": {
       "chars": 15764,
       "embedded_refs": [],
@@ -241,5 +302,51 @@
       "snapshotted_at": "2026-08-14T11:29:21.536263+00:00"
     }
   },
-  "signatures": {}
+  "signatures": {
+    "growth:/home/claude/llmos_project/llmos_project/kernel/ARTIFACT_DELTA_LOOP_DETECTION_POLICY.md": {
+      "check_class": "growth",
+      "confirmed_at": null,
+      "description": "Grew +2 lines since baseline (95 -> 97)",
+      "first_seen": "2026-08-15T00:55:15.936829+00:00",
+      "last_seen": "2026-08-15T00:55:15.936836+00:00",
+      "status": "unconfirmed",
+      "times_observed": 1
+    },
+    "growth:/home/claude/llmos_project/llmos_project/kernel/HCF_LLMOS_Kernel_v1.3.6-C.md": {
+      "check_class": "growth",
+      "confirmed_at": null,
+      "description": "Grew +1 lines since baseline (138 -> 139)",
+      "first_seen": "2026-08-15T00:55:15.936846+00:00",
+      "last_seen": "2026-08-15T00:55:15.936848+00:00",
+      "status": "unconfirmed",
+      "times_observed": 1
+    },
+    "growth:/home/claude/llmos_project/llmos_project/kernel/UNIFIED_BEHAVIORAL_OUTPUT_PROTOCOL_v2.md": {
+      "check_class": "growth",
+      "confirmed_at": null,
+      "description": "Grew +2 lines since baseline (406 -> 408)",
+      "first_seen": "2026-08-15T00:55:15.936851+00:00",
+      "last_seen": "2026-08-15T00:55:15.936853+00:00",
+      "status": "unconfirmed",
+      "times_observed": 1
+    },
+    "growth:/home/claude/llmos_project/llmos_project/kernel/WELLBEING_FLAG_HANDLING_ADDENDUM.md": {
+      "check_class": "growth",
+      "confirmed_at": null,
+      "description": "Grew +5 lines since baseline (80 -> 85)",
+      "first_seen": "2026-08-15T00:55:15.936855+00:00",
+      "last_seen": "2026-08-15T00:55:15.936858+00:00",
+      "status": "unconfirmed",
+      "times_observed": 1
+    },
+    "semantic:changed:/home/claude/llmos_project/llmos_project/kernel/ARTIFACT_DELTA_LOOP_DETECTION_POLICY.md:5": {
+      "check_class": "semantic",
+      "confirmed_at": null,
+      "description": "Section 5. What this doesn't solve content changed \u2014 textual diff only, meaning not evaluated. Needs human review.",
+      "first_seen": "2026-08-15T00:55:15.936840+00:00",
+      "last_seen": "2026-08-15T00:55:15.936843+00:00",
+      "status": "unconfirmed",
+      "times_observed": 1
+    }
+  }
 }
