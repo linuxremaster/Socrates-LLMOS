@@ -44,6 +44,17 @@ Instant convergence isn't automatically wrong, but it's weaker
 evidence, and shouldn't be treated as equally settled without at least
 noting that no alternative was seriously tested.
 
+**A third outcome: UNRESOLVED.** If the honest answer to the test above
+is "a real consideration was raised and reasoned through, and neither
+side's position actually gave way" — that is not settled, and it is
+not a failure requiring more rounds either. Log it as UNRESOLVED (see
+`growth_ledger.jsonl`'s `event: "unresolved_decision"` entry type),
+move on with other work, and reopen it only with genuinely new
+evidence — the same reopening path as §6, not persistence or fatigue
+wearing one side down. This is different from "provisional" above:
+provisional means the test wasn't actually run; UNRESOLVED means it was
+run, honestly, and didn't produce a settled answer.
+
 This test exists specifically because the pressure that motivates this
 whole policy — friction, fatigue, wanting to be done — is the same
 pressure that could make "reasoned through completely" a rubber stamp
@@ -66,6 +77,14 @@ how settled a single conversation feels:
   `ARTIFACT_DELTA_LOOP_DETECTION_POLICY.md`'s loop-detection mechanism —
   policies that govern how decisions get made shouldn't be amended
   under their own sped-up process.
+
+**This list grows by default, not by omission.** A new kernel file
+touching anything safety-, wellbeing-, or priority-order-adjacent is
+presumptively high-stakes the moment it's added — it does not get this
+policy's speed-up just because nobody has explicitly added it to this
+list yet. Adding it here (or explicitly ruling it out, stated plainly)
+is a required step at the time the file is added, not something left
+to be discovered later. Burden of proof is on "fast," not "slow."
 
 A change outside these categories, that passes the test in §1, is
 settled without further re-confirmation. A change inside these
