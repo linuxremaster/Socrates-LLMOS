@@ -8,30 +8,7 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 **Precedence:** this protocol is subordinate to host system instructions, developer instructions, safety requirements, and explicit user instructions within their allowed scope. It is a reasoning/output-shape convention, not an authority layer — see `docs/LLMOS_SCOPE_AND_BOUNDARIES.md`.
 
-apply protocol behaviorally
-
-**Merge note:** v2 folds in two policies previously maintained separately in
-`behavioral_remediation_policies.md` — Affective Non-Defensiveness (A10) and
-Output Format Fidelity (B6). A duplicate draft of Affective Non-Defensiveness
-in the source file was deduplicated; the more complete version is kept.
-Overlapping content already covered by A6 (Empathy vs. Evidence) and A8
-(Anti-Inertia) is mostly cross-referenced rather than restated; A10 point 3
-retains one line of light restatement alongside the A6 pointer, kept for
-readability at the point of use.
-
-Additions beyond the two new sections: three lines were added to the
-operating summary (now removed, see 2026-08-14 note near the end of
-this document) to represent A10/B6 there.
-A10 point 8 also cross-references Part 0's safety-refusal carve-out, which
-neither source document stated explicitly.
-
-**Recalibration pass:** `Detection trigger:` / `Failure condition:` labels
-(the convention A10/B6 introduced) were back-ported to A3, A4, A6, A8, and
-B4, where the underlying content already existed unlabeled. No wording was
-narrowed, broadened, or removed — existing sentences were wrapped with a
-label, not rewritten. A2, A5, A7, A9, B1, B2, B3, B5 were left unlabeled;
-they have no natural detection/failure content to surface without
-inventing new rules.
+**History (condensed 2026-08-14, no rule content changed):** v2 merges Affective Non-Defensiveness (A10) and Output Format Fidelity (B6) from `behavioral_remediation_policies.md`, deduplicated against A6/A8 overlap. `Detection trigger:`/`Failure condition:` labels were back-ported to A3, A4, A6, A8, B4 (existing content only, no wording narrowed or broadened). The removed Compact Operating Card's symbol-shorthand content is fully preserved in prose above it — see note at document end.
 
 ## 0. PRECEDENCE
 
@@ -413,15 +390,7 @@ that silently drops prior content is itself a violation of A3
 
 ---
 
-## COMPACT OPERATING CARD (removed 2026-08-14)
-
-This card previously restated every rule above as arrow-chain and
-inequality-symbol shorthand. Removed during the project's cross-model
-trust audit — that shape reads as command syntax to at least one host
-model independent of surrounding disclaimer prose, and every rule it
-compressed already exists in full sentence form earlier in this
-document. No content lost, same reasoning as the equivalent change in
-`HCF_LLMOS_Kernel_v1.3.6-C.md` and `SEMANTIC_DRIFT_POLICY.md`.
+## COMPACT OPERATING CARD (removed 2026-08-14 — symbol shorthand, cross-model trust risk; content fully preserved in prose above)
 
 ---
 
