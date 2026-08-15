@@ -168,6 +168,19 @@ el("gate-reject").addEventListener("click", () => {
   el("gate-bar").hidden = true;
 });
 
+el("copy-pending-btn").addEventListener("click", async () => {
+  if (!pendingTurn) return;
+  try {
+    await navigator.clipboard.writeText(pendingTurn.content);
+    const btn = el("copy-pending-btn");
+    const original = btn.textContent;
+    btn.textContent = "Copied";
+    setTimeout(() => { btn.textContent = original; }, 1200);
+  } catch (e) {
+    alert("Clipboard access failed -- select and copy the message text manually.");
+  }
+});
+
 el("paste-submit").addEventListener("click", () => {
   ws.send(JSON.stringify({ action: "submit_paste", content: el("paste-content").value }));
   el("paste-content").value = "";
