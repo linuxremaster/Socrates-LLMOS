@@ -4,8 +4,8 @@
 
 const PROVIDER_MODELS = {
   anthropic: ["claude-sonnet-5", "claude-opus-4-8", "claude-haiku-4-5-20251001"],
-  openai: ["gpt-4o", "gpt-4o-mini", "o1"],
-  google: ["gemini-2.0-flash", "gemini-2.0-pro"],
+  openai: ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"],
+  google: ["gemini-3.6-flash", "gemini-3.1-pro", "gemini-3.5-flash-lite"],
 };
 
 const sessionId = crypto.randomUUID();
