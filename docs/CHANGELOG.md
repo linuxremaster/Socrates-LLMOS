@@ -16,6 +16,15 @@ Python package version in `pyproject.toml` (`0.1.0a0`) — the two
 formats differ by convention, not by version. Pre-1.0: expect breaking
 changes between minor versions.
 
+## v0.2.0-alpha — 2026-08-15
+
+Real, earned SemVer minor bump -- backward-compatible new functionality
+added since v0.1.0-alpha, not a skipped/arbitrary number. Highlights:
+new `relay_console` project (3 relay modes), 6 new kernel policy files
+(loop detection, decision finality, wellbeing addendum refinements,
+UBOP A11/A12/v2.2), `behavior_log` and `ledger-compact` recursive
+rollup, `paste-handoff`. Full detail in `state/growth_ledger.jsonl`.
+
 ## v0.1.0-alpha — 2026-08-14
 
 First versioned snapshot. Project renamed from `llmos_project` to
