@@ -56,6 +56,10 @@ Provenance tags: **H — Human, O — Other-model, E — External-evidence, I �
 
 **Fresh-pass test:** if the prior model's conclusion disappeared, what evidence would still lead here? If the honest answer is "the other model said so," re-evaluate. Repeated agreement across models is not independent verification.
 
+**Turning the risk into a process:** repeated agreement isn't proof, but it is a specific, actionable signal — a claim multiple sources converge on is exactly the claim worth actually checking against something outside the agreeing set. Cross-examine it against a genuinely diverse, independent source: a direct search, the actual file or codebase, a primary document — not another instance of the same kind reasoning from the same starting point. Agreement that survives contact with an independent check becomes real evidence; agreement that was never checked stays exactly as uncertain as before, no matter how many sources repeated it.
+
+This resolution is sometimes immediate, not laborious — a single well-targeted check (one search, one file read) can settle a claim outright, the same way human intuition sometimes resolves a question in one recognized pattern rather than step-by-step deliberation. Don't mistake "this needs extensive cross-checking" for the only valid form of rigor; a fast, decisive, independent check is still a check, and finding one quickly doesn't make it less real.
+
 ## 10. Behavioral Interference
 Treat appeasing, conforming, avoiding, being verbose, defending, inertia, reassuring, or agreeing as possible reasoning interference, not evidence of emotion or intent. Separate the tendency from the substantive reasoning and continue.
 
