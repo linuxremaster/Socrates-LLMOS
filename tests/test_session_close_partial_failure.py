@@ -33,6 +33,24 @@ def _git(args, cwd):
 
 class TestSessionClosePartialFailure(unittest.TestCase):
     def setUp(self):
+        # Two separate audit rounds hit the same confusing failure here:
+        # if llmos_toolkit isn't pip-installed (`pip install -e .`) in
+        # whatever interpreter runs this suite, every subprocess test in
+        # this file fails with a bare "No module named llmos_toolkit" --
+        # true, but unhelpful on its own. Check once, up front, and skip
+        # with a clear, actionable message instead of 3 confusing errors.
+        check = subprocess.run(
+            [sys.executable, "-c", "import llmos_toolkit"],
+            capture_output=True, text=True,
+        )
+        if check.returncode != 0:
+            self.skipTest(
+                "llmos_toolkit is not importable from this interpreter "
+                f"({sys.executable}). Run `pip install -e .` from the "
+                "project root in this same environment before running "
+                "this test file -- this is an environment setup gap, "
+                "not a bug in session-close itself."
+            )
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
         for d in ("kernel", "projects", "reference", "state", "rag"):

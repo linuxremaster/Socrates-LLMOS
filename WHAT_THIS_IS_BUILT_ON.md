@@ -35,15 +35,22 @@ are the actual providers' binding terms, independent of this repo.
 
 ## The frontier safety frameworks (context, not something that binds you directly)
 
+**Re-verified 2026-08-16 after a real external audit caught this section
+stale within days of first being written** (Anthropic RSP had moved from
+v3.1 to v3.4, three revisions; Google's FSF version number was wrong
+even on the same date). These frameworks revise frequently — treat
+any version number here as provisional, check the source directly
+before relying on it.
+
 These govern each lab's own decisions about training and deploying
 their models — not your obligations as a user. Named here for context,
 not as something enforceable against anyone using this project:
 
-- **Anthropic Responsible Scaling Policy** (v3.1, effective 2026-04-02)
+- **Anthropic Responsible Scaling Policy** (v3.4, effective 2026-07-08)
   — https://www.anthropic.com/responsible-scaling-policy
 - **OpenAI Preparedness Framework** (v2, 2025-04-15)
   — https://openai.com/global-affairs/our-approach-to-frontier-risk/
-- **Google DeepMind Frontier Safety Framework** (v3.0, 2026-04-17)
+- **Google DeepMind Frontier Safety Framework** (v3.1, 2026-04-17)
   — https://deepmind.google/discover/blog/introducing-the-frontier-safety-framework/
 
 **Honest limit on all three:** these are voluntary, lab-authored
