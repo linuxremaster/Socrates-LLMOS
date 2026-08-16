@@ -52,6 +52,18 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.5.0-alpha — 2026-08-16
+
+Real, earned SemVer minor bump — 9 commits since v0.4.0-alpha, headlined
+by the actual root-cause fix for `relay_console`'s async mode: `session.start()`
+was awaited inline in the same loop that receives `submit_paste`/`stop`,
+a genuine deadlock -- verified with a direct async reproduction before
+and after the fix. Also: on-page debug panel, network traffic monitor,
+temporary diagnostic tooling used to find it, and
+`CONTEXT_OPTIMIZATION_POLICY.md` created then folded back into the
+existing Handoff Fidelity section after honest reassessment of its
+scope. Full detail in `state/growth_ledger.jsonl`.
+
 ## v0.4.0-alpha — 2026-08-16
 
 Real, earned SemVer minor bump — 12 commits since v0.3.0-alpha, all
