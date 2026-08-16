@@ -53,6 +53,7 @@ def _check_governance_docs_present() -> dict[str, Any]:
     from llmos_toolkit.core.paths import PROJECT_ROOT
     required = [
         PROJECT_ROOT / "WHAT_THIS_IS_BUILT_ON.md",
+        PROJECT_ROOT / "Execution Boundary Updates.md",
         PROJECT_ROOT / "docs" / "REGULATORY_SCOPE_NOTE.md",
         PROJECT_ROOT / "docs" / "LLMOS_SCOPE_AND_BOUNDARIES.md",
     ]

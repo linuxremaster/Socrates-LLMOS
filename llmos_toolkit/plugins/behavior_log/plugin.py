@@ -339,6 +339,59 @@ def cmd_version_drift_summary(args: argparse.Namespace) -> int:
     return 0
 
 
+BOUNDARY_UPDATE_EVENT_TYPE = "execution_boundary_update"
+BOUNDARY_UPDATE_DOC = "Execution Boundary Updates.md"
+
+
+def cmd_log_boundary_update(args: argparse.Namespace) -> int:
+    """Records a real, checked change to a provider's training/safety
+    posture -- not automated, not triggered by anything on its own.
+    Appends both a structured ledger entry and a human-readable line
+    to the root Execution Boundary Updates.md log."""
+    ledger_path = get_state_path("growth_ledger.jsonl")
+    timestamp = datetime.now(timezone.utc).isoformat()
+    entry = {
+        "event": BOUNDARY_UPDATE_EVENT_TYPE,
+        "provider": args.provider,
+        "summary": args.summary,
+        "source_url": args.source,
+        "verified_against_primary_source": args.verified,
+        "timestamp": timestamp,
+    }
+    with open(ledger_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry) + "\n")
+
+    from llmos_toolkit.core.paths import PROJECT_ROOT
+    doc_path = PROJECT_ROOT / BOUNDARY_UPDATE_DOC
+    if not doc_path.exists():
+        print(f"WARNING: {BOUNDARY_UPDATE_DOC} not found at project root -- "
+              "ledger entry written, but the human-readable log was not updated.")
+        return 1
+
+    content = doc_path.read_text(encoding="utf-8")
+    marker = "*(empty — first real entry gets logged here when something is actually\nfound and verified, not before)*"
+    date = timestamp[:10]
+    verified_note = "verified against primary source" if args.verified else "NOT independently verified -- treat as provisional"
+    new_line = f"- **{date}** [{args.provider}] {args.summary} ({verified_note}, source: {args.source})\n"
+    if marker in content:
+        content = content.replace(marker, new_line.rstrip("\n"))
+    else:
+        content = content.rstrip("\n") + "\n" + new_line
+    doc_path.write_text(content, encoding="utf-8")
+
+    print(f"Logged: [{args.provider}] {args.summary}")
+    if not args.verified:
+        print("  NOTE: logged as NOT verified against a primary source -- treat as provisional.")
+    return 0
+
+
+def _configure_log_boundary_update(p: argparse.ArgumentParser) -> None:
+    p.add_argument("provider", help="Which provider this concerns (anthropic, openai, google, or 'regulatory' for a law/policy change)")
+    p.add_argument("summary", help="Plain description of what changed")
+    p.add_argument("--source", default="(not given)", help="URL or document actually checked")
+    p.add_argument("--verified", action="store_true", help="Set only if actually checked against the primary source, not just heard about")
+
+
 def register(registry) -> None:
     registry.register(
         "log-observation", cmd_log_observation,
@@ -359,4 +412,9 @@ def register(registry) -> None:
         "version-drift-summary", cmd_version_drift_summary,
         help="Compare the same failure-signature category across different model versions, once more than one is represented",
         configure_parser=lambda p: None, source="behavior_log",
+    )
+    registry.register(
+        "log-boundary-update", cmd_log_boundary_update,
+        help="Log a real, checked change to a provider's training/safety posture -- not automated, only fires when actually invoked",
+        configure_parser=_configure_log_boundary_update, source="behavior_log",
     )
