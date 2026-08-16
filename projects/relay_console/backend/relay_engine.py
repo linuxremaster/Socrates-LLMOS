@@ -118,7 +118,11 @@ class RelaySession:
                 status="pending",
             )
 
-            if self.state.config.mode in (RelayMode.SYNC_GATED, RelayMode.ASYNC_GATED):
+            if self.state.config.mode == RelayMode.SYNC_GATED:
+                # ASYNC_GATED doesn't gate again here -- the human already
+                # approved this content by choosing what to paste in. A
+                # second Pass/Edit/Reject step would just wait forever,
+                # since the paste-bar UI never sends a gate_action message.
                 approved_content = await self._gate(reply_turn)
                 if approved_content is None:  # rejected, stop
                     self.state.status = "stopped"
