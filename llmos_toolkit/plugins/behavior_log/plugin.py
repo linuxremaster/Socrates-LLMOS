@@ -340,14 +340,14 @@ def cmd_version_drift_summary(args: argparse.Namespace) -> int:
 
 
 BOUNDARY_UPDATE_EVENT_TYPE = "execution_boundary_update"
-BOUNDARY_UPDATE_DOC = "Execution Boundary Updates.md"
+BOUNDARY_UPDATE_DOC = "EXECUTION_BOUNDARY_UPDATES.md"
 
 
 def cmd_log_boundary_update(args: argparse.Namespace) -> int:
     """Records a real, checked change to a provider's training/safety
     posture -- not automated, not triggered by anything on its own.
     Appends both a structured ledger entry and a human-readable line
-    to the root Execution Boundary Updates.md log."""
+    to the root EXECUTION_BOUNDARY_UPDATES.md log."""
     ledger_path = get_state_path("growth_ledger.jsonl")
     timestamp = datetime.now(timezone.utc).isoformat()
     entry = {
