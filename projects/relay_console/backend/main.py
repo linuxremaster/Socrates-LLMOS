@@ -86,6 +86,8 @@ async def relay_ws(websocket: WebSocket, session_id: str):
                     session.submit_gate_action(GateAction(msg["gate_action"]), msg.get("content"))
 
             elif action == "submit_paste":
+                print(f"[TRACE] submit_paste received for session_id={session_id}, "
+                      f"session found in SESSIONS: {session_id in SESSIONS}")
                 session = SESSIONS.get(session_id)
                 if session:
                     session.submit_paste(
@@ -93,6 +95,7 @@ async def relay_ws(websocket: WebSocket, session_id: str):
                         evidence_tier=msg.get("evidence_tier"),
                         provenance_note=msg.get("provenance_note"),
                     )
+                    print(f"[TRACE] submit_paste() called on session object successfully")
 
             elif action == "stop":
                 session = SESSIONS.get(session_id)
