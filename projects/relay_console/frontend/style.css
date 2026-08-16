@@ -194,6 +194,23 @@ h2 {
 
 .control-bar { display: flex; gap: 10px; }
 
+.hint-bar {
+  background: var(--panel-raised);
+  border-bottom: 1px solid var(--amber);
+  color: var(--text);
+  font-size: 14px;
+  padding: 10px 24px;
+  text-align: center;
+}
+
+.next-action {
+  animation: next-action-glow 1.4s ease-in-out infinite;
+  box-shadow: 0 0 0 2px var(--amber);
+}
+@keyframes next-action-glow {
+  0%, 100% { box-shadow: 0 0 4px 1px var(--amber); }
+  50% { box-shadow: 0 0 14px 4px var(--amber); }
+}
 @media (prefers-reduced-motion: reduce) {
-  .lamp.thinking { animation: none; }
+  .next-action { animation: none; box-shadow: 0 0 0 2px var(--amber); }
 }

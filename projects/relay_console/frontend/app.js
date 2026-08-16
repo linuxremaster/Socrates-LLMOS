@@ -97,13 +97,25 @@ function setStatus(status) {
 
 let pendingTurn = null;
 
+function setHint(text) {
+  el("hint-bar").textContent = text;
+}
+
+function setNextAction(elementId) {
+  document.querySelectorAll(".next-action").forEach(e => e.classList.remove("next-action"));
+  if (elementId) el(elementId).classList.add("next-action");
+}
+
 function handleEvent(evt) {
   switch (evt.type) {
     case "session_started":
       setStatus("running");
+      setHint("Relay started. Waiting for the first response...");
+      setNextAction(null);
       break;
     case "thinking":
       setLamp(evt.slot, "thinking");
+      setHint(`Waiting on ${evt.slot}...`);
       break;
     case "turn_complete":
       setLamp(evt.turn.from_slot, "sent");
@@ -116,21 +128,29 @@ function handleEvent(evt) {
       el("gate-bar").hidden = false;
       el("gate-label").textContent = `${evt.turn.from_slot} → ${evt.turn.to_slot} — pending approval`;
       el("gate-content").value = evt.turn.content;
+      setHint("Step 1: Review the message below, then tap Pass, edit it, or Reject.");
+      setNextAction("gate-pass");
       break;
     case "await_paste":
       pendingTurn = evt.turn;
       el("paste-bar").hidden = false;
       appendTranscript(evt.turn);
+      setHint(`Step 1: Tap "Copy Message to Clipboard", then paste it into ${evt.turn.to_slot}'s actual chat.`);
+      setNextAction("copy-pending-btn");
       break;
     case "error":
       alert("Relay error: " + evt.detail);
       setStatus("stopped");
+      setHint("Something went wrong — see the error above.");
+      setNextAction(null);
       break;
     case "session_stopped":
     case "session_complete":
       setStatus(evt.type === "session_complete" ? "idle" : "stopped");
       el("gate-bar").hidden = true;
       el("paste-bar").hidden = true;
+      setHint(evt.type === "session_complete" ? "Relay complete." : "Relay stopped.");
+      setNextAction(null);
       break;
   }
 }
@@ -168,6 +188,13 @@ el("gate-reject").addEventListener("click", () => {
   el("gate-bar").hidden = true;
 });
 
+el("paste-content").addEventListener("input", () => {
+  if (el("paste-content").value.trim()) {
+    setHint('Step 3: Tap "Submit Response" to continue the relay.');
+    setNextAction("paste-submit");
+  }
+});
+
 el("copy-pending-btn").addEventListener("click", async () => {
   if (!pendingTurn) return;
   try {
@@ -176,6 +203,8 @@ el("copy-pending-btn").addEventListener("click", async () => {
     const original = btn.textContent;
     btn.textContent = "Copied";
     setTimeout(() => { btn.textContent = original; }, 1200);
+    setHint(`Step 2: Paste it into ${pendingTurn.to_slot}'s actual chat interface, send it, and copy their reply.`);
+    setNextAction("paste-content");
   } catch (e) {
     alert("Clipboard access failed -- select and copy the message text manually.");
   }
@@ -202,3 +231,4 @@ el("export-btn").addEventListener("click", async () => {
 });
 
 renderParticipantConfig();
+setNextAction("start-btn");
