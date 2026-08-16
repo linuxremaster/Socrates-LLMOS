@@ -12,10 +12,17 @@ subtraction — removes a requirement, adds nothing structural.
 **Origin:** re-confirming settled decisions across multiple model
 instances or providers was adding latency without adding correctness —
 a conclusion reasoned through completely doesn't become more correct by
-being repeated to a second instance. The Rule 6 amendment is the
-counter-example this generalizes: reasoned through completely,
-corrected once mid-discussion, converged, in one conversation, no
-arbitration architecture involved.
+being repeated to a second instance.
+
+**Known open item, not resolved by this policy:** an earlier discussion
+converged on a Rule 6 refinement for
+`WELLBEING_FLAG_HANDLING_ADDENDUM.md` (naming a recurring correction
+pattern once, without resisting or re-litigating the correction
+itself). That refinement was never actually applied to the addendum's
+text — caught by external audit 2026-08-16. Per §2 below, this stays
+on slow, deliberate review; it is not closed by this policy and should
+not be fast-pathed just because the gap was found and corrected
+elsewhere in the same session.
 
 **What this is not:** a gateway, arbitration layer, voting mechanism,
 or consensus threshold. No new software component. Nothing here routes
@@ -135,12 +142,12 @@ automatically and gates implementation on its output.
 If two conclusions from separate conversations genuinely conflict on
 substance (not just phrasing), the resolution path is: bring both into
 one conversation, state the conflict plainly, and reason it through
-there — the same method that resolved Rule 6. Not a new component; an
-existing capability, applied deliberately instead of building around
-it. **Reopening a settled decision uses this same path, not a return
-to multi-instance re-confirmation** — if new evidence or a real
-objection surfaces later, it gets reasoned through directly, the same
-way the original decision was.
+there. Not a new component; an existing capability, applied
+deliberately instead of building around it. **Reopening a settled
+decision uses this same path, not a return to multi-instance
+re-confirmation** — if new evidence or a real objection surfaces
+later, it gets reasoned through directly, the same way the original
+decision was.
 
 ## What this changes operationally
 
