@@ -20,11 +20,24 @@ systematically biased observer produces a large, stable, still-wrong
 dataset. This tool reports what the log actually shows -- it does not
 manufacture certainty from volume. See kernel Sec 9's fresh-pass test:
 repeated agreement is not independent verification.
+
+KNOWN ARCHITECTURAL GAP, flagged by external audit, deliberately
+deferred rather than silently ignored: ledger-compact's skeleton
+rollup aggregates behavioral_observation entries the same way as any
+other event type -- once compacted, individual observation_id links to
+their outcomes are lost, only aggregate counts survive. At current
+scale (a handful of observations) this doesn't matter. If this becomes
+a real longitudinal dataset, calibration-relevant entries (those with
+a linked outcome) should be exempted from compaction or moved to a
+separate uncompacted log before that happens -- not built now, since
+there's no real data yet to lose. Revisit when observation volume
+actually approaches the compaction threshold, not before.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import uuid
 from collections import Counter
 from datetime import datetime, timezone
 
@@ -37,6 +50,7 @@ def cmd_log_observation(args: argparse.Namespace) -> int:
     ledger_path = get_state_path("growth_ledger.jsonl")
     entry = {
         "event": EVENT_TYPE,
+        "observation_id": str(uuid.uuid4())[:8],
         "subject": args.subject,
         "observer": args.observer,
         "category": args.category,
@@ -48,13 +62,15 @@ def cmd_log_observation(args: argparse.Namespace) -> int:
     }
     with open(ledger_path, "a", encoding="utf-8") as f:
         f.write(json.dumps(entry) + "\n")
-    print(f"Logged: {args.subject} / {args.category} / {args.severity}")
+    print(f"Logged: {args.subject} / {args.category} / {args.severity} (id: {entry['observation_id']})")
     if not args.verified:
         print("  NOTE: logged as NOT verified against the actual transcript -- "
               "treat as a weaker data point in any later summary.")
     if not args.source:
         print("  NOTE: no --source given -- if this observation later appears to agree with "
               "others, that agreement can't be checked for shared-source contamination.")
+    print(f"  To record what happened when this was later cross-examined: "
+          f"llmos record-outcome {entry['observation_id']} <confirmed|disconfirmed|unresolved> \"<description>\"")
     return 0
 
 
@@ -68,6 +84,49 @@ def _load_observations() -> list[dict]:
             continue
         entry = json.loads(line)
         if entry.get("event") == EVENT_TYPE:
+            out.append(entry)
+    return out
+
+
+OUTCOME_EVENT_TYPE = "behavioral_observation_outcome"
+
+
+def cmd_record_outcome(args: argparse.Namespace) -> int:
+    ledger_path = get_state_path("growth_ledger.jsonl")
+    original = None
+    for obs in _load_observations():
+        if obs.get("observation_id") == args.observation_id:
+            original = obs
+            break
+    if original is None:
+        print(f"No observation found with id {args.observation_id} -- check `behavior-summary` "
+              "or the ledger directly for the correct id. Not recording a floating, unlinked outcome.")
+        return 1
+
+    entry = {
+        "event": OUTCOME_EVENT_TYPE,
+        "observation_id": args.observation_id,
+        "outcome": args.outcome,
+        "outcome_description": args.description,
+        "verified_independently": args.verified,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    with open(ledger_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry) + "\n")
+    print(f"Recorded outcome for {args.observation_id} ({original.get('subject')}/{original.get('category')}): {args.outcome}")
+    return 0
+
+
+def _load_outcomes() -> list[dict]:
+    ledger_path = get_state_path("growth_ledger.jsonl")
+    if not ledger_path.exists():
+        return []
+    out = []
+    for line in ledger_path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        entry = json.loads(line)
+        if entry.get("event") == OUTCOME_EVENT_TYPE:
             out.append(entry)
     return out
 
@@ -141,6 +200,26 @@ def cmd_summary(args: argparse.Namespace) -> int:
     if not flagged_any:
         print("  No subject/category has 2+ observations yet -- nothing to check.")
 
+    outcomes = _load_outcomes()
+    print(f"\nCalibration (observations with a recorded later outcome): {len(outcomes)}")
+    if not outcomes:
+        print("  None recorded yet -- this is still one-shot observation, not calibration. "
+              "Use `llmos record-outcome` when a cross-examination actually resolves something.")
+    else:
+        by_observer_outcome: dict[str, Counter] = {}
+        obs_by_id = {o.get("observation_id"): o for o in obs}
+        for oc in outcomes:
+            orig = obs_by_id.get(oc.get("observation_id"))
+            observer = orig.get("observer", "unspecified") if orig else "unknown-observation"
+            by_observer_outcome.setdefault(observer, Counter())[oc.get("outcome", "unspecified")] += 1
+        for observer, counts in by_observer_outcome.items():
+            total = sum(counts.values())
+            confirmed = counts.get("confirmed", 0)
+            rate = f"{confirmed}/{total}" if total else "n/a"
+            print(f"  {observer}: {dict(counts)} (confirmed rate: {rate})")
+        print("  This is a real calibration signal only once volume is meaningful -- "
+              "a handful of outcomes is not yet a track record.")
+
     return 0
 
 
@@ -158,6 +237,13 @@ def _configure_summary(p: argparse.ArgumentParser) -> None:
     pass
 
 
+def _configure_record_outcome(p: argparse.ArgumentParser) -> None:
+    p.add_argument("observation_id", help="The id printed when the original observation was logged")
+    p.add_argument("outcome", choices=["confirmed", "disconfirmed", "unresolved"])
+    p.add_argument("description", help="What the independent cross-examination actually found")
+    p.add_argument("--verified", action="store_true", help="Set only if the cross-examination itself was a real, independent check, not another unverified claim")
+
+
 def register(registry) -> None:
     registry.register(
         "log-observation", cmd_log_observation,
@@ -165,7 +251,12 @@ def register(registry) -> None:
         configure_parser=_configure_log_observation, source="behavior_log",
     )
     registry.register(
+        "record-outcome", cmd_record_outcome,
+        help="Record what happened when a logged observation was later cross-examined against independent evidence",
+        configure_parser=_configure_record_outcome, source="behavior_log",
+    )
+    registry.register(
         "behavior-summary", cmd_summary,
-        help="Summarize accumulated behavioral observations -- consistency/recurrence, not proof of accuracy",
+        help="Summarize accumulated behavioral observations -- consistency/recurrence and calibration once outcomes exist",
         configure_parser=_configure_summary, source="behavior_log",
     )
