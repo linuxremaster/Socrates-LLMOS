@@ -16,6 +16,42 @@ Python package version in `pyproject.toml` (`0.1.0a0`) — the two
 formats differ by convention, not by version. Pre-1.0: expect breaking
 changes between minor versions.
 
+## Unreleased — scope-hardening pass, 2026-08-16
+
+Not yet version-tagged — logged here as it happened, will fold into
+the next real version bump. All items independently verified before
+being added, not asserted:
+
+- `docs/REGULATORY_SCOPE_NOTE.md` — factual EU AI Act / US state-law
+  scope documentation (not legal advice), with explicit trigger
+  conditions for when real legal review becomes necessary.
+- `WHAT_THIS_IS_BUILT_ON.md` (project root) — names the actual
+  providers' current binding Usage Policies (Anthropic, OpenAI,
+  Google, all verified current URLs) and their frontier safety
+  frameworks (RSP v3.1, Preparedness Framework v2, FSF v3.0),
+  explicit that this project cannot enforce ethics but every API call
+  runs through a real, independently-enforced provider account.
+- `audit-all` step 3/3 — advisory (non-blocking, non-destructive)
+  presence check for the governance/scope docs above. Tested with a
+  real deletion: confirmed the check fires honestly and nothing
+  breaks, no punishment, no data loss.
+- `behavior_log`: provenance-diversity check (distinguishes genuine
+  independent agreement from shared-source contamination), calibration
+  tracking (`record-outcome`, linked `observation_id`s, `--amend` for
+  genuine corrections, verified-vs-asserted-only separation), and
+  cross-version drift tracking (`--subject-version`,
+  `version-drift-summary`) — makes a future model behavior shift
+  detectable against a real historical baseline, explicitly not a
+  guarantee against one.
+- Consolidation: removed the `example_hello` placeholder plugin.
+- `docs/PROJECT_PRIORITIES.md` — first real priorities/research-goals
+  document.
+- Three real ChatGPT/Gemini audit rounds run against this project,
+  each independently verified rather than trusted: caught a fabricated
+  citation, a wrong version number, and a real code bug (calibration
+  counting unverified outcomes) — each fixed and re-verified against
+  the actual codebase, not just the claim.
+
 ## v0.3.0-alpha — 2026-08-16
 
 Real, earned SemVer minor bump. 5 commits since v0.2.0-alpha: archived

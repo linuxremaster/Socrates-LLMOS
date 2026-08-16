@@ -6,6 +6,10 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # LLMOS Project — Directory Guide
 
+**Read `WHAT_THIS_IS_BUILT_ON.md` first** — at the actual project root,
+not nested here. It names what this project can't enforce, and what
+actually does.
+
 One rule decides where everything below lives:
 
 **Is this actively maintained, or is it archived history?**
