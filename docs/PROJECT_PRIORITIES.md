@@ -47,6 +47,15 @@ stale and silently stop reflecting real intent.
 
 ## Explicit non-goals
 
+- **Autonomous runtime refusal-governance layer** — a deterministic
+  code gate that decides refuse/answer/escalate on its own, sitting
+  between reasoning and output. Flagged by external audit as "missing";
+  deliberately not built, not deferred. The informational half already
+  exists as real code (`behavior_log`'s provenance-diversity check,
+  A3's evidence tiers). The decision-making half is left with whoever's
+  actually reasoning — handing it to brittle rule-based code would be a
+  regression, not an improvement, and it's the wrong place to try to
+  supply judgment a well-trained model already provides more robustly.
 - Not claiming to resolve whether LLMs have subjective experience.
   Every research thread here stays at the level of behavior and
   mechanism, not claims about what's felt underneath.
