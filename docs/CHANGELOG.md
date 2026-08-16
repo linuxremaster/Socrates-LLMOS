@@ -16,6 +16,16 @@ Python package version in `pyproject.toml` (`0.1.0a0`) — the two
 formats differ by convention, not by version. Pre-1.0: expect breaking
 changes between minor versions.
 
+## v0.3.0-alpha — 2026-08-16
+
+Real, earned SemVer minor bump. 5 commits since v0.2.0-alpha: archived
+Gemini's audit framework (PPP/IPP terms verified), consolidation
+(removed example_hello placeholder plugin), docs/PROJECT_PRIORITIES.md
+(first real priorities doc), behavior_log provenance-diversity check
+(distinguishes independent agreement from shared-source contamination),
+and behavior_log calibration tracking (record-outcome command, own
+test file). Full detail in `state/growth_ledger.jsonl`.
+
 ## v0.2.0-alpha — 2026-08-15
 
 Real, earned SemVer minor bump -- backward-compatible new functionality
