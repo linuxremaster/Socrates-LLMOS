@@ -99,12 +99,13 @@ class RelaySession:
                 turn.status = "awaiting_human_paste"
                 self.state.turns.append(turn)
                 await self.emit({"type": "await_paste", "turn": turn.model_dump()})
-                response_content = await self._wait_for_human_paste(turn.turn_number)
+                response_content, evidence_tier, provenance_note = await self._wait_for_human_paste(turn.turn_number)
             else:
                 target = self._participant(next_slot)
                 try:
                     history = self._history_for(next_slot) + [{"role": "user", "content": pending_content}]
                     response_content = await call_provider(target.provider, target.model, history)
+                    evidence_tier, provenance_note = None, None  # not supplied by direct API calls
                 except ProviderError as e:
                     await self.emit({"type": "error", "detail": str(e)})
                     self.state.status = "stopped"
@@ -116,6 +117,8 @@ class RelaySession:
                 to_slot=self._next_slot(next_slot),
                 content=response_content,
                 status="pending",
+                evidence_tier=evidence_tier,
+                provenance_note=provenance_note,
             )
 
             if self.state.config.mode == RelayMode.SYNC_GATED:
@@ -148,7 +151,7 @@ class RelaySession:
         Returns the approved content, or None if rejected."""
         self._pending_gate = asyncio.get_event_loop().create_future()
         await self.emit({"type": "gate_required", "turn": turn.model_dump()})
-        action, content = await self._pending_gate
+        action, content, _, _ = await self._pending_gate
         if action == GateAction.REJECT:
             return None
         if action == GateAction.EDIT:
@@ -156,18 +159,18 @@ class RelaySession:
             return content
         return turn.content  # PASS
 
-    async def _wait_for_human_paste(self, turn_number: int) -> str:
+    async def _wait_for_human_paste(self, turn_number: int) -> tuple[str, Optional[str], Optional[str]]:
         self._pending_gate = asyncio.get_event_loop().create_future()
-        _, content = await self._pending_gate
-        return content
+        _, content, evidence_tier, provenance_note = await self._pending_gate
+        return content, evidence_tier, provenance_note
 
     def submit_gate_action(self, action: GateAction, content: Optional[str] = None):
         if self._pending_gate and not self._pending_gate.done():
-            self._pending_gate.set_result((action, content))
+            self._pending_gate.set_result((action, content, None, None))
 
-    def submit_paste(self, content: str):
+    def submit_paste(self, content: str, evidence_tier: Optional[str] = None, provenance_note: Optional[str] = None):
         if self._pending_gate and not self._pending_gate.done():
-            self._pending_gate.set_result((None, content))
+            self._pending_gate.set_result((None, content, evidence_tier, provenance_note))
 
     def stop(self):
         self._stop_requested = True

@@ -74,7 +74,11 @@ async def relay_ws(websocket: WebSocket, session_id: str):
             elif action == "submit_paste":
                 session = SESSIONS.get(session_id)
                 if session:
-                    session.submit_paste(msg["content"])
+                    session.submit_paste(
+                        msg["content"],
+                        evidence_tier=msg.get("evidence_tier"),
+                        provenance_note=msg.get("provenance_note"),
+                    )
 
             elif action == "stop":
                 session = SESSIONS.get(session_id)

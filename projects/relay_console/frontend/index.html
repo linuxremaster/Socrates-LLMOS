@@ -75,6 +75,16 @@
       <p class="paste-instructions">Copy the message above into the target participant's actual chat interface, paste their response below, then submit.</p>
       <button type="button" id="copy-pending-btn" class="btn-ghost">Copy Message to Clipboard</button>
       <textarea id="paste-content" rows="4" placeholder="Paste the response here..."></textarea>
+      <div class="provenance-fields">
+        <select id="paste-evidence-tier">
+          <option value="">Evidence tier (optional)</option>
+          <option value="V">V — Verified</option>
+          <option value="I">I — Inferred</option>
+          <option value="A">A — Assumed</option>
+          <option value="U">U — Unknown</option>
+        </select>
+        <input type="text" id="paste-provenance-note" placeholder="What this is grounded in (optional)">
+      </div>
       <button type="button" id="paste-submit" class="btn-primary">Submit Response</button>
     </div>
 

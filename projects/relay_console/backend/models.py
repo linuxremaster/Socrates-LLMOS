@@ -44,6 +44,8 @@ class Turn(BaseModel):
     content: str
     status: str = "pending"  # pending | approved | edited | rejected | sent | complete
     original_content: Optional[str] = None  # set only if edited, preserves what was proposed
+    evidence_tier: Optional[str] = None  # V | I | A | U -- kernel A3 tiers, if the human/model tagging this turn supplies one
+    provenance_note: Optional[str] = None  # free text: what this turn's content is actually grounded in, if known
 
 
 class SessionConfig(BaseModel):

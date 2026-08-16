@@ -84,9 +84,13 @@ function appendTranscript(turn) {
   const t = el("transcript");
   const div = document.createElement("div");
   div.className = "transcript-turn";
+  const provenanceLine = (turn.evidence_tier || turn.provenance_note)
+    ? `<div class="transcript-provenance">${turn.evidence_tier ? `[${turn.evidence_tier}]` : ""} ${turn.provenance_note || ""}</div>`
+    : "";
   div.innerHTML = `
     <div class="transcript-meta">TURN ${turn.turn_number} — ${turn.from_slot} → ${turn.to_slot} — ${turn.status.toUpperCase()}</div>
     <div class="transcript-content"></div>
+    ${provenanceLine}
   `;
   div.querySelector(".transcript-content").textContent = turn.content;
   t.appendChild(div);
@@ -215,8 +219,15 @@ el("copy-pending-btn").addEventListener("click", async () => {
 });
 
 el("paste-submit").addEventListener("click", () => {
-  ws.send(JSON.stringify({ action: "submit_paste", content: el("paste-content").value }));
+  ws.send(JSON.stringify({
+    action: "submit_paste",
+    content: el("paste-content").value,
+    evidence_tier: el("paste-evidence-tier").value || null,
+    provenance_note: el("paste-provenance-note").value || null,
+  }));
   el("paste-content").value = "";
+  el("paste-evidence-tier").value = "";
+  el("paste-provenance-note").value = "";
   el("paste-bar").hidden = true;
 });
 
