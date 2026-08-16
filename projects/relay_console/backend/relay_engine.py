@@ -101,7 +101,7 @@ class RelaySession:
                 await self.emit({"type": "await_paste", "turn": turn.model_dump()})
                 response_content, evidence_tier, provenance_note = await self._wait_for_human_paste(turn.turn_number)
                 print(f"[TRACE] _wait_for_human_paste resumed with content={response_content!r}, "
-                      f"evidence_tier={evidence_tier!r}, provenance_note={provenance_note!r}")
+                      f"evidence_tier={evidence_tier!r}, provenance_note={provenance_note!r}", flush=True)
             else:
                 target = self._participant(next_slot)
                 try:
@@ -145,7 +145,7 @@ class RelaySession:
                 provenance_note=provenance_note,
             )
             print(f"[TRACE] reply_turn constructed successfully: turn_number={reply_turn.turn_number}, "
-                  f"mode={self.state.config.mode}")
+                  f"mode={self.state.config.mode}", flush=True)
 
             if self.state.config.mode == RelayMode.SYNC_GATED:
                 # ASYNC_GATED doesn't gate again here -- the human already
