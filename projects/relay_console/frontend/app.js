@@ -4,7 +4,7 @@
 
 // Frontend version -- bump this string every time index.html/app.js/style.css
 // change, so a hard-refresh visibly proves whether the new files actually loaded.
-const FRONTEND_VERSION = "fe-2026.08.16-05";
+const FRONTEND_VERSION = "fe-2026.08.16-06";
 
 // Temporary diagnostic: report any JS error to the server terminal, since
 // this device has no way to view the browser's own JS console without a
@@ -20,6 +20,23 @@ window.addEventListener("error", (event) => {
       stack: event.error ? event.error.stack : null,
     }),
   }).catch(() => {}); // don't let the error-reporter itself throw
+});
+
+// The above only catches synchronous errors -- a rejected Promise (fetch,
+// WebSocket sends, navigator.clipboard.writeText, all used in this file)
+// does NOT trigger a plain "error" event. Needed separately, or a real
+// failure could produce zero output in either handler.
+window.addEventListener("unhandledrejection", (event) => {
+  fetch("/api/debug-log", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: "UNHANDLED PROMISE REJECTION: " + (event.reason && event.reason.message ? event.reason.message : String(event.reason)),
+      source: "(promise)",
+      line: "(promise)",
+      stack: event.reason && event.reason.stack ? event.reason.stack : null,
+    }),
+  }).catch(() => {});
 });
 
 const PROVIDER_MODELS = {
@@ -197,6 +214,27 @@ el("start-btn").addEventListener("click", () => {
   ws = new WebSocket(`ws://${location.host}/ws/${sessionId}`);
   ws.onopen = () => ws.send(JSON.stringify({ action: "start_session", config }));
   ws.onmessage = (e) => handleEvent(JSON.parse(e.data));
+  ws.onclose = (e) => {
+    fetch("/api/debug-log", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: `WEBSOCKET CLOSED -- code ${e.code}, reason: ${e.reason || "(none given)"}, clean: ${e.wasClean}`,
+        source: "(websocket lifecycle)", line: "(websocket lifecycle)", stack: null,
+      }),
+    }).catch(() => {});
+    setHint("Connection to the server was lost. Refresh and start a new session.");
+  };
+  ws.onerror = () => {
+    fetch("/api/debug-log", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: `WEBSOCKET ERROR -- readyState at time of error: ${ws.readyState}`,
+        source: "(websocket lifecycle)", line: "(websocket lifecycle)", stack: null,
+      }),
+    }).catch(() => {});
+  };
 });
 
 el("gate-pass").addEventListener("click", () => {
