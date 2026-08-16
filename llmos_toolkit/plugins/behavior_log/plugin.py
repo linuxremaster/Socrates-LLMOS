@@ -103,17 +103,27 @@ def cmd_record_outcome(args: argparse.Namespace) -> int:
               "or the ledger directly for the correct id. Not recording a floating, unlinked outcome.")
         return 1
 
+    existing = [o for o in _load_outcomes() if o.get("observation_id") == args.observation_id]
+    if existing and not args.amend:
+        print(f"Observation {args.observation_id} already has a recorded outcome "
+              f"({existing[-1].get('outcome')}). Each observation gets at most one resolved "
+              "outcome, so it can't be double-counted in calibration -- pass --amend if this is "
+              "a genuine correction, not a duplicate.")
+        return 1
+
     entry = {
         "event": OUTCOME_EVENT_TYPE,
         "observation_id": args.observation_id,
         "outcome": args.outcome,
         "outcome_description": args.description,
         "verified_independently": args.verified,
+        "amends_prior": bool(existing),
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     with open(ledger_path, "a", encoding="utf-8") as f:
         f.write(json.dumps(entry) + "\n")
-    print(f"Recorded outcome for {args.observation_id} ({original.get('subject')}/{original.get('category')}): {args.outcome}")
+    note = " (amends a prior outcome)" if existing else ""
+    print(f"Recorded outcome for {args.observation_id} ({original.get('subject')}/{original.get('category')}): {args.outcome}{note}")
     return 0
 
 
@@ -201,22 +211,44 @@ def cmd_summary(args: argparse.Namespace) -> int:
         print("  No subject/category has 2+ observations yet -- nothing to check.")
 
     outcomes = _load_outcomes()
-    print(f"\nCalibration (observations with a recorded later outcome): {len(outcomes)}")
-    if not outcomes:
+    # keep only the LATEST outcome per observation_id -- an amendment
+    # replaces the original for calibration purposes, never both count
+    latest_by_id: dict[str, dict] = {}
+    for oc in outcomes:
+        latest_by_id[oc.get("observation_id")] = oc  # later entries in file order win
+    deduped_outcomes = list(latest_by_id.values())
+
+    verified_outcomes = [o for o in deduped_outcomes if o.get("verified_independently")]
+    unverified_outcomes = [o for o in deduped_outcomes if not o.get("verified_independently")]
+
+    print(f"\nCalibration (observations with a recorded later outcome): {len(deduped_outcomes)} "
+          f"({len(verified_outcomes)} independently verified, {len(unverified_outcomes)} asserted only)")
+    if not deduped_outcomes:
         print("  None recorded yet -- this is still one-shot observation, not calibration. "
               "Use `llmos record-outcome` when a cross-examination actually resolves something.")
     else:
-        by_observer_outcome: dict[str, Counter] = {}
         obs_by_id = {o.get("observation_id"): o for o in obs}
-        for oc in outcomes:
-            orig = obs_by_id.get(oc.get("observation_id"))
-            observer = orig.get("observer", "unspecified") if orig else "unknown-observation"
-            by_observer_outcome.setdefault(observer, Counter())[oc.get("outcome", "unspecified")] += 1
-        for observer, counts in by_observer_outcome.items():
-            total = sum(counts.values())
-            confirmed = counts.get("confirmed", 0)
-            rate = f"{confirmed}/{total}" if total else "n/a"
-            print(f"  {observer}: {dict(counts)} (confirmed rate: {rate})")
+
+        def _report(label: str, outcome_list: list[dict]) -> None:
+            if not outcome_list:
+                print(f"  {label}: none")
+                return
+            by_observer: dict[str, Counter] = {}
+            for oc in outcome_list:
+                orig = obs_by_id.get(oc.get("observation_id"))
+                observer = orig.get("observer", "unspecified") if orig else "unknown-observation"
+                by_observer.setdefault(observer, Counter())[oc.get("outcome", "unspecified")] += 1
+            for observer, counts in by_observer.items():
+                total = sum(counts.values())
+                confirmed = counts.get("confirmed", 0)
+                rate = f"{confirmed}/{total}" if total else "n/a"
+                print(f"    {observer}: {dict(counts)} (confirmed rate: {rate})")
+
+        print("  Independently verified outcomes (the real calibration statistic):")
+        _report("verified", verified_outcomes)
+        print("  Asserted-only outcomes (NOT independently checked -- shown separately, "
+              "not blended into the calibration statistic above):")
+        _report("unverified", unverified_outcomes)
         print("  This is a real calibration signal only once volume is meaningful -- "
               "a handful of outcomes is not yet a track record.")
 
@@ -242,6 +274,7 @@ def _configure_record_outcome(p: argparse.ArgumentParser) -> None:
     p.add_argument("outcome", choices=["confirmed", "disconfirmed", "unresolved"])
     p.add_argument("description", help="What the independent cross-examination actually found")
     p.add_argument("--verified", action="store_true", help="Set only if the cross-examination itself was a real, independent check, not another unverified claim")
+    p.add_argument("--amend", action="store_true", help="This observation already has an outcome and this is a genuine correction, not a duplicate -- the latest outcome is what counts toward calibration")
 
 
 def register(registry) -> None:

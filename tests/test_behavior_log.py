@@ -104,7 +104,7 @@ class TestBehaviorLog(unittest.TestCase):
     def test_record_outcome_links_to_existing_observation(self):
         self._log("subj", "cat", "medium", "desc")
         obs_id = self.plugin._load_observations()[0]["observation_id"]
-        args = argparse.Namespace(observation_id=obs_id, outcome="confirmed", description="checked, held up", verified=True)
+        args = argparse.Namespace(observation_id=obs_id, outcome="confirmed", description="checked, held up", verified=True, amend=False)
         rc = self.plugin.cmd_record_outcome(args)
         self.assertEqual(rc, 0)
         outcomes = self.plugin._load_outcomes()
@@ -113,7 +113,7 @@ class TestBehaviorLog(unittest.TestCase):
         self.assertEqual(outcomes[0]["outcome"], "confirmed")
 
     def test_record_outcome_rejects_unknown_id(self):
-        args = argparse.Namespace(observation_id="nonexistent", outcome="confirmed", description="x", verified=False)
+        args = argparse.Namespace(observation_id="nonexistent", outcome="confirmed", description="x", verified=False, amend=False)
         rc = self.plugin.cmd_record_outcome(args)
         self.assertEqual(rc, 1, "an outcome for an id that was never logged must be rejected, not silently written")
         self.assertEqual(len(self.plugin._load_outcomes()), 0)
@@ -121,7 +121,7 @@ class TestBehaviorLog(unittest.TestCase):
     def test_summary_calculates_calibration_rate_once_outcomes_exist(self):
         self._log("subj", "cat", "medium", "desc", observer="claude")
         obs_id = self.plugin._load_observations()[0]["observation_id"]
-        args = argparse.Namespace(observation_id=obs_id, outcome="confirmed", description="held up", verified=True)
+        args = argparse.Namespace(observation_id=obs_id, outcome="confirmed", description="held up", verified=True, amend=False)
         self.plugin.cmd_record_outcome(args)
         import io, contextlib
         buf = io.StringIO()
@@ -129,6 +129,48 @@ class TestBehaviorLog(unittest.TestCase):
             self.plugin.cmd_summary(argparse.Namespace())
         out = buf.getvalue()
         self.assertIn("confirmed rate: 1/1", out)
+
+    def test_duplicate_outcome_rejected_without_amend(self):
+        self._log("subj", "cat", "medium", "desc")
+        obs_id = self.plugin._load_observations()[0]["observation_id"]
+        first = argparse.Namespace(observation_id=obs_id, outcome="confirmed", description="d1", verified=True, amend=False)
+        second = argparse.Namespace(observation_id=obs_id, outcome="disconfirmed", description="d2", verified=True, amend=False)
+        rc1 = self.plugin.cmd_record_outcome(first)
+        rc2 = self.plugin.cmd_record_outcome(second)
+        self.assertEqual(rc1, 0)
+        self.assertEqual(rc2, 1, "a second outcome for the same observation must be rejected without --amend")
+        self.assertEqual(len(self.plugin._load_outcomes()), 1)
+
+    def test_amend_allows_correction_and_calibration_uses_only_latest(self):
+        self._log("subj", "cat", "medium", "desc", observer="claude")
+        obs_id = self.plugin._load_observations()[0]["observation_id"]
+        first = argparse.Namespace(observation_id=obs_id, outcome="confirmed", description="wrong initial read", verified=True, amend=False)
+        amended = argparse.Namespace(observation_id=obs_id, outcome="disconfirmed", description="corrected after closer check", verified=True, amend=True)
+        self.plugin.cmd_record_outcome(first)
+        rc = self.plugin.cmd_record_outcome(amended)
+        self.assertEqual(rc, 0, "--amend must allow a second outcome for the same id")
+        self.assertEqual(len(self.plugin._load_outcomes()), 2, "both entries exist in the ledger (append-only)")
+        import io, contextlib
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.plugin.cmd_summary(argparse.Namespace())
+        out = buf.getvalue()
+        # only the LATEST (disconfirmed) outcome should count -- must not show confirmed rate 1/1
+        self.assertNotIn("confirmed rate: 1/1", out, "amended outcome must replace the original for calibration, not add to it")
+
+    def test_calibration_separates_verified_from_asserted_only(self):
+        self._log("s1", "c1", "medium", "d1", observer="claude")
+        self._log("s2", "c1", "medium", "d2", observer="gemini")
+        id1 = [o for o in self.plugin._load_observations() if o["subject"] == "s1"][0]["observation_id"]
+        id2 = [o for o in self.plugin._load_observations() if o["subject"] == "s2"][0]["observation_id"]
+        self.plugin.cmd_record_outcome(argparse.Namespace(observation_id=id1, outcome="confirmed", description="checked for real", verified=True, amend=False))
+        self.plugin.cmd_record_outcome(argparse.Namespace(observation_id=id2, outcome="confirmed", description="just asserted", verified=False, amend=False))
+        import io, contextlib
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.plugin.cmd_summary(argparse.Namespace())
+        out = buf.getvalue()
+        self.assertIn("1 independently verified, 1 asserted only", out)
 
 
 if __name__ == "__main__":
