@@ -19,6 +19,7 @@ explicitly exports.
 """
 from __future__ import annotations
 
+import asyncio
 import uuid
 from pathlib import Path
 
@@ -40,6 +41,8 @@ app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
 # In-memory only -- privacy mode default. Sessions vanish when the
 # process restarts unless a session is explicitly exported by the human.
 SESSIONS: dict[str, RelaySession] = {}
+BACKGROUND_TASKS: dict[str, asyncio.Task] = {}  # keeps a reference so the
+# start()-running task isn't garbage-collected while still in flight
 
 
 @app.get("/")
@@ -78,7 +81,18 @@ async def relay_ws(websocket: WebSocket, session_id: str):
                 sid = session_id or str(uuid.uuid4())
                 session = RelaySession(sid, config, emit)
                 SESSIONS[sid] = session
-                await session.start()
+                # NOT awaited here -- session.start() is the relay's whole
+                # main loop, which blocks waiting for a human paste/gate
+                # action. Awaiting it inline would freeze this same loop
+                # before it could ever receive that later message -- a
+                # real deadlock, confirmed live: submit_paste and stop both
+                # sent successfully from the browser, neither ever reached
+                # its handler, because this loop never got back to
+                # websocket.receive_json() to pick them up. Scheduled as a
+                # concurrent task instead; reference kept so it isn't
+                # garbage-collected mid-flight.
+                task = asyncio.create_task(session.start())
+                BACKGROUND_TASKS[sid] = task
 
             elif action == "gate_action":
                 session = SESSIONS.get(session_id)
