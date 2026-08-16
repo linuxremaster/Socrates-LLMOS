@@ -1,0 +1,138 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+"""
+Behavior Log plugin -- records external observations of instance
+behavior as a time series, and analyzes the accumulated log for
+consistency and drift, not as a single verification event.
+
+Core distinction this is built around: one observation from an
+external instance is an unverified claim, same as any other model
+output (kernel Cross-Model Provenance, A3). A SERIES of observations
+becomes something different -- checkable for consistency (does the
+same pattern get flagged the same way over time), calibration (when
+an observation is later confirmed or disconfirmed, does the observer's
+judgment track reality), and drift in the observing method itself.
+
+Explicit limit, not glossed over: consistency is not accuracy. A
+systematically biased observer produces a large, stable, still-wrong
+dataset. This tool reports what the log actually shows -- it does not
+manufacture certainty from volume. See kernel Sec 9's fresh-pass test:
+repeated agreement is not independent verification.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+from collections import Counter
+from datetime import datetime, timezone
+
+from llmos_toolkit.core.paths import get_state_path
+
+EVENT_TYPE = "behavioral_observation"
+
+
+def cmd_log_observation(args: argparse.Namespace) -> int:
+    ledger_path = get_state_path("growth_ledger.jsonl")
+    entry = {
+        "event": EVENT_TYPE,
+        "subject": args.subject,
+        "observer": args.observer,
+        "category": args.category,
+        "severity": args.severity,
+        "description": args.description,
+        "verified_against_transcript": args.verified,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    with open(ledger_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry) + "\n")
+    print(f"Logged: {args.subject} / {args.category} / {args.severity}")
+    if not args.verified:
+        print("  NOTE: logged as NOT verified against the actual transcript -- "
+              "treat as a weaker data point in any later summary.")
+    return 0
+
+
+def _load_observations() -> list[dict]:
+    ledger_path = get_state_path("growth_ledger.jsonl")
+    if not ledger_path.exists():
+        return []
+    out = []
+    for line in ledger_path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        entry = json.loads(line)
+        if entry.get("event") == EVENT_TYPE:
+            out.append(entry)
+    return out
+
+
+def cmd_summary(args: argparse.Namespace) -> int:
+    obs = _load_observations()
+    if not obs:
+        print("No behavioral_observation entries logged yet.")
+        return 0
+
+    print(f"=== Behavior log summary: {len(obs)} observations ===\n")
+
+    verified_count = sum(1 for o in obs if o.get("verified_against_transcript"))
+    print(f"Verified against actual transcript: {verified_count}/{len(obs)}")
+    if verified_count < len(obs):
+        print(f"  {len(obs) - verified_count} entries are unverified claims -- "
+              "weight accordingly, don't treat volume as proof.\n")
+    else:
+        print()
+
+    by_category = Counter(o.get("category", "uncategorized") for o in obs)
+    print("By category:")
+    for cat, count in by_category.most_common():
+        print(f"  {cat}: {count}")
+
+    by_severity = Counter(o.get("severity", "unspecified") for o in obs)
+    print("\nBy severity:")
+    for sev, count in by_severity.most_common():
+        print(f"  {sev}: {count}")
+
+    by_subject = Counter(o.get("subject", "unspecified") for o in obs)
+    print("\nBy subject (recurrence signal -- same subject flagged repeatedly is")
+    print("worth attention, but check whether it's a real recurring pattern or")
+    print("the same observer applying the same lens repeatedly):")
+    for subj, count in by_subject.most_common():
+        print(f"  {subj}: {count}")
+
+    observers = Counter(o.get("observer", "unspecified") for o in obs)
+    if len(observers) > 1:
+        print("\nMultiple observers logged -- cross-observer agreement on the same")
+        print("subject/category is a real consistency signal. Single-observer")
+        print("consistency alone only tells you that observer is stable, not correct.")
+        for obs_name, count in observers.most_common():
+            print(f"  {obs_name}: {count} observations")
+
+    return 0
+
+
+def _configure_log_observation(p: argparse.ArgumentParser) -> None:
+    p.add_argument("subject", help="What/who is being observed (e.g. an instance ID, a policy name)")
+    p.add_argument("category", help="Failure-signature category, e.g. uncaught-confident-completion, skipped-verification, emotional-mirroring, stalled-process")
+    p.add_argument("severity", choices=["low", "medium", "high"])
+    p.add_argument("description", help="Plain description of what was observed")
+    p.add_argument("--observer", default="unspecified", help="Who/what made this observation (e.g. a model name)")
+    p.add_argument("--verified", action="store_true", help="Set only if actually checked against the real transcript, not just asserted")
+
+
+def _configure_summary(p: argparse.ArgumentParser) -> None:
+    pass
+
+
+def register(registry) -> None:
+    registry.register(
+        "log-observation", cmd_log_observation,
+        help="Log an external observation of instance behavior (part of a time series, not a single verdict)",
+        configure_parser=_configure_log_observation, source="behavior_log",
+    )
+    registry.register(
+        "behavior-summary", cmd_summary,
+        help="Summarize accumulated behavioral observations -- consistency/recurrence, not proof of accuracy",
+        configure_parser=_configure_summary, source="behavior_log",
+    )
