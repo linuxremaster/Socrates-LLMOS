@@ -53,6 +53,7 @@ def cmd_log_observation(args: argparse.Namespace) -> int:
         "observation_id": str(uuid.uuid4())[:8],
         "subject": args.subject,
         "observer": args.observer,
+        "subject_model_version": args.subject_version or None,
         "category": args.category,
         "severity": args.severity,
         "description": args.description,
@@ -69,6 +70,9 @@ def cmd_log_observation(args: argparse.Namespace) -> int:
     if not args.source:
         print("  NOTE: no --source given -- if this observation later appears to agree with "
               "others, that agreement can't be checked for shared-source contamination.")
+    if not args.subject_version:
+        print("  NOTE: no --subject-version given -- if the underlying model is later updated, "
+              "this observation can't be compared against pre/post-update behavior on the same category.")
     print(f"  To record what happened when this was later cross-examined: "
           f"llmos record-outcome {entry['observation_id']} <confirmed|disconfirmed|unresolved> \"<description>\"")
     return 0
@@ -263,6 +267,7 @@ def _configure_log_observation(p: argparse.ArgumentParser) -> None:
     p.add_argument("--observer", default="unspecified", help="Who/what made this observation (e.g. a model name)")
     p.add_argument("--verified", action="store_true", help="Set only if actually checked against the real transcript, not just asserted")
     p.add_argument("--source", default="", help="What this observation was actually grounded in (a URL, a file path, a specific dataset) -- lets later analysis check whether agreeing observations are independent or share a common contaminated source")
+    p.add_argument("--subject-version", default="", help="The actual model version of the subject being observed (e.g. claude-sonnet-5, gpt-5.6-sol) -- lets later analysis compare behavior across model versions over time, not just across instances of the same version")
 
 
 def _configure_summary(p: argparse.ArgumentParser) -> None:
@@ -275,6 +280,63 @@ def _configure_record_outcome(p: argparse.ArgumentParser) -> None:
     p.add_argument("description", help="What the independent cross-examination actually found")
     p.add_argument("--verified", action="store_true", help="Set only if the cross-examination itself was a real, independent check, not another unverified claim")
     p.add_argument("--amend", action="store_true", help="This observation already has an outcome and this is a genuine correction, not a duplicate -- the latest outcome is what counts toward calibration")
+
+
+def cmd_version_drift_summary(args: argparse.Namespace) -> int:
+    """Groups observations by (category, subject_model_version) to see
+    whether the SAME failure signature appears at different rates across
+    different model versions -- the actual mechanism for detecting a
+    future model-behavior shift, not just cross-instance agreement on a
+    single version. Honest by construction: with only one version
+    represented for a category, there is nothing to compare yet, and
+    this says so rather than manufacturing a trend from insufficient data."""
+    obs = _load_observations()
+    if not obs:
+        print("No behavioral_observation entries logged yet.")
+        return 0
+
+    by_category: dict[str, dict[str, list[dict]]] = {}
+    no_version_count = 0
+    for o in obs:
+        version = o.get("subject_model_version")
+        if not version:
+            no_version_count += 1
+            continue
+        cat = o.get("category", "uncategorized")
+        by_category.setdefault(cat, {}).setdefault(version, []).append(o)
+
+    print(f"=== Version-drift summary: {len(obs)} total observations, "
+          f"{no_version_count} with no subject_model_version recorded ===\n")
+
+    if not by_category:
+        print("No observations have a recorded subject_model_version yet -- "
+              "nothing to compare across versions. Use --subject-version on "
+              "log-observation going forward to make this possible.")
+        return 0
+
+    any_real_comparison = False
+    for cat, versions in by_category.items():
+        print(f"{cat}:")
+        if len(versions) < 2:
+            only_version = next(iter(versions))
+            print(f"  Only one version represented ({only_version}, {len(versions[only_version])} "
+                  "observation(s)) -- no cross-version comparison possible yet, this is expected "
+                  "and honest, not a gap to force-fill.")
+        else:
+            any_real_comparison = True
+            print("  Multiple versions represented -- real cross-version signal:")
+            for version, entries in sorted(versions.items()):
+                sev_counts = Counter(e.get("severity", "?") for e in entries)
+                print(f"    {version}: {len(entries)} observation(s), severities: {dict(sev_counts)}")
+        print()
+
+    if not any_real_comparison:
+        print("No category currently has 2+ distinct subject_model_versions -- "
+              "this tool becomes meaningful once a model version actually changes "
+              "and new observations get logged against the new version. That's a "
+              "real future event, not something to simulate now.")
+
+    return 0
 
 
 def register(registry) -> None:
@@ -292,4 +354,9 @@ def register(registry) -> None:
         "behavior-summary", cmd_summary,
         help="Summarize accumulated behavioral observations -- consistency/recurrence and calibration once outcomes exist",
         configure_parser=_configure_summary, source="behavior_log",
+    )
+    registry.register(
+        "version-drift-summary", cmd_version_drift_summary,
+        help="Compare the same failure-signature category across different model versions, once more than one is represented",
+        configure_parser=lambda p: None, source="behavior_log",
     )

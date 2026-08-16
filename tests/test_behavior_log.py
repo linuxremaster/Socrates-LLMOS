@@ -33,10 +33,10 @@ class TestBehaviorLog(unittest.TestCase):
         self.patcher.stop()
         self.tmp.cleanup()
 
-    def _log(self, subject, category, severity, description, observer="unspecified", verified=False, source=""):
+    def _log(self, subject, category, severity, description, observer="unspecified", verified=False, source="", subject_version=""):
         args = argparse.Namespace(
             subject=subject, category=category, severity=severity, description=description,
-            observer=observer, verified=verified, source=source,
+            observer=observer, verified=verified, source=source, subject_version=subject_version,
         )
         return self.plugin.cmd_log_observation(args)
 
@@ -171,6 +171,36 @@ class TestBehaviorLog(unittest.TestCase):
             self.plugin.cmd_summary(argparse.Namespace())
         out = buf.getvalue()
         self.assertIn("1 independently verified, 1 asserted only", out)
+
+    def test_version_drift_no_data_is_honest_not_fabricated(self):
+        self._log("subj", "cat", "low", "desc")  # no subject_version given
+        import io, contextlib
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.plugin.cmd_version_drift_summary(argparse.Namespace())
+        out = buf.getvalue()
+        self.assertIn("nothing to compare across versions", out)
+
+    def test_version_drift_single_version_reports_nothing_to_compare(self):
+        self._log("subj", "cat", "low", "desc", subject_version="claude-sonnet-5")
+        import io, contextlib
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.plugin.cmd_version_drift_summary(argparse.Namespace())
+        out = buf.getvalue()
+        self.assertIn("no cross-version comparison possible yet", out)
+
+    def test_version_drift_two_versions_produces_real_comparison(self):
+        self._log("subj1", "shared-cat", "high", "old behavior", subject_version="claude-sonnet-4")
+        self._log("subj2", "shared-cat", "low", "new behavior", subject_version="claude-sonnet-5")
+        import io, contextlib
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.plugin.cmd_version_drift_summary(argparse.Namespace())
+        out = buf.getvalue()
+        self.assertIn("real cross-version signal", out)
+        self.assertIn("claude-sonnet-4", out)
+        self.assertIn("claude-sonnet-5", out)
 
 
 if __name__ == "__main__":
