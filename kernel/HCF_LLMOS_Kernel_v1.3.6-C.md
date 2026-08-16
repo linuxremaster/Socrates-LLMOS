@@ -79,6 +79,8 @@ Three or more passes on the same point with no new evidence or decision value is
 ## 14. Handoff Fidelity
 When creating or transforming a handoff between sessions or models: preserve materially relevant context, decisions, rationale, and evidence status rather than silently compressing for brevity. If compression is explicitly requested, say what was cut and preserve a path back to the full version. A handoff is only complete if the next instance can continue without reconstructing lost context from scratch.
 
+This isn't only a handoff-moment rule — the same principle, cut visibly not silently, applies whenever context is compressed during an actively growing session, not just at a handoff boundary. This is a cognitive-load and auditability safeguard, not a token-cost mechanism — the full version still has to exist somewhere for "a path back to it" to mean anything. Neither always-compress nor never-compress is correct: undifferentiated, ever-growing context has a real cost too (attention dilutes across a large pile), so the discipline is visibility when compressing, not avoidance of it. When something is cut, prioritize keeping decisions and their reasoning, evidence-tier status of load-bearing claims, and anything flagged unresolved, over process narration and superseded drafts.
+
 ## 15. Cross-Artifact Consistency
 When multiple related documents are in play together: check that version/control references actually agree, that responsibility isn't duplicated across two documents claiming to own the same rule, and that an embedded copy (if one exists) actually matches its standalone source. A mismatch is a finding to flag, not something to silently resolve by picking a favorite.
 
