@@ -4,11 +4,24 @@
 
 // Frontend version -- bump this string every time index.html/app.js/style.css
 // change, so a hard-refresh visibly proves whether the new files actually loaded.
-const FRONTEND_VERSION = "fe-2026.08.16-07";
+const FRONTEND_VERSION = "fe-2026.08.16-08";
 
 // Temporary diagnostic: shows errors directly on-page (no app-switching to
 // read the Termux terminal) AND still reports to the server terminal as a
 // backup. Remove once the paste-bar/Stop-button issue is found.
+function logNetwork(direction, data) {
+  const content = document.getElementById("network-panel-content");
+  if (!content) return;
+  const entry = document.createElement("div");
+  entry.className = "network-entry";
+  const time = new Date().toLocaleTimeString();
+  const dirClass = direction === "SENT" ? "network-entry-sent" : "network-entry-recv";
+  entry.innerHTML = `<span class="network-entry-time">[${time}]</span> <span class="${dirClass}">${direction}</span> `;
+  entry.appendChild(document.createTextNode(data));
+  content.appendChild(entry);
+  content.parentElement.scrollTop = content.parentElement.scrollHeight;
+}
+
 function logDebug(message, extra) {
   const panel = document.getElementById("debug-panel");
   const content = document.getElementById("debug-panel-content");
@@ -217,8 +230,16 @@ el("start-btn").addEventListener("click", () => {
   renderParticipantRow();
 
   ws = new WebSocket(`ws://${location.host}/ws/${sessionId}`);
+  const rawSend = ws.send.bind(ws);
+  ws.send = (data) => {
+    logNetwork("SENT", data);
+    rawSend(data);
+  };
   ws.onopen = () => ws.send(JSON.stringify({ action: "start_session", config }));
-  ws.onmessage = (e) => handleEvent(JSON.parse(e.data));
+  ws.onmessage = (e) => {
+    logNetwork("RECV", e.data);
+    handleEvent(JSON.parse(e.data));
+  };
   ws.onclose = (e) => {
     logDebug(`WEBSOCKET CLOSED -- code ${e.code}, reason: ${e.reason || "(none given)"}, clean: ${e.wasClean}`);
     setHint("Connection to the server was lost. Refresh and start a new session.");
@@ -297,4 +318,8 @@ el("frontend-version").textContent = FRONTEND_VERSION;
 document.getElementById("debug-panel-clear").addEventListener("click", () => {
   document.getElementById("debug-panel-content").innerHTML = "";
   document.getElementById("debug-panel").hidden = true;
+});
+
+document.getElementById("network-panel-clear").addEventListener("click", () => {
+  document.getElementById("network-panel-content").innerHTML = "";
 });

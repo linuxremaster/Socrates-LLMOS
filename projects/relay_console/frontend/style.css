@@ -250,6 +250,45 @@ h2 {
 }
 .debug-entry-time { color: #ffaaaa; font-weight: bold; }
 
+.network-panel {
+  margin-top: 20px;
+  background: var(--panel-raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.network-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  position: sticky;
+  top: 0;
+  background: var(--panel-raised);
+}
+.network-panel-header button {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+}
+.network-entry {
+  padding: 4px 12px;
+  border-bottom: 1px solid var(--border);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.network-entry-sent { color: var(--amber); }
+.network-entry-recv { color: #6ec9ff; }
+.network-entry-time { color: var(--text-muted); }
+
 .next-action {
   animation: next-action-glow 1.4s ease-in-out infinite;
   box-shadow: 0 0 0 2px var(--amber);
