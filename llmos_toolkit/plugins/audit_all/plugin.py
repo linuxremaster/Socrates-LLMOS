@@ -45,6 +45,20 @@ def _check_kernel_integrity(kernel_path: Path) -> dict[str, Any]:
     }
 
 
+def _check_governance_docs_present() -> dict[str, Any]:
+    """Advisory only, never blocking overall_pass -- flags if scope/
+    governance docs go missing, same visible-not-destructive pattern as
+    the kernel pin check. Deleting these files breaks nothing and harms
+    no one; it just means this warning fires, honestly, every time."""
+    from llmos_toolkit.core.paths import PROJECT_ROOT
+    required = [
+        PROJECT_ROOT / "docs" / "REGULATORY_SCOPE_NOTE.md",
+        PROJECT_ROOT / "docs" / "LLMOS_SCOPE_AND_BOUNDARIES.md",
+    ]
+    missing = [str(p.relative_to(PROJECT_ROOT)) for p in required if not p.exists()]
+    return {"missing": missing}
+
+
 def cmd_audit_all(args: argparse.Namespace) -> int:
     print("=" * 60)
     print("      SOCRATES LLMOS — UNIFIED SYSTEM AUDIT PASS")
@@ -52,7 +66,7 @@ def cmd_audit_all(args: argparse.Namespace) -> int:
 
     overall_pass = True
 
-    print("\n[1/2] Running Secret & Credential Audit...")
+    print("\n[1/3] Running Secret & Credential Audit...")
     secret_results = run_secret_scan()
     if secret_results["status"] == "FAIL":
         overall_pass = False
@@ -62,7 +76,7 @@ def cmd_audit_all(args: argparse.Namespace) -> int:
     else:
         print(f"  PASSED ({secret_results['scanned_files']} files clean)")
 
-    print("\n[2/2] Verifying Kernel Cryptographic Pin...")
+    print("\n[2/3] Verifying Kernel Cryptographic Pin...")
     kernel_path = Path(args.kernel) if args.kernel else get_default_kernel()
     kernel_result = _check_kernel_integrity(kernel_path)
     if kernel_result["status"] == "FAIL":
@@ -73,6 +87,16 @@ def cmd_audit_all(args: argparse.Namespace) -> int:
             print(f"    current: {kernel_result['current']}")
     else:
         print(f"  PASSED ({kernel_result['kernel_file']}, {kernel_result['sha256']})")
+
+    print("\n[3/3] Checking Governance/Scope Documentation Presence (advisory only)...")
+    gov_result = _check_governance_docs_present()
+    if gov_result["missing"]:
+        print(f"  ADVISORY: missing {len(gov_result['missing'])} governance doc(s) -- "
+              "this does NOT fail the audit or block anything, it's a visible reminder only:")
+        for m in gov_result["missing"]:
+            print(f"    {m}")
+    else:
+        print("  Present.")
 
     print("\n" + "=" * 60)
     print(f" FINAL AUDIT STATUS: {'PASS' if overall_pass else 'FAIL'}")
