@@ -2,6 +2,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+// Frontend version -- bump this string every time index.html/app.js/style.css
+// change, so a hard-refresh visibly proves whether the new files actually loaded.
+const FRONTEND_VERSION = "fe-2026.08.15-04";
+
 const PROVIDER_MODELS = {
   anthropic: ["claude-sonnet-5", "claude-opus-4-8", "claude-haiku-4-5-20251001"],
   openai: ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna"],
@@ -232,3 +236,4 @@ el("export-btn").addEventListener("click", async () => {
 
 renderParticipantConfig();
 setNextAction("start-btn");
+el("frontend-version").textContent = FRONTEND_VERSION;

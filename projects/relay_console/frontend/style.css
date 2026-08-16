@@ -44,6 +44,13 @@ body {
   letter-spacing: 0.12em;
   color: var(--text-muted);
 }
+.frontend-version {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--amber);
+  margin-left: 8px;
+  vertical-align: super;
+}
 
 .topbar-status { display: flex; align-items: center; gap: 12px; font-family: var(--font-mono); font-size: 12px; }
 .status-pill {
