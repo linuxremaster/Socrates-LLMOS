@@ -104,7 +104,29 @@ class RelaySession:
                 target = self._participant(next_slot)
                 try:
                     history = self._history_for(next_slot) + [{"role": "user", "content": pending_content}]
-                    response_content = await call_provider(target.provider, target.model, history)
+                    if len(history) > 20:
+                        # Real, unbounded-growth risk Jaidev's article flagged in a
+                        # different form (fixed cost floor per call). Here the risk
+                        # is different: history grows linearly with turn count, sent
+                        # in full on every turn. Not auto-truncated -- silently
+                        # cutting a relay's history risks breaking its coherence,
+                        # a worse failure than visible growth. Logged so it's
+                        # observable instead of silent.
+                        print(f"[relay_console] WARNING: turn history for {next_slot} has "
+                              f"grown to {len(history)} messages -- context size is unbounded "
+                              "by design, this is expected to keep growing over a long session.")
+                    try:
+                        response_content = await asyncio.wait_for(
+                            call_provider(target.provider, target.model, history),
+                            timeout=90.0,
+                        )
+                    except asyncio.TimeoutError:
+                        raise ProviderError(
+                            f"{target.provider}/{target.model} did not respond within 90s -- "
+                            "the relay stopped rather than hang indefinitely. This is the same "
+                            "failure mode Jaidev's article described for an orchestrator router "
+                            "with no fallback: one hung call was able to stall the whole workflow."
+                        )
                     evidence_tier, provenance_note = None, None  # not supplied by direct API calls
                 except ProviderError as e:
                     await self.emit({"type": "error", "detail": str(e)})
