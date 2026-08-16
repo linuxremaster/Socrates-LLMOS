@@ -52,6 +52,39 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.4.0-alpha — 2026-08-16
+
+Real, earned SemVer minor bump — 12 commits since v0.3.0-alpha, all
+from processing 4 real external audits (2 ChatGPT, 1 Gemini, 1 Claude
+from a separate conversation), each independently verified before
+acting rather than trusted:
+
+- Fixed genuine provider-version drift: Anthropic RSP v3.1 → v3.4,
+  Google DeepMind FSF v3.0 → v3.1 — both confirmed against primary
+  sources, not just the audit's claim.
+- `WHAT_THIS_IS_BUILT_ON.md` added at project root — real provider
+  Usage Policies and safety frameworks, verified current.
+- `docs/REGULATORY_SCOPE_NOTE.md` — factual EU/US AI-law scope
+  documentation, not legal advice, explicit trigger conditions.
+- `audit-all` step 3/3 — advisory, non-destructive presence check for
+  governance docs (tested with a real deletion).
+- `behavior_log`: cross-version drift tracking
+  (`--subject-version`, `version-drift-summary`), calibration fixes
+  (verified-vs-asserted separation, duplicate-outcome rejection).
+- `relay_console`: structural provenance fields on `Turn`
+  (`evidence_tier`, `provenance_note`), a 90s timeout on provider
+  calls (previously could hang indefinitely), visible warning on
+  unbounded context growth.
+- Closed "autonomous refusal-governance layer" as a deliberate,
+  reasoned non-goal — not deferred, not built.
+- Fixed a real documentation-integrity bug: `DECISION_FINALITY_POLICY.md`
+  claimed a wellbeing-addendum amendment was applied when it wasn't.
+  The false claim is corrected; the actual content change correctly
+  stays open, per the project's own slow-review policy for anything
+  wellbeing-adjacent.
+
+Full detail in `state/growth_ledger.jsonl`.
+
 ## v0.3.0-alpha — 2026-08-16
 
 Real, earned SemVer minor bump. 5 commits since v0.2.0-alpha: archived
