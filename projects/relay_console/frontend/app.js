@@ -4,7 +4,23 @@
 
 // Frontend version -- bump this string every time index.html/app.js/style.css
 // change, so a hard-refresh visibly proves whether the new files actually loaded.
-const FRONTEND_VERSION = "fe-2026.08.15-04";
+const FRONTEND_VERSION = "fe-2026.08.16-05";
+
+// Temporary diagnostic: report any JS error to the server terminal, since
+// this device has no way to view the browser's own JS console without a
+// desktop connection. Remove once the paste-bar/Stop-button issue is found.
+window.addEventListener("error", (event) => {
+  fetch("/api/debug-log", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: event.message,
+      source: event.filename,
+      line: event.lineno,
+      stack: event.error ? event.error.stack : null,
+    }),
+  }).catch(() => {}); // don't let the error-reporter itself throw
+});
 
 const PROVIDER_MODELS = {
   anthropic: ["claude-sonnet-5", "claude-opus-4-8", "claude-haiku-4-5-20251001"],

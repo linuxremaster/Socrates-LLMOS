@@ -23,7 +23,7 @@ import uuid
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -45,6 +45,20 @@ SESSIONS: dict[str, RelaySession] = {}
 @app.get("/")
 async def index():
     return FileResponse(str(FRONTEND_DIR / "index.html"))
+
+
+@app.post("/api/debug-log")
+async def debug_log(request: Request):
+    """Temporary diagnostic route: the browser can't show its own JS
+    console output on this device without a desktop connection. This
+    prints whatever the frontend reports straight to this terminal,
+    so a client-side error becomes visible without needing devtools."""
+    body = await request.json()
+    print(f"[BROWSER JS ERROR] {body.get('message', '(no message)')}")
+    print(f"  at {body.get('source', '?')}:{body.get('line', '?')}")
+    if body.get("stack"):
+        print(f"  stack: {body['stack']}")
+    return {"logged": True}
 
 
 @app.websocket("/ws/{session_id}")
