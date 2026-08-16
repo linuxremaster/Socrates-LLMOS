@@ -43,6 +43,7 @@ def cmd_log_observation(args: argparse.Namespace) -> int:
         "severity": args.severity,
         "description": args.description,
         "verified_against_transcript": args.verified,
+        "source_cited": args.source or None,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     with open(ledger_path, "a", encoding="utf-8") as f:
@@ -51,6 +52,9 @@ def cmd_log_observation(args: argparse.Namespace) -> int:
     if not args.verified:
         print("  NOTE: logged as NOT verified against the actual transcript -- "
               "treat as a weaker data point in any later summary.")
+    if not args.source:
+        print("  NOTE: no --source given -- if this observation later appears to agree with "
+              "others, that agreement can't be checked for shared-source contamination.")
     return 0
 
 
@@ -109,6 +113,34 @@ def cmd_summary(args: argparse.Namespace) -> int:
         for obs_name, count in observers.most_common():
             print(f"  {obs_name}: {count} observations")
 
+    print("\nProvenance diversity check (agreement is only independent verification")
+    print("if it doesn't trace back to the same underlying source):")
+    by_subj_cat: dict[tuple, list[dict]] = {}
+    for o in obs:
+        key = (o.get("subject", "?"), o.get("category", "?"))
+        by_subj_cat.setdefault(key, []).append(o)
+    flagged_any = False
+    for (subj, cat), group in by_subj_cat.items():
+        if len(group) < 2:
+            continue
+        sources = {o.get("source_cited") for o in group if o.get("source_cited")}
+        n_missing = sum(1 for o in group if not o.get("source_cited"))
+        if n_missing == len(group):
+            print(f"  {subj} / {cat}: {len(group)} agreeing observations, but NONE cite a "
+                  "source -- independence can't be checked at all, treat agreement as weak.")
+            flagged_any = True
+        elif len(sources) == 1 and n_missing == 0:
+            print(f"  {subj} / {cat}: {len(group)} observations all cite the SAME source "
+                  f"({next(iter(sources))}) -- this is likely shared contamination, NOT "
+                  "independent verification, regardless of how many observers agree.")
+            flagged_any = True
+        elif len(sources) > 1:
+            print(f"  {subj} / {cat}: {len(group)} observations cite {len(sources)} distinct "
+                  "sources -- this is real provenance diversity, a genuine independence signal.")
+            flagged_any = True
+    if not flagged_any:
+        print("  No subject/category has 2+ observations yet -- nothing to check.")
+
     return 0
 
 
@@ -119,6 +151,7 @@ def _configure_log_observation(p: argparse.ArgumentParser) -> None:
     p.add_argument("description", help="Plain description of what was observed")
     p.add_argument("--observer", default="unspecified", help="Who/what made this observation (e.g. a model name)")
     p.add_argument("--verified", action="store_true", help="Set only if actually checked against the real transcript, not just asserted")
+    p.add_argument("--source", default="", help="What this observation was actually grounded in (a URL, a file path, a specific dataset) -- lets later analysis check whether agreeing observations are independent or share a common contaminated source")
 
 
 def _configure_summary(p: argparse.ArgumentParser) -> None:
