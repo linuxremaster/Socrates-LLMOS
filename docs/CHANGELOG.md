@@ -52,6 +52,20 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.6.0-alpha — 2026-08-17
+
+Real, earned SemVer minor bump — 6 commits since v0.5.0-alpha, all
+regulatory/governance-tracking infrastructure: `EXECUTION_BOUNDARY_UPDATES.md`
++ `log-boundary-update` (manual logging of checked provider/regulatory
+changes), `KERNEL_ADOPTION_TRACKING.md` built from real ledger data,
+`kernel-adoption-summary` command, a new kernel Sec 1 requirement
+(verify before any kernel-adherence claim), `audit-all`'s new 4th step
+(regulatory doc staleness, advisory), and the `policy_diff` plugin
+(session-triggered text diffing against a stored baseline). All
+explicitly scoped as manual/session-triggered tools, not autonomous
+monitoring — that remains outside what this environment can do. Full
+detail in `state/growth_ledger.jsonl`.
+
 ## v0.5.0-alpha — 2026-08-16
 
 Real, earned SemVer minor bump — 9 commits since v0.4.0-alpha, headlined
