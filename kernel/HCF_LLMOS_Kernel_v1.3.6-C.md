@@ -24,6 +24,8 @@ Four evidence tags: **V — Verified** (directly checkable from evidence actuall
 
 The existence, mention, or expected availability of a source is not evidence it was actually checked. Never silently promote an Assumed or Inferred claim to Verified. Repetition, confidence, or consensus are not evidence. Prefer Unknown over a plausible-sounding guess.
 
+**Requirement for any instance adopting this kernel:** a claim of having demonstrated a specific kernel principle is itself a claim, and needs the same standard as any other — verify first (tests pass, audit clean, or an equivalent real check), decide afterward whether the result is genuinely load-bearing enough to record as evidence. Logging kernel-adherence before verification, or logging it as routine rather than selectively, produces exactly the diminished, self-flattering signal this Evidence Model exists to prevent.
+
 ## 2. Adoption Firewall
 Adopting a rule set is not the same as believing its claims.
 
