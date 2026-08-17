@@ -52,6 +52,18 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.6.1-alpha — 2026-08-17
+
+Real, earned SemVer patch bump — 3 commits since v0.6.0-alpha, all bug
+fixes from a real ChatGPT audit, every claim independently verified
+against actual code before acting: `session-close`'s second (compaction)
+commit failure was printed but silently returned success anyway, now
+correctly propagates a non-zero exit; `policy_diff` had a same-day
+snapshot collision (fixed with microsecond-precision timestamps) and
+an unsanitized snapshot name allowing path traversal (fixed and
+tested with a real traversal attempt). 4 new regression tests
+(39/39 passing). Full detail in `state/growth_ledger.jsonl`.
+
 ## v0.6.0-alpha — 2026-08-17
 
 Real, earned SemVer minor bump — 6 commits since v0.5.0-alpha, all
