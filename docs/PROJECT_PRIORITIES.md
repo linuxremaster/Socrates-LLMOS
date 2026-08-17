@@ -11,6 +11,14 @@ across this project's working sessions, not aspirational invention.
 Update this file as priorities genuinely change — don't let it go
 stale and silently stop reflecting real intent.
 
+## North star
+
+How does a small, resource-constrained group verify claims and
+coordinate honestly when they can't fully trust their information
+sources? Not aspirational — this names what the project already does
+(cross-model audit verification, evidence tiers, the behavioral
+observation log) and points forward from that real base, not past it.
+
 ## Active priorities
 
 1. **Kernel/methodology integrity** — evidence discipline (V/I/A/U),
