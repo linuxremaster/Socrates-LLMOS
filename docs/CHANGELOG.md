@@ -52,6 +52,21 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.6.3-alpha — 2026-08-17
+
+Real, earned SemVer patch bump — 1 commit since v0.6.2-alpha, 2 real
+security-relevant fixes from an independently-verified ChatGPT
+re-audit: kernel-pin identity was basename-only (two files sharing a
+filename collided in the same pin namespace, stored path field never
+actually checked), now uses resolved path and genuinely verifies it —
+tested with a real collision scenario. Pre-commit secret-scan hook was
+fail-open if `llmos` wasn't on PATH, now fails closed — tested with
+`llmos` actually hidden from PATH, confirmed the commit gets blocked.
+Also: explicit non-transactional contract documented for
+`session-close`, and the kernel-pin trust anchor's real threat-model
+scope (accidental drift, not a coordinated malicious actor) documented
+honestly in code. 41/41 tests. Full detail in `state/growth_ledger.jsonl`.
+
 ## v0.6.2-alpha — 2026-08-17
 
 Real, earned SemVer patch bump — 1 commit since v0.6.1-alpha: a git
