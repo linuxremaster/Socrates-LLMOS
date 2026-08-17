@@ -392,6 +392,37 @@ def _configure_log_boundary_update(p: argparse.ArgumentParser) -> None:
     p.add_argument("--verified", action="store_true", help="Set only if actually checked against the primary source, not just heard about")
 
 
+def cmd_kernel_adoption_summary(args: argparse.Namespace) -> int:
+    """Scans the WHOLE ledger (any event type) for entries carrying an
+    optional kernel_section field -- not a separate log, an optional tag
+    on entries that already get written for other reasons (a bug fix, a
+    feature, an amendment). Only load-bearing entries should carry this
+    tag; routine entries should not. Reports what's actually accumulated,
+    doesn't retroactively tag old entries -- history isn't rewritten."""
+    ledger_path = get_state_path("growth_ledger.jsonl")
+    if not ledger_path.exists():
+        print("No ledger found.")
+        return 0
+    entries = [json.loads(l) for l in ledger_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    tagged = [e for e in entries if e.get("kernel_section")]
+
+    print(f"=== Kernel adoption summary: {len(tagged)}/{len(entries)} ledger entries tagged with a kernel_section ===\n")
+    if not tagged:
+        print("None yet -- this tag is opt-in, applied only when an entry genuinely "
+              "demonstrates a specific kernel principle, not retroactively on old entries.")
+        return 0
+
+    by_section: dict[str, list[dict]] = {}
+    for e in tagged:
+        by_section.setdefault(e["kernel_section"], []).append(e)
+
+    for section, group in sorted(by_section.items()):
+        print(f"{section}: {len(group)} logged instance(s)")
+        latest = group[-1]
+        print(f"  most recent: {latest.get('label', latest.get('event', '?'))}")
+    return 0
+
+
 def register(registry) -> None:
     registry.register(
         "log-observation", cmd_log_observation,
@@ -417,4 +448,9 @@ def register(registry) -> None:
         "log-boundary-update", cmd_log_boundary_update,
         help="Log a real, checked change to a provider's training/safety posture -- not automated, only fires when actually invoked",
         configure_parser=_configure_log_boundary_update, source="behavior_log",
+    )
+    registry.register(
+        "kernel-adoption-summary", cmd_kernel_adoption_summary,
+        help="Aggregate ledger entries tagged with kernel_section, showing which kernel principles have real logged evidence over time",
+        configure_parser=lambda p: None, source="behavior_log",
     )
