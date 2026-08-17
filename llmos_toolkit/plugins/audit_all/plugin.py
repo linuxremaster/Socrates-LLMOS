@@ -30,18 +30,26 @@ def _check_kernel_integrity(kernel_path: Path) -> dict[str, Any]:
         return {"status": "FAIL", "error": f"No kernel_pins.json at {pins_file} — run pin-kernel first."}
 
     pins = json.loads(pins_file.read_text(encoding="utf-8"))
-    label = kernel_path.name
+    # Matches pin-kernel's key: resolved absolute path, not basename --
+    # real bug fixed 2026-08-17, two files sharing a filename used to
+    # collide in the same pin namespace.
+    resolved = kernel_path.resolve()
+    label = str(resolved)
     pin = pins.get(label)
     if pin is None:
-        return {"status": "FAIL", "error": f"'{label}' is not pinned — run pin-kernel first."}
+        return {"status": "FAIL", "error": f"'{resolved}' is not pinned — run pin-kernel first."}
     if not kernel_path.exists():
         return {"status": "FAIL", "error": f"Kernel file not found: {kernel_path}"}
+    # The stored path field used to be dead data -- never actually checked.
+    # Now genuinely verified, not just carried along for reference.
+    if pin.get("path") != label:
+        return {"status": "FAIL", "error": f"Pin record path mismatch: pinned for '{pin.get('path')}', verifying '{label}'."}
 
     current_hash = compute_sha256(kernel_path)
     if current_hash == pin["sha256"]:
-        return {"status": "PASS", "kernel_file": label, "sha256": current_hash[:16] + "…"}
+        return {"status": "PASS", "kernel_file": resolved.name, "sha256": current_hash[:16] + "…"}
     return {
-        "status": "FAIL", "kernel_file": label,
+        "status": "FAIL", "kernel_file": resolved.name,
         "error": "Hash mismatch against pinned baseline.",
         "pinned": pin["sha256"][:16] + "…", "current": current_hash[:16] + "…",
     }

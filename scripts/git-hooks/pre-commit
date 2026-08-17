@@ -12,9 +12,13 @@
 cd "$(git rev-parse --show-toplevel)" || exit 1
 
 if ! command -v llmos >/dev/null 2>&1; then
-    echo "pre-commit: llmos not on PATH -- skipping secret scan (install with"
-    echo "  pip install -e . --break-system-packages  if this is unexpected)"
-    exit 0
+    echo "pre-commit: llmos not on PATH -- commit BLOCKED."
+    echo "This is a security control (prevents committed secrets), not a"
+    echo "convenience check, so it fails closed rather than silently letting"
+    echo "the commit through. Install with:"
+    echo "  pip install -e . --break-system-packages"
+    echo "or bypass explicitly with 'git commit --no-verify' if truly intended."
+    exit 1
 fi
 
 llmos scan-secrets

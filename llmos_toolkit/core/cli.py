@@ -27,6 +27,15 @@ from .registry import registry, RESERVED_COMMAND_NAMES
 from .security import check_permissions, compute_sha256, static_scan
 
 KERNEL_PIN_FILE = get_state_path("kernel_pins.json")
+# Honest scope note, per external audit 2026-08-17: this file is gitignored
+# (state/ is local-only by design), so pinning detects ACCIDENTAL drift --
+# an edit that wasn't meant to change the kernel slipping through unnoticed.
+# It does not defend against a deliberate, coordinated change to both the
+# kernel and its own pin by someone with repo access -- that would require
+# a genuinely separate trust anchor (e.g. a signed, out-of-band record),
+# which this personal-scale project does not build. If this pin is ever
+# described as a security boundary against a malicious actor rather than
+# an accidental-drift detector, that claim would be inaccurate as designed.
 
 
 def _print_discovery_report(result: LoadResult, verbose: bool) -> None:
@@ -128,9 +137,16 @@ def cmd_pin_kernel(args: argparse.Namespace) -> int:
         return 1
     digest = compute_sha256(path)
     pins = _load_kernel_pins()
-    label = args.label or path.name
+    # Real bug caught by external audit 2026-08-17: using path.name (basename
+    # only) as the pin key meant two different files sharing a filename
+    # (e.g. two separate policy.md in different directories) would collide
+    # in the same pin namespace -- and the "path" field stored alongside
+    # the hash was never actually checked during verification, just dead
+    # data. Using the resolved absolute path as the key fixes both: no
+    # collision, and the path itself is now what's being verified.
+    label = args.label or str(path.resolve())
     pins[label] = {
-        "path": str(path),
+        "path": str(path.resolve()),
         "sha256": digest,
         "pinned_at": datetime.now(timezone.utc).isoformat(),
     }

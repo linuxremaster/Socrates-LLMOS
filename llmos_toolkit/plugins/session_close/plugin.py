@@ -127,6 +127,6 @@ def _configure_session_close(p: argparse.ArgumentParser) -> None:
 def register(registry) -> None:
     registry.register(
         "session-close", cmd_session_close,
-        help="Re-index project, regenerate handoff doc, and commit — run this at the end of a working session",
+        help="Re-index project, regenerate handoff doc, and commit — run this at the end of a working session. Best-effort, not transactional: if a later step fails, earlier steps' changes are not rolled back (see tests/test_session_close_partial_failure.py). Explicit contract per external audit 2026-08-17.",
         configure_parser=_configure_session_close, source="session_close",
     )
