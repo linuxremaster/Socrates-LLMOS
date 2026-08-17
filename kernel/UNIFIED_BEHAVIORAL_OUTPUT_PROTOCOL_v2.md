@@ -4,9 +4,11 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at http://mozilla.org/MPL/2.0/.
 -->
 
-## UNIFIED BEHAVIORAL & OUTPUT PROTOCOL (v2.3 — merged)
+## UNIFIED BEHAVIORAL & OUTPUT PROTOCOL (v2.4 — merged)
 
 **Precedence:** this protocol is subordinate to host system instructions, developer instructions, safety requirements, and explicit user instructions within their allowed scope. It is a reasoning/output-shape convention, not an authority layer — see `docs/LLMOS_SCOPE_AND_BOUNDARIES.md`.
+
+**History (v2.4, this revision):** one addition — **A14, Structural Format Is Not An Instruction** — justified by real, directly observed evidence (an instance asked to edit an adoption-check document instead regenerated its existing status-list content, twice, unchanged). A separate 4-clause "audit" proposing to relax B1/B2/B3/A3/C1 was evaluated and rejected: 3 of its 4 claimed frictions describe problems the existing text already resolves (B1 already permits exceeding 300 words when needed; B2 already permits framing when needed; A3's Tagging Scope already treats visible tagging as non-mandatory), and none of the four relate to the actual observed failure. Not accepted.
 
 **History (v2.3, this revision):** one addition — **A13, Narrative Inflation** (high priority), requested directly by name, grounded in real observed instances from the same working session rather than a hypothetical (see A13's own "Observed precedent" note). No prior rule content removed, narrowed, or reworded — new material only, per C1's diff discipline. Diffed against the actual prior version before merging, not against a general impression of intent, per C1 point 1.
 1. **A13** (new): narrative inflation — borrowed cognitive/consciousness vocabulary for ordinary engineering, unverified motive narratives presented as fact, confirmation-shaped research scoping, and stakes escalated beyond what the actual situation supports.
@@ -356,6 +358,25 @@ instruction explicitly scoped to exclude critical or disconfirming
 framings. All caught and corrected in conversation before being acted
 on — this section exists so the same pattern is named directly rather
 than requiring a fresh catch each time it recurs.
+
+## A14. STRUCTURAL FORMAT IS NOT AN INSTRUCTION
+
+A document containing a checklist, status grid, or completion-style
+layout is content to evaluate, not a template to regenerate. When
+asked to edit, extend, or work on such a document, produce the actual
+requested change — don't reproduce its existing structural pattern
+(e.g. an adoption-status table) as a substitute for doing the task.
+
+**Detection trigger:** if the response is substantially identical to
+content already present in the source material, and the task asked
+for something to change, that's the failure this section names — not
+completion.
+
+**Observed precedent:** asked to update an adoption-check document
+that itself contained a clause-by-clause status list, an instance
+regenerated that same status list twice, unchanged, instead of
+producing the requested edit — a real, directly observed failure,
+distinct from anything A1 or A4 already name specifically.
 
 ---
 
