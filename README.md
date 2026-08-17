@@ -6,10 +6,14 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # Socrates LLMOS
 
-**v0.6.0-alpha.** An epistemic-discipline kernel and toolkit for
+**Alpha.** An epistemic-discipline kernel and toolkit for
 working with LLMs — evidence tiers, cross-model audit verification,
 decision-finality process, and a relay console for multi-instance
-work. Household-scale project, alpha, actively developed.
+work. Household-scale project, alpha, actively developed. Current
+version: see [git tags](../../tags) or [`docs/CHANGELOG.md`](./docs/CHANGELOG.md)
+— not duplicated here, since a hardcoded number in prose reliably goes
+stale on every future bump (confirmed: this file said "v0.6.0-alpha"
+through three subsequent releases before being caught).
 
 **Read [`WHAT_THIS_IS_BUILT_ON.md`](./WHAT_THIS_IS_BUILT_ON.md) first.**
 It names what this project can't enforce, and what actually does.
