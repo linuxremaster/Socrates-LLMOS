@@ -52,6 +52,18 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.6.6-alpha — 2026-08-17
+
+Real patch bump — 4 commits since v0.6.5-alpha: UBOP v2.3 → v2.4, adding
+A14 (Structural Format Is Not An Instruction) on real observed evidence
+(an instance regenerated a document's existing status-list content
+instead of editing it as asked). A separate 4-clause "audit" proposing
+to relax B1/B2/B3/A3/C1 was checked against the actual text and
+rejected — 3 of 4 claimed frictions describe problems the existing
+clauses already resolve, and none matched the real observed failure.
+Also: first real clause-adoption data logged (ChatGPT, 20/20 clauses).
+43/43 tests.
+
 ## v0.6.5-alpha — 2026-08-17
 
 Real patch bump — 2 commits since v0.6.4-alpha: fixed a genuine
