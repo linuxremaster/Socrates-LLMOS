@@ -52,6 +52,18 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.6.2-alpha — 2026-08-17
+
+Real, earned SemVer patch bump — 1 commit since v0.6.1-alpha: a git
+pre-commit hook wiring `secret_scanner` in automatically, from a real,
+confirmed gap (secret scanning previously existed only as a manual
+command). Tested with an actual blocked fake-secret commit, not just
+installed and assumed to work. Same audit round also claimed a
+fictional "Dialectic Multi-Agent Panel" with named personas
+(Socrates/Plato/Bayes) and emotional-signal-driven routing — confirmed
+false by direct search, corrected, not acted on. Full detail in
+`state/growth_ledger.jsonl`.
+
 ## v0.6.1-alpha — 2026-08-17
 
 Real, earned SemVer patch bump — 3 commits since v0.6.0-alpha, all bug
