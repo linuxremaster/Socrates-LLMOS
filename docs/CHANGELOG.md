@@ -52,6 +52,16 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.6.4-alpha — 2026-08-17
+
+Real patch bump — 1 commit: fixed a genuinely stale `README.md` version
+string, caught by fetching the live GitHub repo directly and comparing
+against `pyproject.toml`. It said "v0.6.0-alpha" through three
+subsequent releases without ever being updated. Fixed the root cause,
+not just this instance — removed the duplicated version number from
+README prose entirely; it now points to git tags / `docs/CHANGELOG.md`
+as the actual source of truth, so this class of staleness can't recur.
+
 ## v0.6.3-alpha — 2026-08-17
 
 Real, earned SemVer patch bump — 1 commit since v0.6.2-alpha, 2 real
