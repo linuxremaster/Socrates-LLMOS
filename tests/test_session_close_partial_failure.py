@@ -132,6 +132,43 @@ class TestSessionClosePartialFailure(unittest.TestCase):
         lines = ledger.read_text().splitlines()
         self.assertLess(len(lines), 25, "compaction should still run even when commit is explicitly skipped")
 
+    def test_second_commit_failure_now_propagates_nonzero_exit(self):
+        """Real bug caught by external audit 2026-08-17: the compaction
+        commit's failure was printed but the function fell through to
+        return 0 regardless. session-close runs in a real subprocess
+        (see _run_session_close), so mocking subprocess.run in THIS
+        process has no effect there -- caught that mistake while writing
+        this test. Real fix: a git pre-commit hook that allows the first
+        commit through but fails every commit after it, via a counter
+        file, forcing exactly the second (compaction) commit to fail."""
+        ledger = self.root / "state" / "growth_ledger.jsonl"
+        with open(ledger, "w") as f:
+            for i in range(25):
+                f.write(json.dumps({"event": "test_entry", "label": f"entry_{i}", "timestamp": "2026-08-14T00:00:00Z"}) + "\n")
+
+        hooks_dir = self.root / ".git" / "hooks"
+        hooks_dir.mkdir(parents=True, exist_ok=True)
+        counter_file = self.root / ".git" / "commit_counter"
+        counter_file.write_text("0")
+        hook_path = hooks_dir / "pre-commit"
+        hook_path.write_text(
+            "#!/bin/sh\n"
+            f'COUNT=$(cat "{counter_file}")\n'
+            f'echo $((COUNT + 1)) > "{counter_file}"\n'
+            'if [ "$COUNT" -ge "1" ]; then exit 1; fi\n'
+            'exit 0\n'
+        )
+        hook_path.chmod(0o755)
+
+        result = self._run_session_close([])
+
+        hook_path.unlink()
+        counter_file.unlink()
+
+        self.assertNotEqual(result.returncode, 0,
+                             "second (compaction) commit failure must now propagate a non-zero exit code")
+        self.assertIn("Compaction commit failed", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

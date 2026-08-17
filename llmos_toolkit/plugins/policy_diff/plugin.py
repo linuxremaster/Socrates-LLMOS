@@ -21,10 +21,20 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
 from llmos_toolkit.core.paths import get_state_path
+
+
+def _sanitize_name(name: str) -> str:
+    """Real path-traversal risk if used raw: a name like '../../x' would
+    escape the snapshot directory. Only allow a simple identifier."""
+    cleaned = re.sub(r"[^a-zA-Z0-9_-]", "-", name)
+    if not re.search(r"[a-zA-Z0-9]", cleaned):
+        raise ValueError("snapshot name must contain at least one alphanumeric character")
+    return cleaned
 
 
 def _snapshot_dir() -> Path:
@@ -34,10 +44,14 @@ def _snapshot_dir() -> Path:
 
 
 def cmd_save_snapshot(args: argparse.Namespace) -> int:
+    safe_name = _sanitize_name(args.name)
     text = Path(args.text_file).read_text(encoding="utf-8")
     snap_dir = _snapshot_dir()
-    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    out_path = snap_dir / f"{args.name}_{timestamp}.txt"
+    # Full timestamp, not date-only -- two saves on the same day would
+    # otherwise silently overwrite each other, losing temporal provenance
+    # for something an evidence/audit tool should never lose.
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%S-%f")
+    out_path = snap_dir / f"{safe_name}_{timestamp}.txt"
     out_path.write_text(text, encoding="utf-8")
     print(f"Saved snapshot: {out_path.name} ({len(text)} chars)")
     return 0
@@ -50,7 +64,7 @@ def _latest_snapshot(name: str) -> Path | None:
 
 
 def cmd_diff_snapshot(args: argparse.Namespace) -> int:
-    previous = _latest_snapshot(args.name)
+    previous = _latest_snapshot(_sanitize_name(args.name))
     if previous is None:
         print(f"No prior snapshot found for '{args.name}' -- nothing to diff against. "
               f"Use save-policy-snapshot first to establish a baseline.")

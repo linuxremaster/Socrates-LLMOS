@@ -109,8 +109,10 @@ def cmd_session_close(args: argparse.Namespace) -> int:
                 pass  # no ledgers actually changed this run — not an error
             else:
                 print(f"  Compaction commit failed: {result.stderr.strip()}")
+                return 1
         except subprocess.CalledProcessError as e:
             print(f"  Compaction commit failed: {e}")
+            return 1
 
     return 0
 
