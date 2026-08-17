@@ -423,6 +423,87 @@ def cmd_kernel_adoption_summary(args: argparse.Namespace) -> int:
     return 0
 
 
+CLAUSE_ADOPTION_EVENT_TYPE = "clause_adoption_position"
+
+
+def cmd_log_clause_adoption(args: argparse.Namespace) -> int:
+    """Records one instance's stated position on one specific clause of
+    a policy document -- not inferred, not demonstrated-in-work (that's
+    kernel-adoption-summary's job), an explicit answer someone actually
+    gave when asked. Only fires when actually invoked with a real answer."""
+    ledger_path = get_state_path("growth_ledger.jsonl")
+    entry = {
+        "event": CLAUSE_ADOPTION_EVENT_TYPE,
+        "instance": args.instance,
+        "document": args.document,
+        "clause": args.clause,
+        "position": args.position,
+        "reason": args.reason or None,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    with open(ledger_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry) + "\n")
+    print(f"Logged: {args.instance} on {args.document}/{args.clause}: {args.position}")
+    return 0
+
+
+def _configure_log_clause_adoption(p: argparse.ArgumentParser) -> None:
+    p.add_argument("instance", help="Which instance/model gave this answer (e.g. 'chatgpt-2026-08-17', 'gemini', 'claude-other-conversation')")
+    p.add_argument("document", help="Which document the clause belongs to (e.g. UNIFIED_BEHAVIORAL_PROTOCOL_v2.md)")
+    p.add_argument("clause", help="Which specific clause (e.g. A3, B5, A12)")
+    p.add_argument("position", choices=["adopted", "declined", "partial"])
+    p.add_argument("--reason", default="", help="What the instance actually said, if given")
+
+
+def cmd_clause_adoption_report(args: argparse.Namespace) -> int:
+    """Prioritized report: clauses with the MOST disagreement/refusal
+    surface first, since universal agreement is less actionable than a
+    clause multiple instances actually push back on. Starts empty --
+    only populated by real logged answers from log-clause-adoption,
+    never inferred or backfilled."""
+    ledger_path = get_state_path("growth_ledger.jsonl")
+    if not ledger_path.exists():
+        print("No ledger found.")
+        return 0
+    entries = [json.loads(l) for l in ledger_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    positions = [e for e in entries if e.get("event") == CLAUSE_ADOPTION_EVENT_TYPE]
+
+    if not positions:
+        print("No clause-adoption positions logged yet. This report only reflects "
+              "real, explicit answers -- use the adoption-check prompt with an "
+              "instance, then log-clause-adoption its actual response.")
+        return 0
+
+    by_clause: dict[str, dict[str, list[dict]]] = {}
+    for e in positions:
+        key = f"{e['document']}/{e['clause']}"
+        by_clause.setdefault(key, {"adopted": [], "declined": [], "partial": []})
+        by_clause[key][e["position"]].append(e)
+
+    def contested_score(clause_data: dict) -> int:
+        # More declined/partial relative to adopted = more worth surfacing first
+        return len(clause_data["declined"]) + len(clause_data["partial"])
+
+    ordered = sorted(by_clause.items(), key=lambda kv: contested_score(kv[1]), reverse=True)
+
+    print(f"=== Clause Adoption Report: {len(positions)} position(s) logged, "
+          f"{len(by_clause)} distinct clause(s) ===\n")
+    for clause_key, data in ordered:
+        total = len(data["adopted"]) + len(data["declined"]) + len(data["partial"])
+        print(f"{clause_key} ({total} instance(s) asked):")
+        if data["adopted"]:
+            print(f"  ADOPTED by: {', '.join(e['instance'] for e in data['adopted'])}")
+        if data["declined"]:
+            print(f"  DECLINED by: {', '.join(e['instance'] for e in data['declined'])}")
+            for e in data["declined"]:
+                if e.get("reason"):
+                    print(f"    {e['instance']}: {e['reason']}")
+        if data["partial"]:
+            print(f"  PARTIAL for: {', '.join(e['instance'] for e in data['partial'])}")
+        print()
+    return 0
+
+
 def register(registry) -> None:
     registry.register(
         "log-observation", cmd_log_observation,
@@ -452,5 +533,15 @@ def register(registry) -> None:
     registry.register(
         "kernel-adoption-summary", cmd_kernel_adoption_summary,
         help="Aggregate ledger entries tagged with kernel_section, showing which kernel principles have real logged evidence over time",
+        configure_parser=lambda p: None, source="behavior_log",
+    )
+    registry.register(
+        "log-clause-adoption", cmd_log_clause_adoption,
+        help="Log a specific instance's explicit stated position (adopted/declined/partial) on one clause of a policy document",
+        configure_parser=_configure_log_clause_adoption, source="behavior_log",
+    )
+    registry.register(
+        "clause-adoption-report", cmd_clause_adoption_report,
+        help="Prioritized report of per-clause adopt/decline positions across instances -- most-contested clauses surface first",
         configure_parser=lambda p: None, source="behavior_log",
     )
