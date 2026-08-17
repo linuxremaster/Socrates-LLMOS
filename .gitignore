@@ -1,3 +1,6 @@
 state/kernel_pins.json
 __pycache__/
 *.pyc
+.env
+*.env
+!*.env.example
