@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from llmos_toolkit.core.paths import get_default_kernel, get_state_path
-from llmos_toolkit.core.security import compute_sha256
+from llmos_toolkit.core.security import compute_sha256, kernel_pin_key
 from llmos_toolkit.plugins.secret_scanner.plugin import run_secret_scan
 
 
@@ -34,7 +34,7 @@ def _check_kernel_integrity(kernel_path: Path) -> dict[str, Any]:
     # real bug fixed 2026-08-17, two files sharing a filename used to
     # collide in the same pin namespace.
     resolved = kernel_path.resolve()
-    label = str(resolved)
+    label = kernel_pin_key(kernel_path)
     pin = pins.get(label)
     if pin is None:
         return {"status": "FAIL", "error": f"'{resolved}' is not pinned — run pin-kernel first."}

@@ -24,7 +24,7 @@ from .config import ToolkitConfig
 from .paths import get_state_path
 from .plugin_loader import LoadResult, discover_plugins
 from .registry import registry, RESERVED_COMMAND_NAMES
-from .security import check_permissions, compute_sha256, static_scan
+from .security import check_permissions, compute_sha256, kernel_pin_key, static_scan
 
 KERNEL_PIN_FILE = get_state_path("kernel_pins.json")
 # Honest scope note, per external audit 2026-08-17: this file is gitignored
@@ -144,7 +144,7 @@ def cmd_pin_kernel(args: argparse.Namespace) -> int:
     # the hash was never actually checked during verification, just dead
     # data. Using the resolved absolute path as the key fixes both: no
     # collision, and the path itself is now what's being verified.
-    label = args.label or str(path.resolve())
+    label = args.label or kernel_pin_key(path)
     pins[label] = {
         "path": str(path.resolve()),
         "sha256": digest,
@@ -167,7 +167,7 @@ def cmd_verify_kernel(args: argparse.Namespace) -> int:
         print(f"Not a file: {path}", file=sys.stderr)
         return 1
     pins = _load_kernel_pins()
-    label = args.label or path.name
+    label = args.label or kernel_pin_key(path)
     pin = pins.get(label)
     if pin is None:
         print(f"UNPINNED: no baseline recorded for '{label}'. Run pin-kernel first.")
@@ -214,7 +214,7 @@ def cmd_kernel_hook(args: argparse.Namespace) -> int:
     pins = _load_kernel_pins()
     for f in args.kernel_files:
         path = Path(f)
-        label = path.name
+        label = kernel_pin_key(path)
         pin = pins.get(label)
         if pin is None:
             print(f"  UNPINNED: {label} — run pin-kernel before this hook can verify it.")

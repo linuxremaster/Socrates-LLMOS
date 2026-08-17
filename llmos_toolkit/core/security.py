@@ -54,6 +54,20 @@ def compute_sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def kernel_pin_key(path: Path) -> str:
+    """The ONE canonical identity for kernel-pin purposes, used
+    everywhere a pin gets written or checked (pin-kernel, verify-kernel,
+    kernel-hook, audit-all). Real bug fixed 2026-08-17: pin-kernel and
+    audit-all had already been fixed to use the resolved path, but
+    verify-kernel and kernel-hook still separately computed path.name
+    (basename only) -- an internal inconsistency where a normal
+    pin-then-verify workflow could report UNPINNED on a file that was
+    just pinned. Centralizing into one function is what actually
+    prevents this class of drift from recurring a third time, not
+    patching each call site individually."""
+    return str(path.resolve())
+
+
 @dataclass
 class PermissionFinding:
     path: str

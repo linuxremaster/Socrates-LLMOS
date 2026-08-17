@@ -54,6 +54,30 @@ class TestKernelPinCollision(unittest.TestCase):
         result2 = audit_plugin._check_kernel_integrity(self.dir2 / "policy.md")
         self.assertEqual(result2["status"], "FAIL")
 
+    def test_pin_then_verify_kernel_cli_uses_same_identity(self):
+        """Real regression caught by external audit 2026-08-17: pin-kernel
+        and audit-all were fixed to use the resolved path as the pin key,
+        but verify-kernel and kernel-hook separately computed path.name
+        (basename only) -- an internal inconsistency where a normal
+        pin-then-verify workflow could report UNPINNED on a file that was
+        just pinned. Now centralized through security.kernel_pin_key()."""
+        import io, contextlib
+        core_cli.cmd_pin_kernel(argparse.Namespace(kernel_file=str(self.dir1 / "policy.md"), label=None))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = core_cli.cmd_verify_kernel(argparse.Namespace(kernel_file=str(self.dir1 / "policy.md"), label=None))
+        self.assertEqual(rc, 0, buf.getvalue())
+        self.assertIn("MATCH", buf.getvalue())
+        self.assertNotIn("UNPINNED", buf.getvalue())
+
+    def test_kernel_pin_key_is_the_single_shared_identity(self):
+        """pin-kernel, verify-kernel, kernel-hook, and audit-all must all
+        derive identity from the same function -- not four independent
+        implementations that can drift out of sync with each other again."""
+        from llmos_toolkit.core.security import kernel_pin_key
+        p = self.dir1 / "policy.md"
+        self.assertEqual(kernel_pin_key(p), str(p.resolve()))
+
 
 if __name__ == "__main__":
     unittest.main()
