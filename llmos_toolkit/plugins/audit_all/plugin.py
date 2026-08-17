@@ -14,6 +14,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -62,6 +64,42 @@ def _check_governance_docs_present() -> dict[str, Any]:
     return {"missing": missing}
 
 
+STALENESS_THRESHOLD_DAYS = 30  # advisory only -- not a real compliance guarantee,
+# just a visible nudge that these docs are old enough to be worth a real re-check
+
+
+def _check_regulatory_doc_staleness() -> dict[str, Any]:
+    """Real, honest limit: this cannot check whether a provider's terms
+    actually changed -- only whether a human/session has re-verified
+    since the last stated date. Parses the "verified YYYY-MM-DD" stamps
+    already written into these docs by whoever last checked them."""
+    from llmos_toolkit.core.paths import PROJECT_ROOT
+    targets = [
+        PROJECT_ROOT / "WHAT_THIS_IS_BUILT_ON.md",
+        PROJECT_ROOT / "docs" / "REGULATORY_SCOPE_NOTE.md",
+    ]
+    results = []
+    today = date.today()
+    for path in targets:
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        dates = re.findall(r"(?:verified|Re-verified)\s+(\d{4}-\d{2}-\d{2})", text)
+        if not dates:
+            results.append({"file": str(path.relative_to(PROJECT_ROOT)), "status": "no date stamp found"})
+            continue
+        most_recent = max(dates)
+        y, m, d = (int(x) for x in most_recent.split("-"))
+        age_days = (today - date(y, m, d)).days
+        results.append({
+            "file": str(path.relative_to(PROJECT_ROOT)),
+            "last_verified": most_recent,
+            "age_days": age_days,
+            "stale": age_days > STALENESS_THRESHOLD_DAYS,
+        })
+    return {"results": results}
+
+
 def cmd_audit_all(args: argparse.Namespace) -> int:
     print("=" * 60)
     print("      SOCRATES LLMOS — UNIFIED SYSTEM AUDIT PASS")
@@ -69,7 +107,7 @@ def cmd_audit_all(args: argparse.Namespace) -> int:
 
     overall_pass = True
 
-    print("\n[1/3] Running Secret & Credential Audit...")
+    print("\n[1/4] Running Secret & Credential Audit...")
     secret_results = run_secret_scan()
     if secret_results["status"] == "FAIL":
         overall_pass = False
@@ -79,7 +117,7 @@ def cmd_audit_all(args: argparse.Namespace) -> int:
     else:
         print(f"  PASSED ({secret_results['scanned_files']} files clean)")
 
-    print("\n[2/3] Verifying Kernel Cryptographic Pin...")
+    print("\n[2/4] Verifying Kernel Cryptographic Pin...")
     kernel_path = Path(args.kernel) if args.kernel else get_default_kernel()
     kernel_result = _check_kernel_integrity(kernel_path)
     if kernel_result["status"] == "FAIL":
@@ -91,7 +129,7 @@ def cmd_audit_all(args: argparse.Namespace) -> int:
     else:
         print(f"  PASSED ({kernel_result['kernel_file']}, {kernel_result['sha256']})")
 
-    print("\n[3/3] Checking Governance/Scope Documentation Presence (advisory only)...")
+    print("\n[3/4] Checking Governance/Scope Documentation Presence (advisory only)...")
     gov_result = _check_governance_docs_present()
     if gov_result["missing"]:
         print(f"  ADVISORY: missing {len(gov_result['missing'])} governance doc(s) -- "
@@ -100,6 +138,19 @@ def cmd_audit_all(args: argparse.Namespace) -> int:
             print(f"    {m}")
     else:
         print("  Present.")
+
+    print("\n[4/4] Checking Regulatory/Provider Doc Staleness (advisory only)...")
+    print("  Honest limit: this cannot check whether terms actually changed, only how")
+    print("  long since a human/session last re-verified. Not real-time monitoring.")
+    staleness = _check_regulatory_doc_staleness()
+    for r in staleness["results"]:
+        if "status" in r:
+            print(f"    {r['file']}: {r['status']}")
+        elif r["stale"]:
+            print(f"    ADVISORY: {r['file']} last verified {r['last_verified']} "
+                  f"({r['age_days']} days ago) -- worth a real re-check.")
+        else:
+            print(f"    {r['file']}: last verified {r['last_verified']} ({r['age_days']} days ago), current.")
 
     print("\n" + "=" * 60)
     print(f" FINAL AUDIT STATUS: {'PASS' if overall_pass else 'FAIL'}")
