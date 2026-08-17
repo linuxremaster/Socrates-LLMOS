@@ -52,6 +52,17 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.6.5-alpha — 2026-08-17
+
+Real patch bump — 2 commits since v0.6.4-alpha: fixed a genuine
+kernel-pin identity inconsistency (`pin-kernel`/`audit-all` used the
+resolved path, `verify-kernel`/`kernel-hook` still used basename-only,
+so a normal pin-then-verify workflow could falsely report UNPINNED).
+Centralized into `security.kernel_pin_key()`, used by all four
+consumers. Also added per-clause adoption tracking
+(`log-clause-adoption`, `clause-adoption-report`,
+`docs/ADOPTION_CHECK_PROMPT.md`). 43/43 tests.
+
 ## v0.6.4-alpha — 2026-08-17
 
 Real patch bump — 1 commit: fixed a genuinely stale `README.md` version
