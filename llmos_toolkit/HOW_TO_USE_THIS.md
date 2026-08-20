@@ -6,6 +6,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # How to Use the Toolkit — No CLI Experience Required
 
+*Originally conceived as a conflict resolution management system; became this epistemic-discipline kernel and toolkit for LLM work through a real redirection -- see `docs/PROJECT_PRIORITIES.md`'s Origin and Scope Evolution section.*
+
 If you've never typed a command into a terminal before, start here.
 
 **Step 1: Open a terminal.** On Windows that's PowerShell or Command

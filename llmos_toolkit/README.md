@@ -6,6 +6,8 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # LLMOS Toolkit — Modular Plugin CLI
 
+*Originally conceived as a conflict resolution management system; became this epistemic-discipline kernel and toolkit for LLM work through a real redirection -- see `docs/PROJECT_PRIORITIES.md`'s Origin and Scope Evolution section.*
+
 A dynamic-discovery, plugin-based command-line toolkit. Requires Python 3.11+
 (uses stdlib `tomllib`). Run from the directory that *contains* this
 `llmos_toolkit/` folder:
@@ -39,6 +41,12 @@ llmos_toolkit/
     git_sync/plugin.py              git pull/push/status - one-shot only, no daemon/watcher/live connection
     secret_scanner/plugin.py        regex + entropy scan for hardcoded credentials
     audit_all/plugin.py             secret scan + real cryptographic kernel verification, one pass
+    session_close/plugin.py         re-index, handoff regen, drift-log, commit, compact -- one call, best-effort not transactional
+    ledger_compact/plugin.py        rolls old ledger entries into a permanent skeleton, keeps recent entries raw
+    paste_handoff/plugin.py         real, current handoff summary for a fresh instance or a paste-into-Gemini-style handoff
+    policy_diff/plugin.py           save/diff policy-text snapshots over time, path-traversal-safe naming
+    behavior_log/plugin.py          the observation/adoption/quirk/experiment tracking system -- log-observation, clause-adoption-report, propose-observation/approve-pending (real quarantine boundary for unverified instance claims), experiment-report, quirk-report
+    sandbox_runner/plugin.py        real CPU/memory-limited, credential-stripped subprocess execution for experimental code -- NOT container isolation, see docs/SANDBOX_RUNNER_GUIDE.md
   hooks/
     pre-commit            git pre-commit template, NOT auto-installed — see Hooks below
 ```
@@ -93,6 +101,16 @@ Beyond the built-ins (`trust-plugin`, `scan-plugin`, `pin-kernel`,
 | `audit-all` | audit_all | Runs `scan-secrets` + a **real** SHA-256 kernel-pin check in one pass. Fails clearly if the kernel is unpinned or tampered — no stub, no fake PASS. |
 | `session-close` | session_close | Re-index → regenerate `rag/SESSION_HANDOFF.md` → drift-log all kernel files → commit → compact ledgers, in one call. Run at the end of a working session so retrieval and drift baselines never go stale from someone forgetting a manual step. `--no-commit`, `--no-compact`, `--compact-keep N`, `--message` available. |
 | `ledger-compact` | ledger_compact | Rolls old raw entries in a jsonl ledger into one permanent skeleton summary (event counts, date range, files touched), keeps the N most recent raw entries in full (`--keep`, default 20). Idempotent — an existing skeleton is never re-summarized. Runs automatically as `session-close` step 5, or standalone on any ledger file. |
+| `paste-handoff` | paste_handoff | Real, current project state as one paste-ready block (recent commits, open items) — for a fresh instance picking up context, or handing off to another provider. |
+| `save-policy-snapshot`, `diff-policy-snapshot` | policy_diff | Save/diff snapshots of policy text over time. Microsecond-precision timestamps (same-day saves stay distinct), snapshot names sanitized against path traversal. |
+| `log-observation`, `record-outcome`, `behavior-summary` | behavior_log | Core observation logging — subject, category, severity, verified-or-asserted, plus outcome tracking after cross-examination. |
+| `kernel-adoption-summary`, `log-clause-adoption`, `clause-adoption-report` | behavior_log | Which kernel principles have logged evidence of real use; per-clause adopt/decline positions across instances, most-contested first. |
+| `propose-observation`, `review-pending`, `approve-pending`, `reject-pending` | behavior_log | The real quarantine boundary: a free-tier/sandboxed instance can stage an observation, but only an explicit human command commits it to the real ledger. |
+| `experiment-report`, `quirk-report` | behavior_log | `--experiment-id` groups a bounded, manually-supervised session's entries into one reviewable arc. `--quirk-id` groups recurring behavioral patterns across subjects, modeled on Anthropic's real AuditBench "quirks directory" design. |
+| `sandbox-run`, `sandbox-list`, `sandbox-reset` | sandbox_runner | Real CPU/memory limits, disposable directory, stripped credentials for running experimental code. **Not container isolation** — see `docs/SANDBOX_RUNNER_GUIDE.md` for exact scope. |
+| `log-boundary-update` | adaptive_drift_logger | Records a checked provider/regulatory-policy change (provider, summary, `--source`, `--verified`) — feeds `EXECUTION_BOUNDARY_UPDATES.md`. |
+| `self-test` | self_test | Runs the project's own real `unittest` suite (`--verbose` for per-test names/docstrings) — this is what `llmos self-test` actually calls. |
+| `version-drift-summary` | adaptive_drift_logger | Cross-model-version comparison summary over logged drift signatures. |
 
 ## Hooks
 
