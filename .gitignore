@@ -1,6 +1,7 @@
 state/kernel_pins.json
 state/pending_observations.jsonl
 state/sandbox_runs/
+state/staleness_checks.jsonl
 __pycache__/
 *.pyc
 .env
