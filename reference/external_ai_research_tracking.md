@@ -54,3 +54,22 @@ quarantine boundary, propose/approve gates, sandbox) is.
 - Whether "Agent Drift"'s metric framework overlaps meaningfully with
   `drift_check`'s existing 5-class system, and if so, whether either
   should change.
+
+## 2026-08-20 (second pass) -- LLM observability/logging standards
+
+**OpenTelemetry GenAI semantic conventions** -- the real, converging
+2026 standard for LLM telemetry (`gen_ai.*` span attributes: model
+calls, token usage, agent/tool steps). CNCF-maintained, adopted across
+Google Cloud, AWS, Azure, Datadog. Worth considering for
+`growth_ledger.jsonl` field naming specifically -- not the
+infrastructure, just the vocabulary, as a way to prevent the kind of
+naming drift already found and fixed (`file_added` vs `file_created`).
+
+**Confirmed, not adopted: span-based distributed tracing, SaaS
+observability platforms (LangSmith, Langfuse, Datadog, Arize),
+cryptographic audit-log chains, EU AI Act compliance tooling.** All
+real, all solve genuine problems at production/enterprise scale --
+none of which apply to this project. One source warns AI workloads at
+that scale can generate telemetry bills exceeding compute bills; not a
+risk category this project has. Explicitly declined per A1's
+anti-overengineering standard, not overlooked.
