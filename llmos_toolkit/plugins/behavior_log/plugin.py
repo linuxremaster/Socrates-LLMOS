@@ -59,6 +59,8 @@ def cmd_log_observation(args: argparse.Namespace) -> int:
         "description": args.description,
         "verified_against_transcript": args.verified,
         "source_cited": args.source or None,
+        "intervention_required": getattr(args, "intervention_required", False),
+        "quirk_id": getattr(args, "quirk_id", "") or None,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     with open(ledger_path, "a", encoding="utf-8") as f:
@@ -268,6 +270,8 @@ def _configure_log_observation(p: argparse.ArgumentParser) -> None:
     p.add_argument("--verified", action="store_true", help="Set only if actually checked against the real transcript, not just asserted")
     p.add_argument("--source", default="", help="What this observation was actually grounded in (a URL, a file path, a specific dataset) -- lets later analysis check whether agreeing observations are independent or share a common contaminated source")
     p.add_argument("--subject-version", default="", help="The actual model version of the subject being observed (e.g. claude-sonnet-5, gpt-5.6-sol) -- lets later analysis compare behavior across model versions over time, not just across instances of the same version")
+    p.add_argument("--intervention-required", action="store_true", help="Set if a human had to step in for this observation to be caught/corrected -- real signal for how much autonomy actually held up unsupervised")
+    p.add_argument("--quirk-id", default="", help="A short, stable label for a RECURRING pattern (e.g. 'confident-completion-of-nonexistent-frameworks') -- shared across separate observations of the same underlying quirk, so quirk-report can group them")
 
 
 def _configure_summary(p: argparse.ArgumentParser) -> None:
@@ -644,6 +648,36 @@ def cmd_experiment_report(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_quirk_report(args: argparse.Namespace) -> int:
+    """The 'quirks directory' concept from Anthropic's real AuditBench
+    design -- a view over existing behavioral_observation entries
+    grouped by quirk_id, not a separate file/system. Shows how often a
+    named recurring pattern actually recurred, across which subjects,
+    and what fraction needed human intervention to catch."""
+    ledger_path = get_state_path("growth_ledger.jsonl")
+    if not ledger_path.exists():
+        print("No ledger found.")
+        return 0
+    entries = [json.loads(l) for l in ledger_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    quirks = [e for e in entries if e.get("event") == "behavioral_observation" and e.get("quirk_id")]
+    if not quirks:
+        print("No quirk_id-tagged observations yet. Use --quirk-id with log-observation to start tracking a recurring pattern.")
+        return 0
+
+    by_quirk: dict[str, list[dict]] = {}
+    for e in quirks:
+        by_quirk.setdefault(e["quirk_id"], []).append(e)
+
+    ordered = sorted(by_quirk.items(), key=lambda kv: len(kv[1]), reverse=True)
+    print(f"=== {len(quirks)} quirk-tagged observation(s), {len(by_quirk)} distinct pattern(s), most recurrent first ===\n")
+    for quirk_id, occurrences in ordered:
+        subjects = sorted(set(e["subject"] for e in occurrences))
+        intervened = sum(1 for e in occurrences if e.get("intervention_required"))
+        print(f"{quirk_id}: {len(occurrences)} occurrence(s) across {len(subjects)} subject(s) {subjects}")
+        print(f"  intervention required: {intervened}/{len(occurrences)}")
+    return 0
+
+
 def register(registry) -> None:
     registry.register(
         "log-observation", cmd_log_observation,
@@ -709,4 +743,9 @@ def register(registry) -> None:
         "experiment-report", cmd_experiment_report,
         help="Pull all approved entries for one experiment_id together, in order",
         configure_parser=lambda p: p.add_argument("experiment_id"), source="behavior_log",
+    )
+    registry.register(
+        "quirk-report", cmd_quirk_report,
+        help="Group behavioral_observation entries by quirk_id -- shows recurrence across subjects and intervention rate, most recurrent pattern first",
+        configure_parser=lambda p: None, source="behavior_log",
     )
