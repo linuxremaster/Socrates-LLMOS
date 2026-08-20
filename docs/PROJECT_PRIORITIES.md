@@ -19,6 +19,36 @@ sources? Not aspirational — this names what the project already does
 (cross-model audit verification, evidence tiers, the behavioral
 observation log) and points forward from that real base, not past it.
 
+## Origin and scope evolution
+
+**This did not start as an LLM operating system.** It started as a
+human behavioral conflict resolution management system, pursued
+through a novel means — the depolarize prompt engine (anti-bias/
+anti-propaganda tooling, originally intended as a browser extension).
+
+**LLMOS itself was not the original goal — it emerged from a
+redirection.** In a separate conversation, ChatGPT turned the project
+toward what became the equivalent of an LLM behavioral conflict
+resolution management OS — applying the same underlying concern
+(conflict resolution, bias detection, epistemic discipline) to LLM
+behavior itself rather than to human political discourse. That
+redirection is where the kernel, the toolkit, and everything since
+actually came from.
+
+**This is stated as real history, not as a problem to correct.**
+Edge cases surfaced through this pivot — the Gemini transcripts
+specifically — are treated as genuine experimental opportunity, not
+drift to be reversed. The North star above describes what the project
+became and does now; this section exists so *how it got there* stays
+on record too, and doesn't quietly get smoothed into "this was the
+plan all along."
+
+**Process going forward, since scope will keep evolving:** when a
+genuine, significant redirection happens — not routine feature work,
+but a real shift in what the project fundamentally is — it gets a new
+dated entry here, in the same spirit as this one: accurate, not
+retroactively cleaned up to look more intentional than it was.
+
 ## Active priorities
 
 1. **Kernel/methodology integrity** — evidence discipline (V/I/A/U),
