@@ -55,6 +55,24 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.8.0-alpha — 2026-08-20
+
+Minor version bump — 7 commits since v0.7.2-alpha, real new capability
+across several fronts: `reference/external_ai_research_tracking.md`
+(Microsoft DELEGATE-52 and related research, independently verified);
+a documented ledger event-naming convention and a new workflow for
+routing external audits through `propose-observation` before
+verification; `intervention_required`/`quirk_id` fields plus
+`quirk-report`, a lightweight version of Anthropic's real AuditBench
+"quirks directory" concept; a genuine staleness fix in
+`llmos_toolkit/README.md` (9 real commands, including the entire
+`behavior_log` plugin, had gone undocumented); `docs/
+HOUSEKEEPING_AUDIT_CHECKLIST.md`, a real executable checklist grounded
+in 4 actual staleness incidents this session; and `staleness-check`,
+which automates that checklist, detects drift only, never auto-fixes,
+and found 2 genuine issues on its first real run (including a
+self-referential one). 56/56 tests, ready for external audit.
+
 ## v0.7.2-alpha — 2026-08-20
 
 Real feature bump — 1 commit since v0.7.1-alpha: `sandbox-run`/
