@@ -30,7 +30,7 @@ Two things, kept deliberately separate:
 - **`llmos_toolkit/`** — a small, dependency-light Python CLI that
   checks whether those rules are actually being followed: drift
   detection, integrity pinning, secret scanning, retrieval, git-based
-  sync. 13 plugins as of 2026-08-14, all tested against real files
+  sync. 18 plugins as of 2026-08-20, all tested against real files
   during development, not just written and assumed to work.
 
 The name "Socrates LLMOS" is a nickname earned over the course of
