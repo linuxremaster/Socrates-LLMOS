@@ -55,6 +55,30 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.8.2-alpha — 2026-08-20
+
+Real patch bump — 3 commits since v0.8.1-alpha: removed a leftover
+empty `example_hello/` directory (consolidation was already
+functionally complete — `git log` confirms the plugin code was
+genuinely removed from tracking; this was a harmless git artifact, not
+a real documentation/reality mismatch, though it looked like one).
+Fixed the real bug behind ChatGPT's independently-reproduced
+session-close failures: the preflight import check ran without `cwd`
+override, inheriting the test runner's own working directory and
+finding the source tree on `sys.path` even when the package genuinely
+isn't installed — while the real test runs with `cwd=self.root`, a
+disposable temp dir with no source tree in sight. Fixed to check
+importability the same way the real test actually does. Also fixed a
+second-order cleanup bug the reorder introduced (switched `tearDown`
+to `addCleanup` so the skip path still cleans up its temp dir).
+Verified correct in this environment (56/56, unaffected since this
+environment was never exhibiting the bug); cross-environment effect
+genuinely unconfirmed pending an independent rerun. A proposed 8-layer
+security schema (informed by real, directly-verified CompTIA SecAI+
+CY0-001 domain content) was deliberately parked as reference material,
+not built — consolidation-first discipline held on both sides. 56/56
+tests.
+
 ## v0.8.1-alpha — 2026-08-20
 
 Real patch bump — 1 commit since v0.8.0-alpha: fixed a genuine
