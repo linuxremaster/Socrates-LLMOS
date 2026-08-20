@@ -67,13 +67,21 @@ them, or is history that led to them.
 ## llmos_toolkit/
 
 The `llmos_toolkit` Python package — `core/` (registry, plugin loader,
-security, CLI, centralized path resolution), `plugins/` (13 as of
-2026-08-14: growth_budget, drift_check, claim_flag, token_audit,
-adaptive_drift_logger, sync, git_sync, secret_scanner, handoff_rag,
-audit_all, session_close, ledger_compact, example_hello), and `hooks/`
-(git pre-commit template). Its own `README.md` and `HOW_TO_USE_THIS.md`
-inside this folder have the full command reference — not duplicated
-here.
+security, CLI, centralized path resolution), `plugins/` (18 as of
+2026-08-20: adaptive_drift_logger, audit_all, behavior_log, claim_flag,
+drift_check, example_hello, git_sync, growth_budget, handoff_rag,
+ledger_compact, paste_handoff, policy_diff, sandbox_runner,
+secret_scanner, self_test, session_close, sync, token_audit), and
+`hooks/` (git pre-commit template). Its own `README.md` and
+`HOW_TO_USE_THIS.md` inside this folder have the full command
+reference — not duplicated here.
+
+**`sandbox_runner`** — real, honestly-scoped guardrails (CPU/memory
+limits, disposable directory, stripped credentials) for running
+experimental or LLM-suggested code without full container isolation,
+since docker/firejail/bwrap are confirmed unavailable in this
+environment. Full spec and how-to in
+[`docs/SANDBOX_RUNNER_GUIDE.md`](./SANDBOX_RUNNER_GUIDE.md).
 
 **The folder must be named exactly `llmos_toolkit`** — `python -m
 llmos_toolkit` resolves that name to this directory, and the plugins

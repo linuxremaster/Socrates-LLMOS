@@ -53,7 +53,7 @@ socrates_llmos/
 └── reference/                   archived history, not actively maintained
 ```
 
-## 3. The toolkit — all 13 plugins, current as of last test pass
+## 3. The toolkit — plugin table, partial (13 plugins as of 2026-08-14; behavior_log's and policy_diff's commands added since are not yet in this table -- see `llmos --list-commands` for the full current list)
 
 | Command(s) | What it does | Tested how |
 |---|---|---|
@@ -70,6 +70,7 @@ socrates_llmos/
 | `session-close` | Re-index → handoff regen → drift-log → commit → ledger compact, one call | Full pipeline tested end-to-end, including a forced compaction run on the real ledger |
 | `ledger-compact` | Rolls old ledger entries into a permanent skeleton summary, keeps recent entries raw | Tested on a scratch copy before any real use; idempotence confirmed (skeleton never re-summarized) |
 | Built-ins: `trust-plugin`, `scan-plugin`, `pin-kernel`, `verify-kernel`, `kernel-hook` | Plugin trust pinning, kernel integrity | `require_trust` mode tested: tampered plugin correctly refused before import, never executed |
+| `sandbox-run`, `sandbox-list`, `sandbox-reset` (added 2026-08-20) | Real CPU/memory limits, disposable directory, stripped credentials for running experimental code -- explicitly NOT container isolation, see `docs/SANDBOX_RUNNER_GUIDE.md` | 4 guardrails tested via genuine reproduction: real infinite loop confirmed killed at the CPU limit, real unbounded allocator confirmed hitting the memory limit, real environment credential confirmed invisible inside the subprocess, reset confirmed empties the directory |
 
 Full detail on every command: `llmos_toolkit/README.md` (technical) and
 `llmos_toolkit/HOW_TO_USE_THIS.md` (plain-language, no CLI experience assumed).

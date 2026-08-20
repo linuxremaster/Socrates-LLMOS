@@ -55,6 +55,23 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.7.2-alpha — 2026-08-20
+
+Real feature bump — 1 commit since v0.7.1-alpha: `sandbox-run`/
+`sandbox-list`/`sandbox-reset`, real CPU/memory resource limits,
+disposable working directory, and stripped credentials for running
+experimental or LLM-suggested code. Explicitly **not** container-grade
+isolation — docker/firejail/bwrap confirmed unavailable in this
+environment, unlikely to be available in Termux either. All four
+guardrails tested via genuine reproduction: a real infinite loop
+confirmed killed at the CPU limit, a real unbounded allocator confirmed
+hitting the memory limit, a real environment credential confirmed
+invisible inside the sandboxed subprocess, reset confirmed empties the
+directory. Full spec and how-to: `docs/SANDBOX_RUNNER_GUIDE.md`. Also:
+fixed a stale plugin table in `docs/PROJECT_HANDOFF_SUMMARY.md` and
+`docs/README.md` (both dated 2026-08-14, missing several plugins added
+since). 56/56 tests.
+
 ## v0.7.1-alpha — 2026-08-20
 
 Real patch bump — 2 commits since v0.7.0-alpha: 5 defects found by a

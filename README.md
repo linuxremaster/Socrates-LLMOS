@@ -27,6 +27,7 @@ It names what this project can't enforce, and what actually does.
   with `HCF_LLMOS_Kernel_v1.3.6-C.md`.
 - **`llmos_toolkit/`** — a Python CLI (`llmos --list-commands`) for
   drift tracking, secret scanning, behavioral observation logging,
+  sandboxed experimental execution (`docs/SANDBOX_RUNNER_GUIDE.md`),
   and audit tooling.
 - **`projects/relay_console/`** — a browser-based multi-instance LLM
   relay tool (manual/async and API-based/sync modes).
