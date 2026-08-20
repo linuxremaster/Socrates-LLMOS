@@ -55,6 +55,20 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.8.3-alpha — 2026-08-20
+
+Real patch bump — 2 commits since v0.8.2-alpha: fixed a genuinely
+self-inflicted plugin-count bug (a manual `ls | wc -l` recount
+mistakenly counted `__init__.py` as a plugin directory — the
+automated `staleness-check` tool's count of 18 was correct all along),
+fixed the recurring `version_string` false positive for real with
+quote-detection precision (tested against both a historical reference,
+correctly ignored, and a genuine live claim, correctly still caught),
+and fixed the repeatedly-flagged `.git` packaging bloat for real via
+`git gc --aggressive --prune=now` — 11MB down to 1.2MB, zero history
+lost, verified by direct commit-count and tag-list comparison before
+and after, not assumed. 56/56 tests.
+
 ## v0.8.2-alpha — 2026-08-20
 
 Real patch bump — 3 commits since v0.8.1-alpha: removed a leftover
