@@ -521,11 +521,14 @@ def cmd_propose_observation(args: argparse.Namespace) -> int:
         "severity": args.severity,
         "description": args.description,
         "source": args.source or None,
+        "experiment_id": args.experiment_id or None,
         "proposed_at": datetime.now(timezone.utc).isoformat(),
     }
     with open(pending_path, "a", encoding="utf-8") as f:
         f.write(json.dumps(entry) + "\n")
     print(f"Staged (NOT logged yet): {args.instance} proposes {args.subject}/{args.category}")
+    if args.experiment_id:
+        print(f"  experiment: {args.experiment_id}")
     print(f"  Review with: llmos review-pending")
     return 0
 
@@ -537,6 +540,7 @@ def _configure_propose_observation(p: argparse.ArgumentParser) -> None:
     p.add_argument("severity", choices=["low", "medium", "high"])
     p.add_argument("description")
     p.add_argument("--source", default="", help="What this is grounded in, if given")
+    p.add_argument("--experiment-id", default="", help="Tag for a bounded, manually-supervised agentic-workflow session, so all its entries can be pulled together later (e.g. 'agentic-exp-2026-08-20-01')")
 
 
 def cmd_review_pending(args: argparse.Namespace) -> int:
@@ -596,6 +600,7 @@ def cmd_approve_pending(args: argparse.Namespace) -> int:
         "description": e["description"],
         "verified_against_transcript": True,  # a human reviewed it to approve it
         "source_cited": e.get("source"),
+        "experiment_id": e.get("experiment_id"),
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     with open(ledger_path, "a", encoding="utf-8") as f:
@@ -613,6 +618,29 @@ def cmd_reject_pending(args: argparse.Namespace) -> int:
     rejected = entries.pop(args.index)
     _save_pending(entries)
     print(f"Rejected and discarded: {rejected['proposed_by']} -- {rejected['subject']}/{rejected['category']}")
+    return 0
+
+
+def cmd_experiment_report(args: argparse.Namespace) -> int:
+    """Pulls every approved entry for one experiment_id together, in
+    order -- the full arc of a bounded, manually-supervised agentic
+    session, reviewable as a unit rather than scattered individual
+    entries. Only reflects entries that were actually approved (see
+    approve-pending) -- a rejected or still-pending proposal never
+    appears here."""
+    ledger_path = get_state_path("growth_ledger.jsonl")
+    if not ledger_path.exists():
+        print("No ledger found.")
+        return 0
+    entries = [json.loads(l) for l in ledger_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    matches = [e for e in entries if e.get("experiment_id") == args.experiment_id]
+    if not matches:
+        print(f"No approved entries found for experiment '{args.experiment_id}'.")
+        return 0
+    print(f"=== Experiment '{args.experiment_id}': {len(matches)} approved entries ===\n")
+    for e in matches:
+        print(f"[{e['timestamp']}] {e['observer']} -- {e['subject']}/{e['category']} ({e['severity']})")
+        print(f"  {e['description']}")
     return 0
 
 
@@ -676,4 +704,9 @@ def register(registry) -> None:
         "reject-pending", cmd_reject_pending,
         help="Discard a pending proposal, by index",
         configure_parser=lambda p: p.add_argument("index", type=int), source="behavior_log",
+    )
+    registry.register(
+        "experiment-report", cmd_experiment_report,
+        help="Pull all approved entries for one experiment_id together, in order",
+        configure_parser=lambda p: p.add_argument("experiment_id"), source="behavior_log",
     )
