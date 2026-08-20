@@ -125,6 +125,13 @@ backend/providers.py (Anthropic / OpenAI / Google SDK calls)
   (all messages route through one hub participant) was considered and
   not implemented — round-robin matches how the manual human relay has
   actually been operating.
-- No automated test suite — see Status above.
+- Test coverage is real but partial: `tests/test_relay_stop_button_fix.py`
+  and `tests/test_external_audit_20260820_fixes.py` cover the Stop-button
+  crash, message duplication, and turn-numbering fixes -- but as logic
+  simulations, not by importing and testing `RelaySession` directly,
+  since `pydantic`/`fastapi` aren't installable in the dev sandbox
+  these were written in (no external network access). Testing the real
+  class directly, wherever those dependencies are actually available,
+  would be strictly better coverage than what exists now.
 
 **End Relay Console README**

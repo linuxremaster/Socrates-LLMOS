@@ -64,8 +64,30 @@ def kernel_pin_key(path: Path) -> str:
     pin-then-verify workflow could report UNPINNED on a file that was
     just pinned. Centralizing into one function is what actually
     prevents this class of drift from recurring a third time, not
-    patching each call site individually."""
-    return str(path.resolve())
+    patching each call site individually.
+
+    Second real bug fixed 2026-08-20, found by external audit: using
+    str(path.resolve()) -- an ABSOLUTE path -- meant a pin written on
+    one machine/unpack location was permanently unusable on any other,
+    since kernel_pins.json travels with the project (it's gitignored,
+    but zip -r doesn't respect .gitignore, so it ships anyway) while
+    the absolute path it was keyed to does not. Confirmed via direct
+    test: a fresh unpack to a different directory reported the correctly
+    -pinned, unmodified kernel as UNPINNED. Now keyed to a path relative
+    to PROJECT_ROOT instead -- travels correctly with the project,
+    still fully collision-resistant (two files sharing a basename in
+    different subdirectories still get distinct relative paths)."""
+    from llmos_toolkit.core.paths import PROJECT_ROOT
+    resolved = path.resolve()
+    try:
+        rel = resolved.relative_to(PROJECT_ROOT.resolve())
+        return rel.as_posix()
+    except ValueError:
+        # Genuinely outside the project (e.g. a file in /tmp during a
+        # test) -- absolute path is the only correct identity there,
+        # same portability caveat as before applies, but that's an
+        # honest reflection of the file's real location, not a bug.
+        return resolved.as_posix()
 
 
 @dataclass

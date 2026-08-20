@@ -81,8 +81,17 @@ class RelaySession:
                 break
 
             next_slot = self._next_slot(current_slot)
+            # Real bug found by external audit 2026-08-20: turn_number used
+            # to be self.state.current_turn, which only increments once per
+            # full exchange. ASYNC_GATED appends TWO entries per exchange
+            # (the outgoing "awaiting paste" turn, then the reply) -- so the
+            # next loop iteration's outgoing turn collided with the previous
+            # iteration's reply_turn, both numbered the same. Confirmed via
+            # direct trace: turn sequence 0 -> 1 (reply) -> 1 again (new
+            # outgoing, collision) -> 2. len(self.state.turns) is always the
+            # actual count of turns appended so far, so it can't collide.
             turn = Turn(
-                turn_number=self.state.current_turn,
+                turn_number=len(self.state.turns),
                 from_slot=current_slot,
                 to_slot=next_slot,
                 content=pending_content,
@@ -100,12 +109,22 @@ class RelaySession:
                 self.state.turns.append(turn)
                 await self.emit({"type": "await_paste", "turn": turn.model_dump()})
                 response_content, evidence_tier, provenance_note = await self._wait_for_human_paste(turn.turn_number)
-                print(f"[TRACE] _wait_for_human_paste resumed with content={response_content!r}, "
-                      f"evidence_tier={evidence_tier!r}, provenance_note={provenance_note!r}", flush=True)
             else:
                 target = self._participant(next_slot)
                 try:
-                    history = self._history_for(next_slot) + [{"role": "user", "content": pending_content}]
+                    # Real bug found by external audit 2026-08-20: this used
+                    # to unconditionally append pending_content here, but
+                    # _history_for(next_slot) already includes it once the
+                    # first exchange has happened, since it was appended to
+                    # self.state.turns with status "sent"/"approved" in the
+                    # PRIOR loop iteration. Appending it again duplicated the
+                    # previous turn in every subsequent call's history.
+                    # Confirmed via direct trace: call 2 received resp1 twice.
+                    # Only the very first call (opening_message, not yet in
+                    # self.state.turns at all) still needs the explicit append.
+                    history = self._history_for(next_slot)
+                    if not self.state.turns:
+                        history = history + [{"role": "user", "content": pending_content}]
                     if len(history) > 20:
                         # Real, unbounded-growth risk Jaidev's article flagged in a
                         # different form (fixed cost floor per call). Here the risk
@@ -135,8 +154,21 @@ class RelaySession:
                     self.state.status = "stopped"
                     return
 
+            if response_content is None:
+                # Real bug found by external audit 2026-08-20: Stop clicked
+                # during await_paste resolves the future with content=None
+                # (see stop()'s REJECT tuple), but this used to flow straight
+                # into Turn(content=response_content, ...) -- Turn.content is
+                # a required str field, so this raised a Pydantic
+                # ValidationError instead of cleanly stopping. Confirmed via
+                # direct check of the Turn model definition. Handle the stop
+                # explicitly instead of letting it reach the constructor.
+                self.state.status = "stopped"
+                await self.emit({"type": "session_stopped", "reason": "stopped_during_paste"})
+                return
+
             reply_turn = Turn(
-                turn_number=self.state.current_turn + 1,
+                turn_number=len(self.state.turns),
                 from_slot=next_slot,
                 to_slot=self._next_slot(next_slot),
                 content=response_content,
@@ -144,8 +176,6 @@ class RelaySession:
                 evidence_tier=evidence_tier,
                 provenance_note=provenance_note,
             )
-            print(f"[TRACE] reply_turn constructed successfully: turn_number={reply_turn.turn_number}, "
-                  f"mode={self.state.config.mode}", flush=True)
 
             if self.state.config.mode == RelayMode.SYNC_GATED:
                 # ASYNC_GATED doesn't gate again here -- the human already

@@ -146,7 +146,7 @@ def cmd_pin_kernel(args: argparse.Namespace) -> int:
     # collision, and the path itself is now what's being verified.
     label = args.label or kernel_pin_key(path)
     pins[label] = {
-        "path": str(path.resolve()),
+        "path": kernel_pin_key(path),
         "sha256": digest,
         "pinned_at": datetime.now(timezone.utc).isoformat(),
     }

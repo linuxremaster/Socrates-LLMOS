@@ -229,7 +229,12 @@ el("start-btn").addEventListener("click", () => {
   el("console-panel").hidden = false;
   renderParticipantRow();
 
-  ws = new WebSocket(`ws://${location.host}/ws/${sessionId}`);
+  // Real bug found by external audit 2026-08-20: hardcoded ws:// broke
+  // any deployment served over HTTPS, since browsers block insecure
+  // WebSocket connections from a secure page. Match the page's own
+  // protocol instead.
+  const wsScheme = location.protocol === "https:" ? "wss:" : "ws:";
+  ws = new WebSocket(`${wsScheme}//${location.host}/ws/${sessionId}`);
   const rawSend = ws.send.bind(ws);
   ws.send = (data) => {
     logNetwork("SENT", data);
