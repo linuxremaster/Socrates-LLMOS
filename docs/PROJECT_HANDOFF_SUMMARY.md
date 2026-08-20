@@ -75,6 +75,33 @@ socrates_llmos/
 Full detail on every command: `llmos_toolkit/README.md` (technical) and
 `llmos_toolkit/HOW_TO_USE_THIS.md` (plain-language, no CLI experience assumed).
 
+## 3.5. growth_ledger.jsonl event-naming convention (added 2026-08-20)
+
+Real analysis of the ledger (112 entries at time of writing) found
+genuine naming drift, not a deliberate distinction: `file_added` and
+`file_created` were both used for the same action -- a new file
+appearing -- at different points in the session. Going forward, use
+`file_added` for any new file, `file_updated` for changes to an
+existing one. Don't invent a new one-off event name (like
+`project_updated` or `consolidation` were) when an existing category
+(`feature_added`, `bug_fix`) genuinely fits -- reserve a new name for
+something that's actually a different kind of action.
+
+Historical entries were left as-is, not renamed -- rewriting logged
+history to "clean it up" would itself be the kind of drift this
+project's own discipline warns against. This section documents the
+convention going forward only.
+
+## 3.6. Workflow: ChatGPT (or any external) audits, added 2026-08-20
+
+When an external instance's audit produces claims to verify: stage
+each claim with `propose-observation` *before* independently checking
+it, then `approve-pending` or `reject-pending` once verified. This
+gives a permanent record of the full arc (claim -> check -> result),
+not just the final outcome -- previously, audits were verified live in
+conversation and only the already-confirmed finding got logged
+directly, losing the "what was claimed before checking" step.
+
 ## 4. How to run it
 
 ```bash
