@@ -33,26 +33,41 @@ def _git(args, cwd):
 
 class TestSessionClosePartialFailure(unittest.TestCase):
     def setUp(self):
-        # Two separate audit rounds hit the same confusing failure here:
-        # if llmos_toolkit isn't pip-installed (`pip install -e .`) in
-        # whatever interpreter runs this suite, every subprocess test in
-        # this file fails with a bare "No module named llmos_toolkit" --
-        # true, but unhelpful on its own. Check once, up front, and skip
-        # with a clear, actionable message instead of 3 confusing errors.
+        # Real bug found by an independent ChatGPT audit 2026-08-20,
+        # precisely diagnosed: this check used to run WITHOUT cwd
+        # override, inheriting the test runner's own working directory
+        # (the project root). That let Python find llmos_toolkit via
+        # the source tree on sys.path even when the package genuinely
+        # ISN'T pip-installed -- passing this check even though the
+        # actual test below (which runs with cwd=self.root, a disposable
+        # temp dir with no source tree in sight) then fails for real.
+        # The check was testing the wrong property: "importable from
+        # the project root" instead of "importable the way the real
+        # test will actually try it." Confirmed in my own environment
+        # this fix is safe -- a genuinely-installed package imports
+        # identically with or without the cwd override.
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        # addCleanup, not relying on tearDown -- tearDown doesn't run if
+        # setUp raises (including via skipTest below), but addCleanup
+        # callbacks do, so the temp dir still gets cleaned up explicitly
+        # in the skip case too, not just left for eventual GC.
+        self.addCleanup(self.tmp.cleanup)
+
         check = subprocess.run(
             [sys.executable, "-c", "import llmos_toolkit"],
-            capture_output=True, text=True,
+            capture_output=True, text=True, cwd=str(self.root),
         )
         if check.returncode != 0:
             self.skipTest(
                 "llmos_toolkit is not importable from this interpreter "
-                f"({sys.executable}). Run `pip install -e .` from the "
-                "project root in this same environment before running "
-                "this test file -- this is an environment setup gap, "
-                "not a bug in session-close itself."
+                f"({sys.executable}) when run outside the source tree "
+                "(as the real session-close subprocess call does). Run "
+                "`pip install -e .` from the project root in this same "
+                "environment before running this test file -- this is "
+                "an environment setup gap, not a bug in session-close "
+                "itself."
             )
-        self.tmp = tempfile.TemporaryDirectory()
-        self.root = Path(self.tmp.name)
         for d in ("kernel", "projects", "reference", "state", "rag"):
             (self.root / d).mkdir()
         (self.root / "kernel" / "test_kernel.md").write_text("# Test Kernel\nSome content.\n")
@@ -73,9 +88,6 @@ class TestSessionClosePartialFailure(unittest.TestCase):
             "LLMOS_DOCS_DIR": str(self.root / "docs"),
             "LLMOS_RAG_DIR": str(self.root / "rag"),
         })
-
-    def tearDown(self):
-        self.tmp.cleanup()
 
     def _run_session_close(self, extra_args=None):
         cmd = [sys.executable, "-m", "llmos_toolkit", "session-close"] + (extra_args or [])
