@@ -55,6 +55,24 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.7.0-alpha — 2026-08-20
+
+Minor version bump reflecting real new capability, not just patches --
+10 commits since v0.6.6-alpha: UBOP v2.5 (A15, Calibrated Wit -- the
+one piece kept from a scratch handoff mixing real and foreign-fork
+commits, everything else left unmerged); a real quarantine boundary
+(`propose-observation`/`review-pending`/`approve-pending`/
+`reject-pending`) letting free-tier/sandboxed instances trigger
+logging without being able to commit it; `--experiment-id` tagging
+and `experiment-report` for bounded, manually-supervised agentic-
+workflow sessions; `docs/PROJECT_PRIORITIES.md`'s Origin and Scope
+Evolution section, recording the project's real history (started as a
+human conflict-resolution system, redirected toward LLMOS); the same
+origin note added to all 7 manual/readme/changelog docs; and the
+relay_console Stop-button crash fix, verified correct in an earlier
+session but never actually merged until now, closed out with a real
+regression test. 46/46 tests.
+
 ## v0.6.6-alpha — 2026-08-17
 
 Real patch bump — 4 commits since v0.6.5-alpha: UBOP v2.3 → v2.4, adding
