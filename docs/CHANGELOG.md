@@ -55,6 +55,24 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.8.1-alpha — 2026-08-20
+
+Real patch bump — 1 commit since v0.8.0-alpha: fixed a genuine
+cross-environment portability regression in `sandbox_runner`, found by
+an independent ChatGPT execution audit (50/56 in their environment).
+`RLIMIT_AS` constrains virtual address space, not actual memory used —
+Python interpreter startup overhead in virtual memory varies
+significantly across builds/OSes/libc, independent of script content.
+128MB was comfortably generous here (confirmed baseline ~16MB) but
+reportedly too tight elsewhere, killing even trivial "should succeed"
+tests with SIGKILL. Raised the should-succeed tests and the CLI
+default to 512MB; the real memory-boundary test (deliberately tight at
+32MB, expects a genuine `MemoryError`) left unchanged and re-confirmed
+still triggers correctly. A second finding from the same audit
+(session-close isolated-subprocess SKIP-vs-FAIL discrepancy) could not
+be reproduced against the actual current test code — request for more
+detail sent back rather than a guessed fix. 56/56 tests.
+
 ## v0.8.0-alpha — 2026-08-20
 
 Minor version bump — 7 commits since v0.7.2-alpha, real new capability
