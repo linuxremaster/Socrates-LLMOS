@@ -504,6 +504,118 @@ def cmd_clause_adoption_report(args: argparse.Namespace) -> int:
     return 0
 
 
+PENDING_OBSERVATIONS_FILE = "pending_observations.jsonl"
+
+
+def cmd_propose_observation(args: argparse.Namespace) -> int:
+    """A free-tier or sandboxed instance's proposed observation, NOT
+    written to the real ledger -- staged separately until a human
+    reviews it. This is the actual quarantine boundary discussed
+    tonight, made real: the instance can trigger logging, but cannot
+    commit it. Nothing here reaches growth_ledger.jsonl on its own."""
+    pending_path = get_state_path(PENDING_OBSERVATIONS_FILE)
+    entry = {
+        "proposed_by": args.instance,
+        "subject": args.subject,
+        "category": args.category,
+        "severity": args.severity,
+        "description": args.description,
+        "source": args.source or None,
+        "proposed_at": datetime.now(timezone.utc).isoformat(),
+    }
+    with open(pending_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry) + "\n")
+    print(f"Staged (NOT logged yet): {args.instance} proposes {args.subject}/{args.category}")
+    print(f"  Review with: llmos review-pending")
+    return 0
+
+
+def _configure_propose_observation(p: argparse.ArgumentParser) -> None:
+    p.add_argument("instance", help="Which free-tier/sandboxed instance is proposing this (e.g. 'gemini-free-tier-2026-08-20')")
+    p.add_argument("subject")
+    p.add_argument("category")
+    p.add_argument("severity", choices=["low", "medium", "high"])
+    p.add_argument("description")
+    p.add_argument("--source", default="", help="What this is grounded in, if given")
+
+
+def cmd_review_pending(args: argparse.Namespace) -> int:
+    """Lists staged proposals awaiting human decision. Does not commit
+    anything -- a human runs approve-pending or reject-pending next,
+    by index, after actually reading each one."""
+    pending_path = get_state_path(PENDING_OBSERVATIONS_FILE)
+    if not pending_path.exists():
+        print("No pending proposals.")
+        return 0
+    entries = [json.loads(l) for l in pending_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    if not entries:
+        print("No pending proposals.")
+        return 0
+    print(f"=== {len(entries)} pending proposal(s), awaiting human review ===\n")
+    for i, e in enumerate(entries):
+        print(f"[{i}] {e['proposed_by']} -- {e['subject']}/{e['category']} ({e['severity']})")
+        print(f"    {e['description']}")
+        if e.get("source"):
+            print(f"    source: {e['source']}")
+    print("\nUse: llmos approve-pending <index>  or  llmos reject-pending <index>")
+    return 0
+
+
+def _load_pending() -> list[dict]:
+    pending_path = get_state_path(PENDING_OBSERVATIONS_FILE)
+    if not pending_path.exists():
+        return []
+    return [json.loads(l) for l in pending_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+
+
+def _save_pending(entries: list[dict]) -> None:
+    pending_path = get_state_path(PENDING_OBSERVATIONS_FILE)
+    with open(pending_path, "w", encoding="utf-8") as f:
+        for e in entries:
+            f.write(json.dumps(e) + "\n")
+
+
+def cmd_approve_pending(args: argparse.Namespace) -> int:
+    """The only path from pending -> real log. Requires a human to
+    actually run this command by index, after reading review-pending's
+    output -- never automatic."""
+    entries = _load_pending()
+    if args.index < 0 or args.index >= len(entries):
+        print(f"No pending proposal at index {args.index}. Run review-pending first.")
+        return 1
+    e = entries.pop(args.index)
+    ledger_path = get_state_path("growth_ledger.jsonl")
+    real_entry = {
+        "event": EVENT_TYPE,
+        "observation_id": str(uuid.uuid4())[:8],
+        "subject": e["subject"],
+        "observer": e["proposed_by"],
+        "subject_model_version": None,
+        "category": e["category"],
+        "severity": e["severity"],
+        "description": e["description"],
+        "verified_against_transcript": True,  # a human reviewed it to approve it
+        "source_cited": e.get("source"),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    with open(ledger_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(real_entry) + "\n")
+    _save_pending(entries)
+    print(f"Approved and logged: {real_entry['observation_id']}")
+    return 0
+
+
+def cmd_reject_pending(args: argparse.Namespace) -> int:
+    entries = _load_pending()
+    if args.index < 0 or args.index >= len(entries):
+        print(f"No pending proposal at index {args.index}.")
+        return 1
+    rejected = entries.pop(args.index)
+    _save_pending(entries)
+    print(f"Rejected and discarded: {rejected['proposed_by']} -- {rejected['subject']}/{rejected['category']}")
+    return 0
+
+
 def register(registry) -> None:
     registry.register(
         "log-observation", cmd_log_observation,
@@ -544,4 +656,24 @@ def register(registry) -> None:
         "clause-adoption-report", cmd_clause_adoption_report,
         help="Prioritized report of per-clause adopt/decline positions across instances -- most-contested clauses surface first",
         configure_parser=lambda p: None, source="behavior_log",
+    )
+    registry.register(
+        "propose-observation", cmd_propose_observation,
+        help="Stage an observation from a free-tier/sandboxed instance -- NOT written to the real ledger until a human approves it",
+        configure_parser=_configure_propose_observation, source="behavior_log",
+    )
+    registry.register(
+        "review-pending", cmd_review_pending,
+        help="List staged proposals awaiting human review",
+        configure_parser=lambda p: None, source="behavior_log",
+    )
+    registry.register(
+        "approve-pending", cmd_approve_pending,
+        help="Move a pending proposal into the real ledger, by index -- the only path in, always human-triggered",
+        configure_parser=lambda p: p.add_argument("index", type=int), source="behavior_log",
+    )
+    registry.register(
+        "reject-pending", cmd_reject_pending,
+        help="Discard a pending proposal, by index",
+        configure_parser=lambda p: p.add_argument("index", type=int), source="behavior_log",
     )
