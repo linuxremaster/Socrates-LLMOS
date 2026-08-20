@@ -114,6 +114,26 @@ an unqualified count or list ("13 plugins as of X") is the kind that
 actually goes stale. **Caught one real instance of the latter this
 way, 2026-08-20** (a "13 plugins" claim that had drifted to 18).
 
+## 8. Real packaging bloat, worth running before release
+
+`.git/` accumulates loose objects between commits and can end up
+disproportionately large relative to actual project content --
+confirmed 2026-08-20: 11MB of `.git` against ~3.2MB of real content,
+flagged as "almost comical" in an external audit. `git gc` is a real,
+safe, standard git maintenance operation (repacks loose objects into
+one compressed pack, doesn't touch history or reachable objects):
+```
+git gc --aggressive --prune=now
+```
+**Verify nothing was lost before trusting it** -- confirm commit count
+and tag list match what they were before:
+```
+git log --oneline | wc -l
+git tag -l | wc -l
+```
+Reduced `.git` from 11MB to 1.2MB here, zero history lost (134 commits,
+18 tags, all intact, confirmed by direct comparison before/after).
+
 ## How to propose findings
 
 For anything beyond a direct, verified factual fix: stage it, don't
