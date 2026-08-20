@@ -34,7 +34,20 @@ class TestSandboxRunner(unittest.TestCase):
 
     def test_normal_script_runs_cleanly(self):
         script = self._write_script("print('ok')")
-        args = argparse.Namespace(script=str(script), cpu_seconds=5, memory_mb=128)
+        # Real bug found by external ChatGPT audit 2026-08-20: this used
+        # to be memory_mb=128, but RLIMIT_AS constrains virtual address
+        # space, not actual usage -- Python interpreter startup overhead
+        # in virtual memory varies significantly across builds/OSes/libc,
+        # independent of what the script actually does. 128MB was safely
+        # generous in this environment (confirmed VmSize ~16MB for a bare
+        # interpreter) but reportedly insufficient in ChatGPT's, killing
+        # this "should just succeed" test with SIGKILL. The test's actual
+        # purpose is confirming normal execution works, not testing the
+        # memory boundary -- that's test_memory_limit_genuinely_raises_
+        # memory_error's job, which correctly keeps a tight limit. Raised
+        # to 512MB here specifically to absorb cross-environment interpreter
+        # startup variance without weakening the real boundary test.
+        args = argparse.Namespace(script=str(script), cpu_seconds=5, memory_mb=512)
         plugin.cmd_sandbox_run(args)
         runs = list((self.state_dir / plugin.SANDBOX_DIR_NAME).iterdir())
         self.assertEqual(len(runs), 1)
@@ -45,7 +58,11 @@ class TestSandboxRunner(unittest.TestCase):
 
     def test_cpu_limit_genuinely_kills_infinite_loop(self):
         script = self._write_script("x = 0\nwhile True:\n    x += 1\n")
-        args = argparse.Namespace(script=str(script), cpu_seconds=1, memory_mb=128)
+        # Same cross-environment interpreter-startup-overhead fix as
+        # test_normal_script_runs_cleanly -- this test targets the CPU
+        # limit specifically, not memory, so memory shouldn't be the
+        # thing that can fail it in another environment.
+        args = argparse.Namespace(script=str(script), cpu_seconds=1, memory_mb=512)
         plugin.cmd_sandbox_run(args)
         runs = list((self.state_dir / plugin.SANDBOX_DIR_NAME).iterdir())
         import json
@@ -72,7 +89,7 @@ class TestSandboxRunner(unittest.TestCase):
             "import os\n"
             "print('LEAKED' if 'REAL_SECRET' in os.environ else 'CLEAN')\n"
         )
-        args = argparse.Namespace(script=str(script), cpu_seconds=5, memory_mb=128)
+        args = argparse.Namespace(script=str(script), cpu_seconds=5, memory_mb=512)
         import os
         with patch.dict(os.environ, {"REAL_SECRET": "should-not-leak"}):
             plugin.cmd_sandbox_run(args)
@@ -84,7 +101,7 @@ class TestSandboxRunner(unittest.TestCase):
 
     def test_reset_genuinely_empties_sandbox_dir(self):
         script = self._write_script("print('run before reset')")
-        args = argparse.Namespace(script=str(script), cpu_seconds=5, memory_mb=128)
+        args = argparse.Namespace(script=str(script), cpu_seconds=5, memory_mb=512)
         plugin.cmd_sandbox_run(args)
         self.assertTrue(any((self.state_dir / plugin.SANDBOX_DIR_NAME).iterdir()))
         plugin.cmd_sandbox_reset(argparse.Namespace())

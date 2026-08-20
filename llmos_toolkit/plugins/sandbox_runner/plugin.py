@@ -122,7 +122,7 @@ def cmd_sandbox_run(args: argparse.Namespace) -> int:
 def _configure_sandbox_run(p: argparse.ArgumentParser) -> None:
     p.add_argument("script", help="Path to a Python script to run under sandbox limits")
     p.add_argument("--cpu-seconds", type=int, default=10, help="CPU time limit (default: 10)")
-    p.add_argument("--memory-mb", type=int, default=256, help="Memory limit in MB (default: 256)")
+    p.add_argument("--memory-mb", type=int, default=512, help="Memory limit in MB (default: 512 -- deliberately generous headroom over raw script needs, since RLIMIT_AS constrains virtual address space and Python interpreter startup overhead in virtual memory varies significantly across builds/OSes/libc, confirmed by a real cross-environment audit failure at 128MB)")
 
 
 def cmd_sandbox_reset(args: argparse.Namespace) -> int:

@@ -51,6 +51,18 @@ real security boundary against a malicious or adversarial process is
 ever actually needed, this is the wrong tool — that would need genuine
 containers or VMs, which this environment doesn't currently support.
 
+**Real cross-environment limitation, confirmed by an independent
+ChatGPT audit 2026-08-20:** `RLIMIT_AS` constrains virtual address
+space, not actual memory used — Python interpreter startup overhead in
+virtual memory varies significantly across builds, OSes, and libc
+implementations, independent of what a script actually does. A limit
+that's comfortably generous in one environment (confirmed here:
+~16MB baseline for a bare interpreter) can be too tight in another,
+killing even trivial scripts with SIGKILL before they do anything.
+Default raised to 512MB specifically to absorb this variance; if a
+script still gets killed unexpectedly, check whether the limit itself
+is the problem before assuming the script is.
+
 ## How to use it
 
 Run a script under sandbox limits:
