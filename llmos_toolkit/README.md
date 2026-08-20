@@ -111,7 +111,7 @@ Beyond the built-ins (`trust-plugin`, `scan-plugin`, `pin-kernel`,
 | `log-boundary-update` | adaptive_drift_logger | Records a checked provider/regulatory-policy change (provider, summary, `--source`, `--verified`) — feeds `EXECUTION_BOUNDARY_UPDATES.md`. |
 | `self-test` | self_test | Runs the project's own real `unittest` suite (`--verbose` for per-test names/docstrings) — this is what `llmos self-test` actually calls. |
 | `version-drift-summary` | adaptive_drift_logger | Cross-model-version comparison summary over logged drift signatures. |
-| `staleness-check` | staleness_check | Automated version of `docs/HOUSEKEEPING_AUDIT_CHECKLIST.md` -- detects command/doc parity gaps, stale plugin counts, hardcoded version strings, embedded-content drift, ledger naming, stale dates. Detection only, logs to `state/staleness_checks.jsonl`, never auto-fixes. Known false-positive pattern: flags version strings inside historical/explanatory text (e.g. "this file said vX.Y"), not just live stale claims -- a quick human check resolves these. |
+| `staleness-check` | staleness_check | Automated version of `docs/HOUSEKEEPING_AUDIT_CHECKLIST.md` -- detects command/doc parity gaps, stale plugin counts, hardcoded version strings, embedded-content drift, ledger naming, stale dates. Detection only, logs to `state/staleness_checks.jsonl`, never auto-fixes. Version-string check distinguishes quoted historical references from live claims (fixed 2026-08-20 after causing recurring confusion in two external audits) -- still worth a quick human read on any finding, since heuristics aren't infallible. |
 
 ## Hooks
 

@@ -30,7 +30,7 @@ Two things, kept deliberately separate:
 - **`llmos_toolkit/`** — a small, dependency-light Python CLI that
   checks whether those rules are actually being followed: drift
   detection, integrity pinning, secret scanning, retrieval, git-based
-  sync. 19 plugins as of 2026-08-20, all tested against real files
+  sync. 18 plugins as of 2026-08-20, all tested against real files
   during development, not just written and assumed to work.
 
 The name "Socrates LLMOS" is a nickname earned over the course of
@@ -53,7 +53,7 @@ socrates_llmos/
 └── reference/                   archived history, not actively maintained
 ```
 
-## 3. The toolkit — plugin table, partial (13 plugins as of 2026-08-14; behavior_log's and policy_diff's commands added since are not yet in this table -- see `llmos --list-commands` for the full current list)
+## 3. The toolkit — plugin table, partial and intentionally historical (covers the plugins that existed 2026-08-14; several real plugins added since -- behavior_log, policy_diff, sandbox_runner, staleness_check -- are documented in `llmos_toolkit/README.md` instead, not repeated here. See `llmos --list-commands` for the full current list.)
 
 | Command(s) | What it does | Tested how |
 |---|---|---|

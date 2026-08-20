@@ -74,7 +74,14 @@ def _check_plugin_count(registry) -> list[dict]:
 
 def _check_version_strings() -> list[dict]:
     findings = []
-    pattern = re.compile(r"v0\.\d+\.\d+-alpha")
+    # Matches a live/current claim ("this is v0.7.0-alpha"). Deliberately
+    # does NOT match one wrapped in quotes ("v0.6.0-alpha") -- that shape
+    # is how this file's own real historical incident is written
+    # ("this file said \"v0.6.0-alpha\""), and matching it caused genuine,
+    # recurring confusion in two separate external audits before this
+    # fix. A live claim is stated directly, not quoted as something a
+    # file "said" in the past.
+    pattern = re.compile(r'(?<!")v0\.\d+\.\d+-alpha(?!")')
     for doc_name in ("README.md", "docs/PROJECT_HANDOFF_SUMMARY.md", "llmos_toolkit/README.md"):
         doc_path = PROJECT_ROOT / doc_name
         if not doc_path.exists():
