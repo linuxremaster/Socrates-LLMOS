@@ -6,6 +6,9 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # LLMOS Scope and Boundaries
 
+*Originally conceived as a conflict resolution management system; became this epistemic-discipline kernel and toolkit for LLM work through a real redirection -- see `docs/PROJECT_PRIORITIES.md`'s Origin and Scope Evolution section.*
+
+
 **Single source of truth for what "LLMOS" means in this repository.**
 Every other document should link here rather than restating its own
 version of this boundary.

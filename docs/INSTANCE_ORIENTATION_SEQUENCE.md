@@ -6,6 +6,9 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # Instance Orientation Sequence
 
+*Originally conceived as a conflict resolution management system; became this epistemic-discipline kernel and toolkit for LLM work through a real redirection -- see `docs/PROJECT_PRIORITIES.md`'s Origin and Scope Evolution section.*
+
+
 **Purpose:** the order in which a new model instance should process this
 project when handed the kernel and asked to adopt it. Philosophy: LLMOS
 is built by LLMs, for LLMs — this sequence is written for the instance

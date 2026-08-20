@@ -6,6 +6,9 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # Changelog
 
+*Originally conceived as a conflict resolution management system; became this epistemic-discipline kernel and toolkit for LLM work through a real redirection -- see `docs/PROJECT_PRIORITIES.md`'s Origin and Scope Evolution section.*
+
+
 Dated entries, most recent first. For full commit-level detail see
 `git log`; this file is the human-readable summary. For per-file
 provenance see `state/growth_ledger.jsonl`.

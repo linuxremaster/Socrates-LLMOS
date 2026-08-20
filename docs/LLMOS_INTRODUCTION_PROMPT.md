@@ -6,6 +6,9 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # LLMOS Introduction Prompt
 
+*Originally conceived as a conflict resolution management system; became this epistemic-discipline kernel and toolkit for LLM work through a real redirection -- see `docs/PROJECT_PRIORITIES.md`'s Origin and Scope Evolution section.*
+
+
 Copy-paste this to a new model instance (any provider) along with the
 kernel file. Written to avoid known trigger-word issues — "proceed"
 instead of "execute," no symbol shorthand, no runtime-sounding

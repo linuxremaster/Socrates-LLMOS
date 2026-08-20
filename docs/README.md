@@ -6,6 +6,9 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # LLMOS Project — Directory Guide
 
+*Originally conceived as a conflict resolution management system; became this epistemic-discipline kernel and toolkit for LLM work through a real redirection -- see `docs/PROJECT_PRIORITIES.md`'s Origin and Scope Evolution section.*
+
+
 **Read `WHAT_THIS_IS_BUILT_ON.md` first** — at the actual project root,
 not nested here. It names what this project can't enforce, and what
 actually does.

@@ -6,6 +6,9 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # Socrates LLMOS — Project Handoff Summary
 
+*Originally conceived as a conflict resolution management system; became this epistemic-discipline kernel and toolkit for LLM work through a real redirection -- see `docs/PROJECT_PRIORITIES.md`'s Origin and Scope Evolution section.*
+
+
 **Purpose of this document:** a complete, standalone summary for picking
 this project back up — in a fresh Claude conversation, handed to another
 model, or just for your own reference later. Written to need no prior

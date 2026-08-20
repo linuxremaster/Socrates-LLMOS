@@ -6,6 +6,9 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 # Socrates LLMOS
 
+*Originally conceived as a conflict resolution management system; became this epistemic-discipline kernel and toolkit for LLM work through a real redirection -- see `docs/PROJECT_PRIORITIES.md`'s Origin and Scope Evolution section.*
+
+
 **Alpha.** An epistemic-discipline kernel and toolkit for
 working with LLMs — evidence tiers, cross-model audit verification,
 decision-finality process, and a relay console for multi-instance
