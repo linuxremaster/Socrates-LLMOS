@@ -199,6 +199,15 @@ class RelaySession:
             self._pending_gate.set_result((None, content, evidence_tier, provenance_note))
 
     def stop(self):
+        """Real bug fixed 2026-08-17 (verified then, applied now -- was
+        confirmed correct but never actually merged until this session):
+        this used to call set_result with a 2-tuple, but both _gate() and
+        _wait_for_human_paste() unpack 4 values from this same future --
+        clicking Stop while a turn was pending (gated OR awaiting a human
+        paste) crashed with ValueError: not enough values to unpack,
+        confirmed via a direct reproduction. Now sends a 4-tuple matching
+        what both waiters expect; _gate() reads element 0 as the action,
+        _wait_for_human_paste ignores it and reads content from element 1."""
         self._stop_requested = True
         if self._pending_gate and not self._pending_gate.done():
-            self._pending_gate.set_result((GateAction.REJECT, None))
+            self._pending_gate.set_result((GateAction.REJECT, None, None, None))
