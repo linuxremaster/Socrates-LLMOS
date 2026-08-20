@@ -55,6 +55,26 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.7.1-alpha — 2026-08-20
+
+Real patch bump — 2 commits since v0.7.0-alpha: 5 defects found by a
+ChatGPT audit that actually unpacked and executed v0.7.0-alpha rather
+than reviewing docs. Kernel-pin identity was keyed to an absolute
+path, making pins permanently unusable after unpacking anywhere else
+-- now keyed relative to `PROJECT_ROOT`, verified end-to-end across 3
+different absolute locations. `relay_console`'s SYNC_AUTO mode
+duplicated the previous response in history on every subsequent call
+-- root cause found and fixed, old behavior reproduced to confirm it
+was real before fixing. ASYNC_GATED had a matching turn-number
+collision from the same root cause. Stop clicked during an
+`await_paste` step crashed with a Pydantic ValidationError instead of
+stopping cleanly. `app.js`'s hardcoded `ws://` broke under HTTPS
+deployment -- now matches the page's own protocol. Honest limitation
+disclosed: full `RelaySession`/server execution testing wasn't
+possible in this sandbox (no `pydantic`/`fastapi`, no PyPI access) --
+relay fixes verified via direct trace and a faithful logic simulation,
+not the real class. 51/51 tests.
+
 ## v0.7.0-alpha — 2026-08-20
 
 Minor version bump reflecting real new capability, not just patches --
