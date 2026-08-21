@@ -68,6 +68,32 @@ retroactively cleaned up to look more intentional than it was.
 5. **Toolkit consolidation over accumulation** — remove genuine
    redundancy (done once: `example_hello`) rather than only ever
    adding. Revisit periodically, not just once.
+6. **External security/behavioral research monitoring** — real,
+   ongoing, elevated to a standing priority 2026-08-21 after
+   independently-verified evidence of genuine agentic-AI security and
+   financial-liability risk (the Hugging Face/OpenAI incident, real
+   agent-to-agent privilege escalation via prompt injection, the
+   documented Gemini production-code-deletion incidents). Not a
+   per-touch automatic trigger -- no infrastructure exists to enforce
+   that, and it would mostly generate cost without new signal. Checked
+   before real kernel/UBOP work (see `docs/
+   INSTANCE_ORIENTATION_SEQUENCE.md` section 2.5) and tracked durably
+   in `reference/external_ai_research_tracking.md`.
+
+   **Watched sources, with real baselines where captured:**
+   - CompTIA SecAI+ (CY0-001) -- baseline captured 2026-08-21: V1,
+     launched Feb 17 2026, 4 domains (AI Concepts 17%, Securing AI
+     Systems 40%, AI-Assisted Security 24%, Governance/Risk/Compliance
+     19%), estimated ~3-year retirement (~2029). Future checks diff
+     against this baseline for real changes, not re-summarize from
+     scratch each time.
+   - Anthropic's own safety research (Petri, Bloom, Agentic
+     Misalignment reports) -- first-party source for this project's
+     own model family specifically.
+   - OpenAI's disclosed incidents (the Hugging Face/Artifactory
+     incident, the July 2026 sandbox/token-fragmentation incident).
+   - Independent security research (Pillar Security and similar) for
+     real-world exploit disclosures, not just vendor self-reporting.
 
 ## Explicitly deferred, not abandoned
 
