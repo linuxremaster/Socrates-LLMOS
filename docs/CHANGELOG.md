@@ -55,6 +55,31 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.9.0-alpha — 2026-08-21
+
+Minor version bump — 8 commits since v0.8.3-alpha: UBOP v2.5 → v2.6,
+adding **A15 Calibrated Wit** and **A16 Humor/Ambiguous-Intent Action
+Policy** (the latter a real generalization of the Claude/ChatGPT
+Vercel-coordination "no write without explicit approval" protocol,
+grounded in directly-reported experience, not hypothetical). External
+security/behavioral research monitoring elevated to a named, standing
+priority in `docs/PROJECT_PRIORITIES.md`, with a real, dated CompTIA
+SecAI+ baseline captured directly from the live page for future
+diffing. `security-research-check` — the "antivirus definitions"
+check — added to `staleness_check`, reporting whether today's date
+already has an entry in `reference/external_ai_research_tracking.md`.
+Substantial real research added to that tracking file across multiple
+passes: Jaidev's OpenClaw execution-evidence findings independently
+corroborated by an actual arXiv paper; new Gemini-specific incidents
+(real agent-to-agent privilege escalation via prompt injection,
+Anthropic's own "Agentic Misalignment" disclosure); a UC Berkeley/UC
+Santa Cruz "peer-preservation" study explicitly testing Claude Haiku
+4.5 among 7 frontier models; a peer-reviewed *Science* journal
+sycophancy study; and a real, contested (not one-sided) look at AI
+anthropomorphism research, including one source flagged and not
+adopted specifically because it favored this project's own model.
+56/56 tests.
+
 ## v0.8.3-alpha — 2026-08-20
 
 Real patch bump — 2 commits since v0.8.2-alpha: fixed a genuinely
