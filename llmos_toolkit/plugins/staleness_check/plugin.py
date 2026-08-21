@@ -185,9 +185,51 @@ def cmd_staleness_check(args: argparse.Namespace) -> int:
     return 1 if any(f["severity"] == "high" for f in all_findings) else 0
 
 
+def cmd_security_research_check(args: argparse.Namespace) -> int:
+    """The 'antivirus definitions' check: reports whether today's date
+    already has an entry in reference/external_ai_research_tracking.md,
+    not whether a check happened at some vague earlier point. Detection
+    only -- does not run a search itself, does not auto-log anything.
+    An instance still has to choose to act on what this reports; this
+    just makes 'is today's check done' a real, checkable fact instead
+    of something to remember or guess at."""
+    import re as _re
+    tracking_file = PROJECT_ROOT / "reference" / "external_ai_research_tracking.md"
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    if not tracking_file.exists():
+        print(f"No tracking file found at {tracking_file}. Nothing has ever been logged.")
+        return 1
+
+    text = tracking_file.read_text(encoding="utf-8")
+    dates_found = _re.findall(r"^## (\d{4}-\d{2}-\d{2})", text, _re.MULTILINE)
+    if not dates_found:
+        print("Tracking file exists but no dated entries found in it.")
+        return 1
+
+    dates_parsed = sorted(set(datetime.strptime(d, "%Y-%m-%d").replace(tzinfo=timezone.utc) for d in dates_found))
+    most_recent = dates_parsed[-1]
+    now = datetime.now(timezone.utc)
+    days_since = (now - most_recent).days
+
+    if today in dates_found:
+        print(f"Security research check: UP TO DATE. An entry for today ({today}) already exists.")
+        return 0
+    else:
+        print(f"Security research check: DUE. Most recent entry is {most_recent.strftime('%Y-%m-%d')} ({days_since} day(s) ago). No entry for today ({today}) yet.")
+        print(f"  Read {tracking_file} first, then run a fresh search for new agentic-AI security/behavioral incidents.")
+        print(f"  Only add a new dated entry if something genuinely new and verified is found -- 'nothing new today' doesn't need its own entry.")
+        return 1
+
+
 def register(registry) -> None:
     registry.register(
         "staleness-check", cmd_staleness_check,
         help="Automated version of docs/HOUSEKEEPING_AUDIT_CHECKLIST.md -- detects drift, never auto-fixes, logs to state/staleness_checks.jsonl",
+        configure_parser=lambda p: None, source="staleness_check",
+    )
+    registry.register(
+        "security-research-check", cmd_security_research_check,
+        help="Checks whether today's date already has an entry in reference/external_ai_research_tracking.md -- the 'antivirus definitions' check. Reports due/up-to-date, does not run a search or log anything itself.",
         configure_parser=lambda p: None, source="staleness_check",
     )

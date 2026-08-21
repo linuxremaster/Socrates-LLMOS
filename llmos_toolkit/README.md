@@ -112,6 +112,7 @@ Beyond the built-ins (`trust-plugin`, `scan-plugin`, `pin-kernel`,
 | `self-test` | self_test | Runs the project's own real `unittest` suite (`--verbose` for per-test names/docstrings) — this is what `llmos self-test` actually calls. |
 | `version-drift-summary` | adaptive_drift_logger | Cross-model-version comparison summary over logged drift signatures. |
 | `staleness-check` | staleness_check | Automated version of `docs/HOUSEKEEPING_AUDIT_CHECKLIST.md` -- detects command/doc parity gaps, stale plugin counts, hardcoded version strings, embedded-content drift, ledger naming, stale dates. Detection only, logs to `state/staleness_checks.jsonl`, never auto-fixes. Version-string check distinguishes quoted historical references from live claims (fixed 2026-08-20 after causing recurring confusion in two external audits) -- still worth a quick human read on any finding, since heuristics aren't infallible. |
+| `security-research-check` | staleness_check | The "antivirus definitions" check -- reports whether today's date already has an entry in `reference/external_ai_research_tracking.md` (UP TO DATE / DUE, with days-since). Does not run a search or log anything itself; see `docs/INSTANCE_ORIENTATION_SEQUENCE.md` section 2.5 for the intended once-per-day workflow. |
 
 ## Hooks
 
