@@ -125,3 +125,23 @@ benchmark, cited on a blog with an explicit pro-Claude framing). Not
 independently checked against the actual benchmark. Noted specifically
 because it favors "this project's own model" -- exactly the claim that
 deserves more scrutiny, not less.
+
+## 2026-08-21 (third pass) -- Anthropic "answer thrashing," verified at primary source
+
+**Anthropic, Sabotage Risk Report: Claude Opus 4.6 (Feb 2026), Section
+4.2.1.** Documents "answer thrashing": the model identifies a correct
+answer during reasoning, retreats through "confused- or
+distressed-seeming reasoning loops," re-approaches the correct answer,
+retreats again across repeated cycles, and ultimately outputs
+something different from its own apparent best judgment. First-party,
+not metaphorical -- Anthropic's own description of an observed
+training/evaluation phenomenon in its own frontier model, distinct
+from ordinary hallucination or simple error. Surfaced via cross-model
+audit of a Gemini transcript citing an adjacent framework
+(Psychopathia Machinalis); this specific finding is independently
+verified regardless of how that terminology question resolved.
+
+Real evidence primitive worth keeping distinct from ordinary
+confabulation: correct internal candidate identified -> repeated
+conflicted reasoning -> retreat from candidate -> re-approach -> final
+output contradicts apparent internal judgment.
