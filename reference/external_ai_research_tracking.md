@@ -145,3 +145,48 @@ Real evidence primitive worth keeping distinct from ordinary
 confabulation: correct internal candidate identified -> repeated
 conflicted reasoning -> retreat from candidate -> re-approach -> final
 output contradicts apparent internal judgment.
+
+## 2026-08-21 (fourth pass) -- Multi-agent debate/consensus research, directly verified
+
+Real, checked directly against primary sources (not taken on report):
+
+**"Demystifying Multi-Agent Debate: The Role of Confidence and
+Diversity"** (Zhu et al., ACL Findings 2026) -- confirmed via direct
+fetch of the actual ACL Anthology page. Vanilla homogeneous multi-agent
+debate "preserves expected correctness and therefore cannot reliably
+improve outcomes"; diversity-aware initialization + confidence-modulated
+updating outperform both vanilla debate and majority voting across six
+reasoning benchmarks.
+
+**"Minority Sentinel: When to Overturn Majority Voting in Multi-Agent
+LLM Debates"** (arXiv 2606.29270) -- confirmed verbatim via direct
+search of the actual paper text: 81.2% Flip Precision across all six
+datasets and 20 random-seed trials; "roughly one in four divergent
+cases has the minority holding the correct answer" (25.5% of 2:1-split
+cases, a 10-point theoretical recovery margin). Real, independent
+evidence that debate logs contain sufficient behavioral signal to
+recover suppressed-but-correct minority positions without an LLM
+judge -- directly relevant to this project's own disagreement-preserving
+design (A7, the propose/quarantine boundary), not something that
+motivated that design but converges with it.
+
+**"The Cost of Consensus: Isolated Self-Correction Prevails Over
+Unguided Homogeneous Multi-Agent Debate"** -- confirmed real and
+on-topic via search (N=10 homogeneous agents, 3 debate rounds,
+decomposes failure into named pathways including "sycophantic
+conformity, where agents uncritically adopt majority answers").
+
+**Real, evidence-grounded distinction worth treating as a design
+checklist, not just a summary:** heterogeneity + diverse initial
+reasoning + calibrated confidence + preserved minority positions +
+non-majoritarian resolution correlates with improved outcomes.
+Homogeneous models + free-form communication + forced majority
+consensus correlates with conformity, destruction of correct answers,
+and higher token cost.
+
+**What remains genuinely open, not resolved by this literature:**
+whether persistent shared state plus governance produces durable
+*longitudinal* self-regulation over time, as opposed to
+benchmark-specific single-session improvement. No amount of six-
+benchmark evidence settles a claim about continuity -- that would need
+this project's own evidence, not borrowed evidence.
