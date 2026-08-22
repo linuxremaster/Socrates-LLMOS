@@ -55,6 +55,24 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.9.1-alpha — 2026-08-21
+
+Real patch bump — 1 commit since v0.9.0-alpha: UBOP v2.6 → v2.7,
+reworded A16 point 1 after an independent, thorough ChatGPT audit of
+v0.9.0-alpha correctly identified that the original phrasing could be
+stretched into requiring confirmation for every imperative statement,
+not just materially ambiguous ones -- which would have recreated the
+exact permission-seeking overhead A1 already prohibits. Critique
+judged correct on its own merits and applied directly; point 4's
+already-correct scoping left untouched. That same audit independently
+verified the project's core claims against real execution: 52/56 via
+external pytest, 56/56 via the project's own self-test, kernel pin
+hash confirmed, sandbox scope confirmed as correctly self-described
+(real guardrails, explicitly not container isolation), RAG correctly
+described as keyword search not semantic memory, and two of three
+external governance-framework version claims spot-checked against
+first-party sources and confirmed accurate. 56/56 tests.
+
 ## v0.9.0-alpha — 2026-08-21
 
 Minor version bump — 8 commits since v0.8.3-alpha: UBOP v2.5 → v2.6,
