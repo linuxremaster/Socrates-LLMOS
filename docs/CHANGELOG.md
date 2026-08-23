@@ -55,6 +55,36 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.10.0-alpha — 2026-08-22
+
+Minor version bump — 10 commits since v0.9.1-alpha: independent
+ChatGPT security audit of the live repo produced two real, verified
+findings, both fixed and tested. **`approve-pending` no longer
+fabricates `verified_against_transcript: True`** on every approval --
+it now carries forward whatever the proposer actually claimed via a
+new `--verified` flag on `propose-observation` (defaults to False),
+with a new, honest `approved_by_human` field recording the distinct
+fact that human review occurred. **`approve-pending`/`reject-pending`
+now operate on an immutable `proposal_id`, not a mutable list index**
+-- closing a genuine TOCTOU risk where an item reviewed at one
+position could silently become a different entry by approval time.
+Includes migration for pre-existing pending entries and 6 new
+permanent regression tests. A second security sweep, independently
+verified against primary sources (58-90% arbitrary-code-execution
+finding, MCP attack-success reduction from 52.8% to 12.4% with
+authentication), informed real updates to `docs/
+LLMOS_SUBMISSION_CONTRACT_DRAFT.md` -- explicit canonical-data-vs-
+executable-instruction separation, confirmed MCP protocol-level trust
+gaps, and a revocation requirement from cross-user poisoning research.
+Also: kernel A15/A16 (Calibrated Wit, Humor/Ambiguous-Intent Action
+Policy, the latter refined after a real external-audit-caught wording
+ambiguity), A4 enhanced with compression-preservation and a concrete
+echo-detection test, `docs/RELATED_RESEARCH.md` added as a verified
+external comparator cross-reference, and the depolarize prompt engine
+(origin project) received a real security-relevant fix of its own
+(a silently-empty requirements validator) plus a new Reversal Test
+primitive. 62/62 tests.
+
 ## v0.9.1-alpha — 2026-08-21
 
 Real patch bump — 1 commit since v0.9.0-alpha: UBOP v2.6 → v2.7,
