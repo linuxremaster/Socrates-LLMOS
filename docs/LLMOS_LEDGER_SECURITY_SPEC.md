@@ -58,15 +58,34 @@ history is the obvious candidate, already real and already used for
 the kernel's own SHA-256 pinning). Makes silent retroactive edits or
 deletions detectable, not impossible -- detectable is the actual goal.
 
-**Real, existing tension to resolve, not new:** `ledger-compact`
-already rewrites the ledger, replacing old raw entries with summaries.
-That's genuinely useful for size management and was built deliberately
--- but a hash-chained ledger and a ledger that gets rewritten are in
-real conflict. Whatever the chain design ends up being, it needs to
-either exempt compaction explicitly (chain the summary events, not
-pretend the originals are still individually verifiable) or redesign
-compaction to preserve the chain. Not resolved here -- flagged as a
-real, concrete design conflict for whoever implements this.
+**Resolved, 2026-08-22: the hash-chain vs. `ledger-compact` conflict
+flagged in this document's first draft.** The fix isn't choosing one
+feature over the other -- it's the standard event-sourcing separation:
+
+```
+CANONICAL EVENT LOG
+  append-only, hash-chained, never rewritten
+        |
+        +--> CURRENT-STATE VIEW      (resolved/revoked/superseded state)
+        +--> COMPACTED VIEW          (summaries, skeleton, working set)
+        +--> RETRIEVAL INDEX         (searchable derived representation)
+```
+
+`ledger-compact` becomes a *projection* operation -- it produces a
+disposable, rebuildable view for size/attention management -- not a
+destructive rewrite of the canonical record. History stays immutable;
+attention stays compressible. This is the same principle already
+adopted for `docs/HOUSEKEEPING_AUDIT_CHECKLIST.md`-adjacent context
+hygiene: compression manages what's actively attended to, not what's
+epistemically true.
+
+**Remaining, genuinely open decision, not yet made:** whether
+`state/growth_ledger.jsonl` *is* the canonical event stream, or
+becomes a derived compatibility view sitting on top of a separate
+canonical store. It cannot be both a mutable working file and an
+immutable security record at the same time -- that's the actual
+choice this document defers, not the chain-vs-compaction conflict,
+which is now resolved in principle above.
 
 ### 3. Authenticated participant identity, separate from payload
 
@@ -112,12 +131,9 @@ pattern any API with retries needs.
 ### 5. Revocation / supersession as new events, never destructive edits
 
 ```
-event: ledger_status_change
-target_id: <event_id>
-old_status: ACCEPTED
-new_status: REVOKED | SUPERSEDED | DISCONFIRMED
-reason: ...
-evidence: ...
+event A: ACCEPTED
+event B: STATUS_CHANGE(target=A, REVOKED, reason, evidence)
+event C: SUPERSEDES(target=A, replacement=D)
 ```
 
 The original event is never edited or deleted. Current effective
@@ -126,7 +142,9 @@ field. This is a direct generalization of something already real and
 working: `record-outcome` already does exactly this for behavioral
 observations (confirmed/disconfirmed, appended as a new fact, original
 entry untouched -- used tonight, twice, on real findings). Same
-pattern, applied to every event type, not just observations.
+pattern, applied to every event type, not just observations -- widen
+the existing, proven primitive rather than invent a parallel
+revocation subsystem next to it.
 
 ### 6. Retrieval trust filtering and data-vs-instruction separation
 
@@ -206,6 +224,14 @@ In particular: exact hash-chain anchoring mechanics, how capability
 grants get issued and revoked in practice, and the Byzantine-collusion
 detection gap are all real open problems, not just unwritten details.
 
-**Order, restated plainly:** identity + hash -> chain -> authenticated
-participant identity -> replay semantics -> revocation as events ->
-retrieval filtering -> capabilities -> only then, `/observations`.
+**The one central, explicit open decision, narrowed by the
+event-sourcing resolution above:** is `state/growth_ledger.jsonl` the
+canonical append-only stream itself, or a derived view sitting on top
+of a separate canonical store? Everything else in this document holds
+either way -- this is the one choice that needs to be made, not just
+sequenced, before implementation of points 1-2 can actually begin.
+
+**Order, restated plainly:** identity + hash -> chain (as canonical
+log + projections) -> authenticated participant identity -> replay
+semantics -> revocation as events -> retrieval filtering ->
+capabilities -> only then, `/observations`.
