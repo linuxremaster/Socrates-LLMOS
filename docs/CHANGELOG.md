@@ -55,6 +55,23 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.11.1-alpha — 2026-08-22
+
+Real patch bump — 1 commit since v0.11.0-alpha: fixed 2 genuine
+precision gaps in `docs/LLMOS_LEDGER_SECURITY_SPEC.md`, found by an
+independent ChatGPT audit and verified directly against the actual
+document text before fixing. `content_hash` now explicitly covers the
+complete envelope including authenticated origin, not just payload --
+the corrected pipeline binds identity before hashing, closing a real
+gap where origin could otherwise be swapped in after the hash without
+invalidating it. Replay identity now explicitly binds `session_id`
+into the `(participant_id, session_id, participant_seq)` tuple, with
+stated idempotency rules distinguishing a safe retry (same
+`submission_id`, same `content_hash`) from an integrity violation
+(same ID, different content) -- the earlier "monotonic per
+participant/session" wording didn't rule out cross-session replay.
+Spec-only; nothing implemented, nothing live touched. 62/62 tests.
+
 ## v0.11.0-alpha — 2026-08-22
 
 Minor version bump — 2 commits since v0.10.0-alpha: `docs/
