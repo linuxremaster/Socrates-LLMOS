@@ -55,6 +55,30 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.11.0-alpha — 2026-08-22
+
+Minor version bump — 2 commits since v0.10.0-alpha: `docs/
+LLMOS_LEDGER_SECURITY_SPEC.md` added, synthesizing a second,
+independently-verified ChatGPT security audit round (58 pass / 4
+environment-skip in their run, confirmed as the same correctly-designed
+`session_close` skip logic from earlier, not a new gap; the
+Byzantine-coordination paper cited checked out precisely against the
+primary source) into a real design spec -- not implemented, matching
+the submission contract draft's own stated build order. Adopts a real
+architectural correction: `growth_ledger.jsonl` should not become the
+network-facing global ledger directly. A genuine conflict the spec
+surfaced (hash-chain tamper evidence vs. `ledger-compact`'s existing
+rewrite behavior) was then resolved via standard event-sourcing
+separation -- an append-only canonical log with compaction, current-
+state, and retrieval as disposable, rebuildable projections, not
+destructive rewrites -- narrowing what had been an open conflict down
+to one specific, explicitly deferred decision (whether the JSONL file
+itself is the canonical stream or a view over one). `record-outcome`'s
+existing confirm/disconfirm pattern, already used twice this session
+on real findings, identified as the primitive to generalize for
+revocation/supersession rather than building a parallel subsystem.
+62/62 tests.
+
 ## v0.10.0-alpha — 2026-08-22
 
 Minor version bump — 10 commits since v0.9.1-alpha: independent
