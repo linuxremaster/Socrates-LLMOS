@@ -526,6 +526,7 @@ def cmd_propose_observation(args: argparse.Namespace) -> int:
         "description": args.description,
         "source": args.source or None,
         "experiment_id": args.experiment_id or None,
+        "verified_by_proposer": getattr(args, "verified", False),
         "proposed_at": datetime.now(timezone.utc).isoformat(),
     }
     with open(pending_path, "a", encoding="utf-8") as f:
@@ -545,6 +546,7 @@ def _configure_propose_observation(p: argparse.ArgumentParser) -> None:
     p.add_argument("description")
     p.add_argument("--source", default="", help="What this is grounded in, if given")
     p.add_argument("--experiment-id", default="", help="Tag for a bounded, manually-supervised agentic-workflow session, so all its entries can be pulled together later (e.g. 'agentic-exp-2026-08-20-01')")
+    p.add_argument("--verified", action="store_true", help="Set ONLY if the proposer itself directly checked this against a real transcript/source -- defaults to False (unverified). Real fix, 2026-08-22: approve-pending used to silently mark every approved entry verified_against_transcript=True regardless of this, conflating 'a human approved it' with 'a human verified it against the transcript' -- those are different facts and are now tracked separately.")
 
 
 def cmd_review_pending(args: argparse.Namespace) -> int:
@@ -602,7 +604,18 @@ def cmd_approve_pending(args: argparse.Namespace) -> int:
         "category": e["category"],
         "severity": e["severity"],
         "description": e["description"],
-        "verified_against_transcript": True,  # a human reviewed it to approve it
+        # Real fix, 2026-08-22 (independent ChatGPT security audit,
+        # verified directly against this code before fixing): this used
+        # to hardcode True here unconditionally, conflating "a human
+        # approved this" with "a human verified this against the
+        # transcript" -- two different facts. Now: verified_against_
+        # transcript carries forward whatever the proposer actually
+        # claimed (defaults to False/unverified if never set, the safe
+        # default), and approved_by_human records the real, distinct
+        # fact that human review occurred, without overstating what
+        # that review actually established.
+        "verified_against_transcript": e.get("verified_by_proposer", False),
+        "approved_by_human": True,
         "source_cited": e.get("source"),
         "experiment_id": e.get("experiment_id"),
         "timestamp": datetime.now(timezone.utc).isoformat(),

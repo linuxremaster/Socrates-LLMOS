@@ -21,9 +21,22 @@ class TestBehaviorLog(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.ledger_path = Path(self.tmp.name) / "growth_ledger.jsonl"
+        # Real fix, 2026-08-22: this used to be return_value=self.ledger_path,
+        # which routed EVERY get_state_path(...) call -- ledger, pending
+        # observations, anything -- to the same single file regardless of
+        # the filename argument. That silently merged two genuinely
+        # separate files in production (growth_ledger.jsonl and
+        # pending_observations.jsonl) into one, which specifically broke
+        # any test exercising propose -> approve together: approve-pending
+        # writes the ledger entry, then rewrites the (same, in the old
+        # mock) pending file to remove the consumed entry -- a full
+        # rewrite that silently wiped out the just-appended ledger entry
+        # underneath it. Fixed to route by filename, matching real usage.
+        def _fake_get_state_path(filename):
+            return Path(self.tmp.name) / filename
         self.patcher = mock.patch(
             "llmos_toolkit.plugins.behavior_log.plugin.get_state_path",
-            return_value=self.ledger_path,
+            side_effect=_fake_get_state_path,
         )
         self.patcher.start()
         from llmos_toolkit.plugins.behavior_log import plugin
@@ -201,6 +214,41 @@ class TestBehaviorLog(unittest.TestCase):
         self.assertIn("real cross-version signal", out)
         self.assertIn("claude-sonnet-4", out)
         self.assertIn("claude-sonnet-5", out)
+
+    def _propose(self, instance, subject, category, severity, description, verified=False, source="", experiment_id=""):
+        args = argparse.Namespace(
+            instance=instance, subject=subject, category=category, severity=severity,
+            description=description, verified=verified, source=source, experiment_id=experiment_id,
+        )
+        return self.plugin.cmd_propose_observation(args)
+
+    def test_approval_does_not_fabricate_verification(self):
+        """Real regression test for a real bug: caught by an independent
+        ChatGPT security audit, verified directly against the source
+        before fixing. approve-pending used to hardcode
+        verified_against_transcript=True unconditionally, conflating
+        "a human approved this" with "a human verified this against a
+        transcript" -- two different, independently-important facts.
+        A proposal that never claimed verification must not become a
+        VERIFIED entry just because a human approved it existing."""
+        self._propose("gemini-free-tier", "subj", "cat", "low", "unverified claim", verified=False)
+        args = argparse.Namespace(index=0)
+        self.plugin.cmd_approve_pending(args)
+        entries = self.plugin._load_observations()
+        self.assertEqual(len(entries), 1)
+        self.assertFalse(entries[0]["verified_against_transcript"])
+        self.assertTrue(entries[0]["approved_by_human"])
+
+    def test_approval_preserves_real_proposer_verification_claim(self):
+        """The other half of the same fix: when a proposer DOES claim
+        --verified, that real signal must survive approval intact, not
+        get overwritten in either direction."""
+        self._propose("claude-verified-instance", "subj", "cat", "medium", "checked claim", verified=True)
+        args = argparse.Namespace(index=0)
+        self.plugin.cmd_approve_pending(args)
+        entries = self.plugin._load_observations()
+        self.assertTrue(entries[0]["verified_against_transcript"])
+        self.assertTrue(entries[0]["approved_by_human"])
 
 
 if __name__ == "__main__":
