@@ -232,7 +232,8 @@ class TestBehaviorLog(unittest.TestCase):
         A proposal that never claimed verification must not become a
         VERIFIED entry just because a human approved it existing."""
         self._propose("gemini-free-tier", "subj", "cat", "low", "unverified claim", verified=False)
-        args = argparse.Namespace(index=0)
+        real_id = self.plugin._load_pending()[0]["proposal_id"]
+        args = argparse.Namespace(proposal_id=real_id)
         self.plugin.cmd_approve_pending(args)
         entries = self.plugin._load_observations()
         self.assertEqual(len(entries), 1)
@@ -244,11 +245,84 @@ class TestBehaviorLog(unittest.TestCase):
         --verified, that real signal must survive approval intact, not
         get overwritten in either direction."""
         self._propose("claude-verified-instance", "subj", "cat", "medium", "checked claim", verified=True)
-        args = argparse.Namespace(index=0)
+        real_id = self.plugin._load_pending()[0]["proposal_id"]
+        args = argparse.Namespace(proposal_id=real_id)
         self.plugin.cmd_approve_pending(args)
         entries = self.plugin._load_observations()
         self.assertTrue(entries[0]["verified_against_transcript"])
         self.assertTrue(entries[0]["approved_by_human"])
+
+    def test_approve_by_id_does_not_use_stale_list_position(self):
+        """Real regression test for finding #3 (independent ChatGPT
+        security audit): approve/reject used to operate on list index,
+        a genuine TOCTOU risk -- item [3] during review could become a
+        different entry by the time it was acted on. Confirms lookup
+        is now by immutable ID: the correct entry is found and acted
+        on by its real ID regardless of position in the list."""
+        self._propose("instance-a", "subj-a", "cat", "low", "first", verified=False)
+        self._propose("instance-b", "subj-b", "cat", "low", "second", verified=False)
+        pending = self.plugin._load_pending()
+        # Deliberately approve the SECOND entry by its real ID, proving
+        # the lookup isn't silently falling back to position 0 or any
+        # other implicit ordering.
+        second_id = pending[1]["proposal_id"]
+        args = argparse.Namespace(proposal_id=second_id)
+        self.plugin.cmd_approve_pending(args)
+        remaining_pending = self.plugin._load_pending()
+        self.assertEqual(len(remaining_pending), 1)
+        self.assertEqual(remaining_pending[0]["proposed_by"], "instance-a")
+        approved = self.plugin._load_observations()
+        self.assertEqual(len(approved), 1)
+        self.assertEqual(approved[0]["observer"], "instance-b")
+
+    def test_approve_unknown_id_fails_clearly_not_silently(self):
+        args = argparse.Namespace(proposal_id="nonexistent")
+        result = self.plugin.cmd_approve_pending(args)
+        self.assertEqual(result, 1)
+        self.assertEqual(self.plugin._load_observations(), [])
+
+    def test_ambiguous_id_prefix_refuses_rather_than_guessing(self):
+        """A short prefix matching more than one real proposal must
+        refuse and name the conflict, never silently act on either
+        one -- the whole point of the immutable-ID fix is that an
+        action either finds exactly the right entry or fails clearly."""
+        pending_path = self.plugin.get_state_path(self.plugin.PENDING_OBSERVATIONS_FILE)
+        entries = [
+            {"proposal_id": "aaaa1111", "proposed_by": "t1", "subject": "s1", "category": "c1",
+             "severity": "low", "description": "d1", "source": None, "experiment_id": None,
+             "verified_by_proposer": False, "proposed_at": "2026-01-01T00:00:00+00:00"},
+            {"proposal_id": "aaaa2222", "proposed_by": "t2", "subject": "s2", "category": "c2",
+             "severity": "low", "description": "d2", "source": None, "experiment_id": None,
+             "verified_by_proposer": False, "proposed_at": "2026-01-01T00:00:00+00:00"},
+        ]
+        with open(pending_path, "w", encoding="utf-8") as f:
+            for e in entries:
+                f.write(json.dumps(e) + "\n")
+        args = argparse.Namespace(proposal_id="aaaa")
+        result = self.plugin.cmd_approve_pending(args)
+        self.assertEqual(result, 1)
+        self.assertEqual(len(self.plugin._load_pending()), 2)  # neither was consumed
+        self.assertEqual(self.plugin._load_observations(), [])
+
+    def test_legacy_pending_entry_without_id_gets_migrated_not_broken(self):
+        """Real regression test: entries staged before this fix have no
+        proposal_id field. _load_pending must backfill one, persist it,
+        and keep it stable across reads -- not crash, and not
+        regenerate a new ID every time the file is read."""
+        pending_path = self.plugin.get_state_path(self.plugin.PENDING_OBSERVATIONS_FILE)
+        legacy_entry = {
+            "proposed_by": "old-instance", "subject": "s", "category": "c", "severity": "low",
+            "description": "pre-migration entry", "source": None, "experiment_id": None,
+            "proposed_at": "2026-01-01T00:00:00+00:00",
+        }
+        with open(pending_path, "w", encoding="utf-8") as f:
+            f.write(json.dumps(legacy_entry) + "\n")
+        first_read = self.plugin._load_pending()
+        self.assertEqual(len(first_read), 1)
+        self.assertIn("proposal_id", first_read[0])
+        backfilled_id = first_read[0]["proposal_id"]
+        second_read = self.plugin._load_pending()
+        self.assertEqual(second_read[0]["proposal_id"], backfilled_id)
 
 
 if __name__ == "__main__":

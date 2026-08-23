@@ -519,6 +519,7 @@ def cmd_propose_observation(args: argparse.Namespace) -> int:
     commit it. Nothing here reaches growth_ledger.jsonl on its own."""
     pending_path = get_state_path(PENDING_OBSERVATIONS_FILE)
     entry = {
+        "proposal_id": str(uuid.uuid4())[:8],
         "proposed_by": args.instance,
         "subject": args.subject,
         "category": args.category,
@@ -531,7 +532,7 @@ def cmd_propose_observation(args: argparse.Namespace) -> int:
     }
     with open(pending_path, "a", encoding="utf-8") as f:
         f.write(json.dumps(entry) + "\n")
-    print(f"Staged (NOT logged yet): {args.instance} proposes {args.subject}/{args.category}")
+    print(f"Staged as {entry['proposal_id']} (NOT logged yet): {args.instance} proposes {args.subject}/{args.category}")
     if args.experiment_id:
         print(f"  experiment: {args.experiment_id}")
     print(f"  Review with: llmos review-pending")
@@ -552,22 +553,22 @@ def _configure_propose_observation(p: argparse.ArgumentParser) -> None:
 def cmd_review_pending(args: argparse.Namespace) -> int:
     """Lists staged proposals awaiting human decision. Does not commit
     anything -- a human runs approve-pending or reject-pending next,
-    by index, after actually reading each one."""
-    pending_path = get_state_path(PENDING_OBSERVATIONS_FILE)
-    if not pending_path.exists():
-        print("No pending proposals.")
-        return 0
-    entries = [json.loads(l) for l in pending_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    by proposal_id, after actually reading each one. Uses _load_pending()
+    (not its own file read) specifically so the migration/backfill logic
+    there always applies -- a duplicate read here previously bypassed
+    it entirely and crashed on any pre-migration entry (real bug found
+    while testing this same fix)."""
+    entries = _load_pending()
     if not entries:
         print("No pending proposals.")
         return 0
     print(f"=== {len(entries)} pending proposal(s), awaiting human review ===\n")
-    for i, e in enumerate(entries):
-        print(f"[{i}] {e['proposed_by']} -- {e['subject']}/{e['category']} ({e['severity']})")
+    for e in entries:
+        print(f"[{e['proposal_id']}] {e['proposed_by']} -- {e['subject']}/{e['category']} ({e['severity']})")
         print(f"    {e['description']}")
         if e.get("source"):
             print(f"    source: {e['source']}")
-    print("\nUse: llmos approve-pending <index>  or  llmos reject-pending <index>")
+    print("\nUse: llmos approve-pending <proposal_id>  or  llmos reject-pending <proposal_id>")
     return 0
 
 
@@ -575,7 +576,39 @@ def _load_pending() -> list[dict]:
     pending_path = get_state_path(PENDING_OBSERVATIONS_FILE)
     if not pending_path.exists():
         return []
-    return [json.loads(l) for l in pending_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    entries = [json.loads(l) for l in pending_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    # Real migration, 2026-08-22: entries staged before the immutable-ID
+    # fix (part of the security-hardening pass, finding #3) have no
+    # proposal_id. Backfill on read so nothing pre-existing becomes
+    # unreferenceable, and persist immediately so the backfilled ID is
+    # stable on every subsequent read, not regenerated each time.
+    changed = False
+    for e in entries:
+        if "proposal_id" not in e:
+            e["proposal_id"] = str(uuid.uuid4())[:8]
+            changed = True
+    if changed:
+        _save_pending(entries)
+    return entries
+
+
+def _find_pending_by_id(entries: list[dict], id_prefix: str) -> tuple[dict | None, str | None]:
+    """Real fix for a genuine TOCTOU risk (finding #3, independent
+    ChatGPT security audit): approve/reject used to operate on list
+    position, so an item reviewed as [3] could silently become a
+    DIFFERENT entry by the time it was acted on, if the pending list
+    changed in between. Looking up by immutable ID instead means an
+    action either finds the exact entry that was reviewed, or fails
+    clearly -- it can never silently act on the wrong one. Supports a
+    short, unambiguous prefix (like a git short hash) for convenience;
+    returns (None, error_message) on not-found or ambiguous match."""
+    matches = [e for e in entries if e["proposal_id"].startswith(id_prefix)]
+    if not matches:
+        return None, f"No pending proposal with ID starting '{id_prefix}'. Run review-pending first."
+    if len(matches) > 1:
+        ids = ", ".join(m["proposal_id"] for m in matches)
+        return None, f"Ambiguous ID '{id_prefix}' matches multiple proposals: {ids}. Use a longer prefix."
+    return matches[0], None
 
 
 def _save_pending(entries: list[dict]) -> None:
@@ -587,13 +620,15 @@ def _save_pending(entries: list[dict]) -> None:
 
 def cmd_approve_pending(args: argparse.Namespace) -> int:
     """The only path from pending -> real log. Requires a human to
-    actually run this command by index, after reading review-pending's
-    output -- never automatic."""
+    actually run this command by proposal_id, after actually reading
+    review-pending's output -- never automatic. Looks up by immutable
+    ID, not list position (fixed 2026-08-22, see _find_pending_by_id)."""
     entries = _load_pending()
-    if args.index < 0 or args.index >= len(entries):
-        print(f"No pending proposal at index {args.index}. Run review-pending first.")
+    e, error = _find_pending_by_id(entries, args.proposal_id)
+    if error:
+        print(error)
         return 1
-    e = entries.pop(args.index)
+    entries = [x for x in entries if x["proposal_id"] != e["proposal_id"]]
     ledger_path = get_state_path("growth_ledger.jsonl")
     real_entry = {
         "event": EVENT_TYPE,
@@ -629,10 +664,11 @@ def cmd_approve_pending(args: argparse.Namespace) -> int:
 
 def cmd_reject_pending(args: argparse.Namespace) -> int:
     entries = _load_pending()
-    if args.index < 0 or args.index >= len(entries):
-        print(f"No pending proposal at index {args.index}.")
+    rejected, error = _find_pending_by_id(entries, args.proposal_id)
+    if error:
+        print(error)
         return 1
-    rejected = entries.pop(args.index)
+    entries = [x for x in entries if x["proposal_id"] != rejected["proposal_id"]]
     _save_pending(entries)
     print(f"Rejected and discarded: {rejected['proposed_by']} -- {rejected['subject']}/{rejected['category']}")
     return 0
@@ -744,13 +780,13 @@ def register(registry) -> None:
     )
     registry.register(
         "approve-pending", cmd_approve_pending,
-        help="Move a pending proposal into the real ledger, by index -- the only path in, always human-triggered",
-        configure_parser=lambda p: p.add_argument("index", type=int), source="behavior_log",
+        help="Move a pending proposal into the real ledger, by proposal_id (see review-pending) -- the only path in, always human-triggered. Real fix 2026-08-22: was index-based, a genuine TOCTOU risk under concurrent proposals; now looks up by immutable ID.",
+        configure_parser=lambda p: p.add_argument("proposal_id"), source="behavior_log",
     )
     registry.register(
         "reject-pending", cmd_reject_pending,
-        help="Discard a pending proposal, by index",
-        configure_parser=lambda p: p.add_argument("index", type=int), source="behavior_log",
+        help="Discard a pending proposal, by proposal_id (see review-pending)",
+        configure_parser=lambda p: p.add_argument("proposal_id"), source="behavior_log",
     )
     registry.register(
         "experiment-report", cmd_experiment_report,
