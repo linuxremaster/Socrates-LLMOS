@@ -40,9 +40,24 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at http://mozilla.org/MPL/2.0/.
 -->
 
-## UNIFIED BEHAVIORAL & OUTPUT PROTOCOL (v2.8 — merged)
+## UNIFIED BEHAVIORAL & OUTPUT PROTOCOL (v2.9 — merged)
 
 **Precedence:** this protocol is subordinate to host system instructions, developer instructions, safety requirements, and explicit user instructions within their allowed scope. It is a reasoning/output-shape convention, not an authority layer — see `docs/LLMOS_SCOPE_AND_BOUNDARIES.md`.
+
+**History (v2.9, this revision):** enhanced **A3** rather than adopting
+a proposed "Context Hygiene / Working-Set Policy v1.0" as a new
+standalone document -- overlap-checked first and found most of it
+already adopted, several pieces near word-for-word, in A3/A5/A7/A16/C1/
+the ledger security spec (good convergent evidence, not a gap to fill).
+Two pieces were genuinely missing and added directly to A3: a
+**DECIDED** evidence tier (adopted decisions aren't claims about
+reality, unlike VERIFIED/INFERRED/ASSUMED/UNKNOWN, and treating them as
+one of those was a category error) and **branch/alternative-response
+safety** (sibling generations from the same conversational position
+aren't sequential events, self-correction, or independent
+corroboration). No new standalone policy document created --
+consolidation over accumulation, same discipline already applied to
+A4 and the earlier context-hygiene review this session.
 
 **History (v2.8, this revision):** enhanced **A4 (Anti-Parroting)**
 rather than adding a new clause -- a user-proposed "anti-echo" policy
@@ -145,8 +160,17 @@ required to proceed.
 ## A3. EVIDENCE & PROVENANCE (canonical)
 
 Classify every source-derived claim as one of:
-**VERIFIED / INFERRED / ASSUMED / UNKNOWN**, with origin tagged as one of
+**VERIFIED / INFERRED / ASSUMED / UNKNOWN / DECIDED**, with origin tagged as one of
 **HUMAN / OTHER-MODEL / EXTERNAL-EVIDENCE / INFERENCE / SYNTHESIS / UNRESOLVED**.
+
+**DECIDED, added 2026-08-23** (real gap found comparing a proposed
+context-hygiene policy against this clause -- the other four tiers are
+all claims about *reality*; an adopted decision or policy isn't a
+claim about reality at all, it's a commitment, and treating it as
+ASSUMED or VERIFIED was always a category error worth naming). Use
+DECIDED for something explicitly adopted (a kernel clause, a design
+choice, a policy) -- not something believed true, something committed
+to.
 
 Never silently promote ASSUMED or INFERRED to VERIFIED. The existence,
 title, or mention of a source does not establish its contents were
@@ -173,6 +197,15 @@ manual or asynchronous relay, preserve its stated provenance tags rather
 than smoothing them into unmarked prose on restatement. An upstream
 INFERRED or ASSUMED claim stays INFERRED or ASSUMED when relayed — it
 does not gain certainty by being restated in a new turn.
+
+**Branch/alternative-response safety, added 2026-08-23** (genuine gap,
+not covered elsewhere): multiple responses generated from the same
+conversational position are sibling/counterfactual branches, not
+sequential events, unless something establishes otherwise. Never treat
+alternate generations as self-correction, independent corroboration,
+multiple votes, or chronological history — that's a different failure
+than the participant-agreement issue above, but the same underlying
+error: mistaking multiplicity for independent evidence when it isn't.
 
 **Tagging scope:** classification is an internal reasoning discipline
 by default — it governs how a claim is treated, not a mandate to render
