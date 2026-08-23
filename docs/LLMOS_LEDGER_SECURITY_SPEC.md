@@ -40,11 +40,44 @@ Not simultaneous -- each genuinely depends on the one before it.
 
 ### 1. Immutable event identity + content hash
 
-Every event gets a real, permanent `event_id` (already true for
-ledger entries via `observation_id`; needs to become universal, not
-per-event-type) and a `content_hash` -- a hash of the event's own
-content, computed once, unchanging. This is the foundation everything
-else attaches to.
+**Corrected, 2026-08-22, after an external audit found a real
+build-order gap:** the original wording here didn't specify *what* the
+content hash actually covers, and the document's own final build order
+implied identity+hash could precede authenticated participant binding
+(point 3). If a hash is computed before authenticated origin metadata
+is bound to the event, the hash doesn't protect that metadata --
+identity could be swapped in afterward without invalidating the hash.
+That's a real gap, not a hypothetical one, worth closing in the spec
+even though nothing is implemented yet.
+
+The correct pipeline order:
+
+```
+receive untrusted submission
+        |
+authenticate / bind origin           (point 3, moved earlier)
+        |
+assign immutable event_id
+        |
+canonicalize the COMPLETE event envelope
+   (content + bound origin + timestamp, everything the hash must cover)
+        |
+content_hash = H(canonical envelope)
+        |
+replay / idempotency validation      (point 4)
+        |
+append / hash-chain                  (point 2)
+```
+
+`event_id` is permanent and real (already true for ledger entries via
+`observation_id`; needs to become universal, not per-event-type).
+`content_hash` is computed once, over the *complete* envelope
+including bound origin -- not just the payload -- and is unchanging
+from that point on. This doesn't require that authentication be
+implemented before the local event store exists; it requires that
+whenever authentication *is* added, the hash specification names
+exactly which server-bound fields are inside the hashed envelope, so
+the hash actually protects provenance rather than just payload text.
 
 ### 2. Append-chain / tamper evidence
 
@@ -115,18 +148,36 @@ Only the former is acceptable for untrusted remote submission.
 
 ### 4. Replay / idempotency semantics
 
+**Strengthened, 2026-08-22, after an external audit correctly found
+"monotonic per participant/session" too loose for an adversarial
+interface.** If sequences reset per session with no binding to *which*
+session, an old message replayed into a new session could produce an
+apparently-valid sequence number. `session_id` has to be part of the
+identity, not an incidental field alongside it.
+
 ```
 submission_id      unique forever, interface-generated (already in the
                     draft contract)
 participant_id
-participant_seq     monotonic per participant/session
+session_id
+participant_seq     monotonic within (participant_id, session_id)
 received_at
 content_hash
 ```
 
-Canonical promotion rejects an already-consumed `submission_id`. This
-is a general distributed-systems problem, not AI-specific -- the same
-pattern any API with retries needs.
+Explicit rule, not just structure:
+
+- `(participant_id, session_id, participant_seq)` MUST be unique.
+- `submission_id` MUST be globally unique.
+- A retry with the same `submission_id` and identical `content_hash`
+  is idempotent -- accepted silently, not treated as a new event.
+- The same `submission_id` with a *different* `content_hash` is
+  rejected as an integrity violation, not silently overwritten.
+
+This gives deterministic behavior for both an ordinary network retry
+(same ID, same content, safe to no-op) and a replay/tamper attempt
+(same ID, different content, must be refused) -- the earlier looser
+wording didn't distinguish these two cases explicitly.
 
 ### 5. Revocation / supersession as new events, never destructive edits
 
@@ -231,7 +282,8 @@ of a separate canonical store? Everything else in this document holds
 either way -- this is the one choice that needs to be made, not just
 sequenced, before implementation of points 1-2 can actually begin.
 
-**Order, restated plainly:** identity + hash -> chain (as canonical
-log + projections) -> authenticated participant identity -> replay
+**Order, restated plainly, corrected 2026-08-22:** authenticate/bind
+origin -> assign event identity -> canonicalize complete envelope ->
+content hash -> chain (as canonical log + projections) -> replay
 semantics -> revocation as events -> retrieval filtering ->
 capabilities -> only then, `/observations`.
