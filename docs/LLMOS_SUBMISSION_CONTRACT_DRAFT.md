@@ -77,6 +77,19 @@ generalized from "one instance operating it on another's behalf" to
 - **This does not define a transport.** Vercel, MCP, localhost, or
   continued human relay are all equally valid implementations of this
   same contract. Building one is not choosing it as canonical.
+- **CANONICAL DATA ≠ EXECUTABLE INSTRUCTION, explicitly, not just by
+  omission.** Added 2026-08-22 after a security sweep found that
+  safe, individually well-behaved participants do not necessarily
+  compose into a safe system (real finding: multi-agent frameworks
+  reached 58-90% arbitrary code execution even when individual agents
+  refused direct/indirect prompt injection -- the failure was
+  compositional, not any single agent's). An ACCEPTED ledger entry is
+  a fact about what was submitted and approved. It is never, by
+  itself, permission to invoke a tool, execute code, or take any
+  action -- regardless of what its content says or how authoritative
+  its source. Anything that reads the ledger and takes action based
+  on its content must apply its own independent authorization check;
+  the ledger's approval gate is not that check.
 
 ## Open questions, not resolved by this draft
 
@@ -90,5 +103,23 @@ generalized from "one instance operating it on another's behalf" to
 - Whether `parent_id` chains need their own integrity check (does a
   submission's parent have to already be ACCEPTED, or can it chain
   off something still PENDING?).
+- **MCP specifically is now confirmed, not just suspected, to have
+  protocol-level trust gaps -- not implementation bugs.** A real
+  formal security analysis (arXiv:2601.17549, verified directly)
+  identifies three architectural vulnerabilities: no capability
+  attestation, no origin authentication on bidirectional sampling,
+  and implicit trust propagation across multi-server setups -- and
+  measured attack success dropping from 52.8% to 12.4% only once
+  message authentication and capability attestation were added on
+  top. If MCP becomes a transport for this contract, it needs that
+  same kind of authentication layered on top of it explicitly; MCP's
+  own defaults are confirmed insufficient on their own.
+- **Poisoning doesn't have to look malicious at submission time.**
+  Real finding (MURMUR, arXiv:2511.17671): ordinary-looking messages
+  poisoned persistent shared state with effects surfacing later,
+  across different tasks. This means PENDING review at submission
+  time is necessary but not sufficient -- the contract likely needs a
+  way to revoke or supersede an already-ACCEPTED entry without erasing
+  its history, not just gate entries once on the way in.
 
 These are worth resolving before implementation, not during it.
