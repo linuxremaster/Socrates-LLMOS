@@ -342,6 +342,20 @@ should become sufficient for canonical truth on its own. This isn't
 solved by anything in points 1-7 above; it needs its own future design
 pass once real multi-participant submission actually exists to study.
 
+**Review authority is kernel-defined, not identity-defined -- agreed
+2026-08-25, committed here after being missed in the original
+agreement.** No participant -- including whichever model is doing the
+reviewing at a given moment -- becomes the privileged final check
+merely by virtue of being "the one that's usually right" or the one
+that happens to be coordinating a given exchange. What makes a review
+valid is whether it points to the actual written criteria in this
+document being satisfied, checkable by anyone regardless of which
+model or instance performed it. This directly extends the same
+Byzantine-robust-coordination principle above (real prior art:
+arXiv:2507.14928, already logged in the research tracking file) from
+"don't trust a coordinator's aggregation" to "don't trust a reviewer's
+identity" -- same underlying failure mode, same fix.
+
 ## Plugin/execution boundary -- real, pre-existing, sharpened by this audit
 
 Already true, already documented honestly in the code:
