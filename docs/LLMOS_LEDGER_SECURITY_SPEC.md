@@ -267,6 +267,62 @@ Claude session, anything) has write access needs its own live test at
 the time it matters -- this entry is evidence the methodology works,
 not a standing verdict on any participant's capability going forward.
 
+### 7.5. Decision events -- human continuation/redirect authority,
+distinct from capability facts
+
+Added 2026-08-25, jointly designed with ChatGPT. Deliberately not
+folded into section 7 above, even though it overlaps conceptually:
+section 7 answers *what an actor is allowed or able to do* (a static
+fact). This answers *when a human changed or extended the active
+operating state* (a temporal transition). Different question, worth
+its own category rather than stretching capability semantics to cover
+it.
+
+**Two decision types, and only these two:**
+
+- **Continuation approval** -- explicit human authorization to let an
+  AI continue operating past a natural checkpoint.
+- **Directive change** -- explicit human redirection that changes the
+  active task, objective, constraints, or route.
+
+**Minimal schema:**
+
+```
+decision_event_id
+timestamp
+decision_type:      continuation_approval | directive_change
+run/task/session_id
+prior_state
+new_state
+stated_rationale
+evidence/provenance_ref
+outcome:             pending | completed | superseded | reversed
+```
+
+**Real, load-bearing restriction, not optional:** log only the
+decision, its stated rationale, the affected task/run, and the
+resulting state transition. Never infer or accumulate a profile of the
+human from repeated decisions. Allowed: "continuation approved because
+verification had passed and the next step was low-risk." Not allowed,
+ever: "human tends to approve quickly," "human is risk-tolerant,"
+"human usually redirects after disagreement," or any other
+cross-event behavioral characterization of the person making the
+decision. This isn't a stylistic preference -- it's the same boundary
+this project's own memory-handling rules already draw around
+psychological pattern-tracking of a real person, applied here
+specifically because "decision telemetry" could otherwise drift into
+exactly that without anyone deciding it should.
+
+**Threshold for logging at all, to keep the category meaningful rather
+than noise:** only log when the decision actually changes execution
+state. An ordinary conversational "yes," "continue," or "sounds good"
+does not automatically become a decision event unless it functions as
+a real authorization or redirect. Uses `propose-observation`/
+`log-observation` -- the existing tooling, not new infrastructure --
+tagged with `decision_type`, cross-referenced to section 7's capability
+facts when a decision event and an authorization question are actually
+related, but tracked as its own event type.
+
 ## Byzantine participants -- what already helps, and the real remaining gap
 
 Real, existing primitives that already partially address this, not
