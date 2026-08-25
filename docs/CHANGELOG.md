@@ -55,6 +55,37 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.12.1-alpha — 2026-08-25
+
+Real patch bump — 2 commits since v0.12.0-alpha (this count includes
+the version-bump commit itself; a systemic off-by-one in how this
+project counted "commits since" was one of the findings below, fixed
+here rather than repeated). An independent ChatGPT audit of the
+v0.12.0-alpha release artifact found 5 real, confirmed gaps before it
+was treated as the Termux baseline: `reject-pending` discarded
+proposals with zero permanent trace (fixed, now writes a permanent
+record like `supersede-pending` does); `supersede-pending` had a real
+crash window where a failure between its two writes could silently
+lose the proposal (fixed: append-first ordering, made idempotent, the
+crash-recovery scenario genuinely simulated and tested, not just
+reasoned about); the telemetry promotion chain (`OBSERVED -> REPEATED
+-> REPRODUCED -> CANDIDATE -> REVIEWED -> ACCEPTED/REJECTED`) was
+described as "already defined" in a draft document while existing
+nowhere canonical -- now properly defined in `docs/
+LLMOS_LEDGER_SECURITY_SPEC.md` section 5.5; the `decision_type` field
+specified in section 7.5 had zero tooling support -- implemented
+end-to-end across `log-observation`, `propose-observation`, and
+`approve-pending`'s carry-through; and a commit-count inaccuracy in
+the prior changelog entry. Every finding was independently re-verified
+directly against the actual code/docs before being fixed, not accepted
+on report. **Test result, stated precisely rather than as a bare
+number, per the same audit's own recommendation:** 68/68 passed in
+this development environment (editable install present). A
+clean-artifact run without `pip install -e .` will show 4 of these as
+environment-skipped, not failed -- by design, confirmed correct
+behavior from the `session_close` preflight fix earlier this project,
+not a regression.
+
 ## v0.12.0-alpha — 2026-08-25
 
 Minor version bump — 10 commits since v0.11.1-alpha. Real, reproduced
