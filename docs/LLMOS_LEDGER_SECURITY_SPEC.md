@@ -254,6 +254,19 @@ this section is designed to prevent -- it's a real one that occurred,
 was caught by demanding a live test rather than accepting the report,
 and resolved before any actual write was attempted on its strength.
 
+**Scope of this finding, stated explicitly so it isn't over-generalized
+later:** this confirms *this specific instance's connector, in this
+specific integration state, on this date* was denied authorization
+twice. It does not establish "ChatGPT cannot write to GitHub" as a
+universal fact -- permissions can differ across accounts, connector
+configurations, instances, and time. The reproduced, durable fact is
+narrower and correspondingly stronger: *this handoff instance exposed
+GitHub write actions but was denied authorization twice with HTTP
+403.* Any future claim that a participant (ChatGPT, Gemini, a future
+Claude session, anything) has write access needs its own live test at
+the time it matters -- this entry is evidence the methodology works,
+not a standing verdict on any participant's capability going forward.
+
 ## Byzantine participants -- what already helps, and the real remaining gap
 
 Real, existing primitives that already partially address this, not
