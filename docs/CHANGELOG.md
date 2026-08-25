@@ -55,6 +55,34 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.12.2-alpha — 2026-08-25
+
+Real patch bump — 2 commits since v0.12.1-alpha (count includes this
+version-bump commit). A second, independent ChatGPT re-audit of
+v0.12.1-alpha found a real, deeper crash-safety gap the first audit's
+fixes hadn't fully closed: **append-first ordering prevents evidence
+loss on a crash, but does nothing to prevent evidence duplication on a
+subsequent retry, without a separate idempotency check.**
+`supersede-pending` had that check; `reject-pending` and
+`approve-pending` had the corrected ordering but not the check --
+confirmed by the audit's own simulated crash tests, which reproduced
+two conflicting rejection records and two separate approved
+observations for single proposals, respectively. `approve-pending`'s
+ledger entry was also found to be missing `original_proposal_id`
+entirely -- a real, independent gap, since idempotency needs a field
+to check against that didn't exist. All three terminal transitions
+(approve/reject/supersede) now share one `_existing_terminal_transitions`
+helper, are all idempotent on `original_proposal_id`, and now detect
+and **refuse** the case where a proposal already carries a *different*
+terminal transition -- surfaced as an explicit conflict requiring
+human review, never silently resolved. Fixed via the audit's own exact
+crash-simulation methodology, reproduced directly before any fix went
+in. 3 new regression tests. **Test result, stated precisely:** 71/71
+passed in this development environment (editable install present); a
+clean-artifact run without `pip install -e .` will show the same 4
+environment-dependent skips as prior releases, by design, not a
+regression.
+
 ## v0.12.1-alpha — 2026-08-25
 
 Real patch bump — 2 commits since v0.12.0-alpha (this count includes
