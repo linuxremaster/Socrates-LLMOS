@@ -236,6 +236,24 @@ Identity and authority are different facts. Being authenticated as
 read every ledger category -- each capability is granted separately,
 narrowly, and explicitly.
 
+**Real, first-party confirming evidence, 2026-08-25 (not hypothetical --
+this actually happened during this project's own governance
+discussion):** a ChatGPT instance reported having GitHub write
+capability, reasoning from the fact that write *tools* were exposed by
+its connector. Challenged rather than accepted, then tested live:
+attempting to create a real GitHub issue returned `403 Resource not
+accessible by integration`, reproduced on a second attempt. This
+cleanly separates three facts that are easy to collapse into one:
+**tool exposure** (the action appeared available) was true;
+**authorization** (permission to actually use it) was false; the third
+tier, **successful action**, was never reached. A capability model that
+only checks whether an action is exposed, without separately verifying
+authorization, would have accepted this participant as a write source
+on the strength of a false positive. That's not a hypothetical risk
+this section is designed to prevent -- it's a real one that occurred,
+was caught by demanding a live test rather than accepting the report,
+and resolved before any actual write was attempted on its strength.
+
 ## Byzantine participants -- what already helps, and the real remaining gap
 
 Real, existing primitives that already partially address this, not
