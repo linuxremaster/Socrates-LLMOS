@@ -431,6 +431,75 @@ class TestBehaviorLog(unittest.TestCase):
         entries = self.plugin._load_observations()
         self.assertEqual(entries[0]["decision_type"], "directive_change")
 
+    def _simulate_crash_recreate_pending(self, real_id, proposed_by="test-instance"):
+        """Real helper matching the external audit's own methodology:
+        re-inject the same proposal into pending, exactly as if a crash
+        happened after a terminal-transition ledger write succeeded but
+        before the pending-file save completed."""
+        pending_path = self.plugin.get_state_path(self.plugin.PENDING_OBSERVATIONS_FILE)
+        replay_entry = {
+            "proposal_id": real_id, "proposed_by": proposed_by, "subject": "subj",
+            "category": "cat", "severity": "low", "description": "overtaken claim",
+            "source": None, "experiment_id": None, "verified_by_proposer": False,
+            "decision_type": None, "proposed_at": "2026-01-01T00:00:00+00:00",
+        }
+        with open(pending_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(replay_entry) + "\n")
+
+    def test_approve_is_idempotent_under_simulated_crash_recovery(self):
+        """Real regression test for the external audit's second pass:
+        approve-pending's append-first ordering prevented loss but not
+        duplication -- a genuine crash/retry produced two separate
+        behavioral_observation entries with different observation_ids
+        for one proposal. This also required adding original_proposal_id
+        to the approved entry, which didn't exist before -- a real,
+        independent gap idempotency depended on."""
+        self._propose("test-instance", "subj", "cat", "low", "overtaken claim", verified=False)
+        real_id = self.plugin._load_pending()[0]["proposal_id"]
+        self.plugin.cmd_approve_pending(argparse.Namespace(proposal_id=real_id))
+        self._simulate_crash_recreate_pending(real_id)
+        self.assertEqual(len(self.plugin._load_pending()), 1)
+        self.plugin.cmd_approve_pending(argparse.Namespace(proposal_id=real_id))
+        entries = self.plugin._load_observations()
+        matching = [e for e in entries if e.get("original_proposal_id") == real_id]
+        self.assertEqual(len(matching), 1)
+        self.assertEqual(self.plugin._load_pending(), [])
+
+    def test_reject_is_idempotent_under_simulated_crash_recovery(self):
+        """Same fix, applied to reject-pending: a crash/retry previously
+        produced two rejection events with different reasons."""
+        self._propose("test-instance", "subj", "cat", "low", "overtaken claim", verified=False)
+        real_id = self.plugin._load_pending()[0]["proposal_id"]
+        self.plugin.cmd_reject_pending(argparse.Namespace(proposal_id=real_id, reason="first reason"))
+        self._simulate_crash_recreate_pending(real_id)
+        self.plugin.cmd_reject_pending(argparse.Namespace(proposal_id=real_id, reason="second reason"))
+        entries = [json.loads(l) for l in open(self.ledger_path) if l.strip()]
+        matching = [e for e in entries if e.get("event") == "pending_proposal_rejected"
+                    and e.get("original_proposal_id") == real_id]
+        self.assertEqual(len(matching), 1)
+        self.assertEqual(matching[0]["reason"], "first reason")
+        self.assertEqual(self.plugin._load_pending(), [])
+
+    def test_conflicting_terminal_transition_is_refused_not_silently_resolved(self):
+        """Real regression test for the exact anomaly the audit named:
+        a proposal ending up with two DIFFERENT terminal transitions
+        (approved, then a crash-recovery retry attempts reject) must be
+        refused as a conflict needing human review, never silently
+        picked one way or the other."""
+        self._propose("test-instance", "subj", "cat", "low", "claim", verified=False)
+        real_id = self.plugin._load_pending()[0]["proposal_id"]
+        self.plugin.cmd_approve_pending(argparse.Namespace(proposal_id=real_id))
+        self._simulate_crash_recreate_pending(real_id)
+        result = self.plugin.cmd_reject_pending(argparse.Namespace(proposal_id=real_id, reason="conflict attempt"))
+        self.assertEqual(result, 1)
+        entries = [json.loads(l) for l in open(self.ledger_path) if l.strip()]
+        rejections = [e for e in entries if e.get("event") == "pending_proposal_rejected"
+                      and e.get("original_proposal_id") == real_id]
+        self.assertEqual(len(rejections), 0)
+        # The pending entry deliberately stays -- the conflict is refused,
+        # not cleaned up as if it were resolved.
+        self.assertEqual(len(self.plugin._load_pending()), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

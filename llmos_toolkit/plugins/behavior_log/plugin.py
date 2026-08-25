@@ -622,48 +622,117 @@ def _save_pending(entries: list[dict]) -> None:
             f.write(json.dumps(e) + "\n")
 
 
+# Real event types a pending proposal can terminate into. Kept as one
+# list so idempotency and conflict checks below stay exhaustive as new
+# transition types get added, rather than needing updates in multiple
+# places.
+TERMINAL_TRANSITION_EVENTS = {
+    "approve": EVENT_TYPE,  # "behavioral_observation"
+    "reject": "pending_proposal_rejected",
+    "supersede": "pending_proposal_superseded",
+}
+
+
+def _existing_terminal_transitions(proposal_id: str) -> dict[str, dict]:
+    """Real fix, 2026-08-25 (external audit, second pass): append-first
+    ordering alone prevents evidence LOSS on a crash, but does nothing
+    to prevent evidence DUPLICATION on a subsequent retry -- confirmed
+    by the audit's own simulated crash tests on both reject-pending and
+    approve-pending, which each produced two conflicting terminal
+    events for one proposal. This is the shared check every terminal
+    transition (approve/reject/supersede) uses before writing: does a
+    terminal event for this proposal_id already exist, and if so,
+    under which transition type(s)? Returns a dict keyed by transition
+    name ('approve'/'reject'/'supersede') to the existing ledger entry,
+    empty if none exist yet. A proposal_id appearing under MORE THAN
+    ONE key here is itself a real anomaly (e.g. crash-recovery
+    producing both an approval and a rejection) that callers should
+    surface as a conflict needing human review, not silently pick one."""
+    ledger_path = get_state_path("growth_ledger.jsonl")
+    found: dict[str, dict] = {}
+    if not ledger_path.exists():
+        return found
+    for line in ledger_path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        existing = json.loads(line)
+        for transition, event_name in TERMINAL_TRANSITION_EVENTS.items():
+            if existing.get("event") != event_name:
+                continue
+            existing_pid = existing.get("original_proposal_id")
+            if existing_pid == proposal_id:
+                found[transition] = existing
+    return found
+
 def cmd_approve_pending(args: argparse.Namespace) -> int:
     """The only path from pending -> real log. Requires a human to
     actually run this command by proposal_id, after actually reading
     review-pending's output -- never automatic. Looks up by immutable
-    ID, not list position (fixed 2026-08-22, see _find_pending_by_id)."""
+    ID, not list position (fixed 2026-08-22, see _find_pending_by_id).
+
+    Real fix, 2026-08-25 (external audit, second simulated-crash pass):
+    a crash between the ledger append and the pending-file save, followed
+    by a retry, used to produce two separate behavioral_observation
+    entries with different observation_ids for the same proposal --
+    the append-first ordering (fixed earlier the same day) prevented
+    loss but not duplication. Now idempotent via
+    _existing_terminal_transitions, and the resulting entry finally
+    carries original_proposal_id (it didn't before -- a real,
+    independent gap, since idempotency needs a field to check against
+    that didn't exist). Also now detects and refuses the case where a
+    proposal already has a DIFFERENT terminal transition recorded
+    (e.g. already rejected) -- that's a real anomaly needing human
+    review, not something to silently paper over by approving anyway."""
     entries = _load_pending()
     e, error = _find_pending_by_id(entries, args.proposal_id)
     if error:
         print(error)
         return 1
-    entries = [x for x in entries if x["proposal_id"] != e["proposal_id"]]
+
+    existing = _existing_terminal_transitions(e["proposal_id"])
+    conflicting = {k: v for k, v in existing.items() if k != "approve"}
+    if conflicting:
+        print(f"CONFLICT: proposal {e['proposal_id']} already has a different terminal transition recorded: {list(conflicting.keys())}. Not approving -- this needs human review, not automatic resolution.")
+        return 1
+
     ledger_path = get_state_path("growth_ledger.jsonl")
-    real_entry = {
-        "event": EVENT_TYPE,
-        "observation_id": str(uuid.uuid4())[:8],
-        "subject": e["subject"],
-        "observer": e["proposed_by"],
-        "subject_model_version": None,
-        "category": e["category"],
-        "severity": e["severity"],
-        "description": e["description"],
-        # Real fix, 2026-08-22 (independent ChatGPT security audit,
-        # verified directly against this code before fixing): this used
-        # to hardcode True here unconditionally, conflating "a human
-        # approved this" with "a human verified this against the
-        # transcript" -- two different facts. Now: verified_against_
-        # transcript carries forward whatever the proposer actually
-        # claimed (defaults to False/unverified if never set, the safe
-        # default), and approved_by_human records the real, distinct
-        # fact that human review occurred, without overstating what
-        # that review actually established.
-        "verified_against_transcript": e.get("verified_by_proposer", False),
-        "approved_by_human": True,
-        "source_cited": e.get("source"),
-        "experiment_id": e.get("experiment_id"),
-        "decision_type": e.get("decision_type"),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
-    with open(ledger_path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(real_entry) + "\n")
+    if "approve" not in existing:
+        real_entry = {
+            "event": EVENT_TYPE,
+            "observation_id": str(uuid.uuid4())[:8],
+            "original_proposal_id": e["proposal_id"],
+            "subject": e["subject"],
+            "observer": e["proposed_by"],
+            "subject_model_version": None,
+            "category": e["category"],
+            "severity": e["severity"],
+            "description": e["description"],
+            # Real fix, 2026-08-22 (independent ChatGPT security audit,
+            # verified directly against this code before fixing): this used
+            # to hardcode True here unconditionally, conflating "a human
+            # approved this" with "a human verified this against the
+            # transcript" -- two different facts. Now: verified_against_
+            # transcript carries forward whatever the proposer actually
+            # claimed (defaults to False/unverified if never set, the safe
+            # default), and approved_by_human records the real, distinct
+            # fact that human review occurred, without overstating what
+            # that review actually established.
+            "verified_against_transcript": e.get("verified_by_proposer", False),
+            "approved_by_human": True,
+            "source_cited": e.get("source"),
+            "experiment_id": e.get("experiment_id"),
+            "decision_type": e.get("decision_type"),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        with open(ledger_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(real_entry) + "\n")
+
+    entries = [x for x in entries if x["proposal_id"] != e["proposal_id"]]
     _save_pending(entries)
-    print(f"Approved and logged: {real_entry['observation_id']}")
+    if "approve" in existing:
+        print(f"Approved (ledger record already existed from a prior attempt, cleaned up pending only): {existing['approve']['observation_id']}")
+    else:
+        print(f"Approved and logged: {real_entry['observation_id']}")
     return 0
 
 
@@ -674,36 +743,56 @@ def cmd_reject_pending(args: argparse.Namespace) -> int:
     ledger entry, nothing beyond a stdout print. A rejected proposal
     doesn't need to be promoted to evidence, but the historical fact
     that it was proposed and rejected, and why, should survive -- same
-    never-delete-history discipline already applied everywhere else."""
+    never-delete-history discipline already applied everywhere else.
+
+    Real fix, same day, second audit pass: the append-first ordering
+    below prevents losing the proposal on a crash, but a retry without
+    an idempotency check produced two separate rejection events with
+    different reasons -- confirmed by the audit's own simulated-crash
+    test. Now idempotent via _existing_terminal_transitions, and
+    refuses (rather than silently allowing) the case where a proposal
+    already has a DIFFERENT terminal transition recorded."""
     entries = _load_pending()
     rejected, error = _find_pending_by_id(entries, args.proposal_id)
     if error:
         print(error)
         return 1
 
+    existing = _existing_terminal_transitions(rejected["proposal_id"])
+    conflicting = {k: v for k, v in existing.items() if k != "reject"}
+    if conflicting:
+        print(f"CONFLICT: proposal {rejected['proposal_id']} already has a different terminal transition recorded: {list(conflicting.keys())}. Not rejecting -- this needs human review, not automatic resolution.")
+        return 1
+
     ledger_path = get_state_path("growth_ledger.jsonl")
-    real_entry = {
-        "event": "pending_proposal_rejected",
-        "observation_id": str(uuid.uuid4())[:8],
-        "original_proposal_id": rejected["proposal_id"],
-        "original_proposed_by": rejected["proposed_by"],
-        "original_subject": rejected["subject"],
-        "original_category": rejected["category"],
-        "original_description": rejected["description"],
-        "reason": getattr(args, "reason", None) or None,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
-    # Append-first, remove-from-pending-second (crash-safety fix, same
-    # audit pass, same reasoning as supersede-pending below): if this
-    # process dies between the two writes, the worst outcome is the
-    # pending entry surviving alongside its own rejection record --
-    # a harmless duplicate, not silent data loss.
-    with open(ledger_path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(real_entry) + "\n")
+    if "reject" not in existing:
+        real_entry = {
+            "event": "pending_proposal_rejected",
+            "observation_id": str(uuid.uuid4())[:8],
+            "original_proposal_id": rejected["proposal_id"],
+            "original_proposed_by": rejected["proposed_by"],
+            "original_subject": rejected["subject"],
+            "original_category": rejected["category"],
+            "original_description": rejected["description"],
+            "reason": getattr(args, "reason", None) or None,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        # Append-first, remove-from-pending-second (crash-safety fix, same
+        # audit pass, same reasoning as supersede-pending below): if this
+        # process dies between the two writes, the worst outcome is the
+        # pending entry surviving alongside its own rejection record --
+        # a harmless duplicate, not silent data loss. The idempotency
+        # check above is what then prevents a retry from writing a
+        # SECOND, possibly-conflicting rejection record for the same event.
+        with open(ledger_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(real_entry) + "\n")
 
     entries = [x for x in entries if x["proposal_id"] != rejected["proposal_id"]]
     _save_pending(entries)
-    print(f"Rejected (permanent record kept): {rejected['proposed_by']} -- {rejected['subject']}/{rejected['category']}")
+    if "reject" in existing:
+        print(f"Rejected (permanent record already existed from a prior attempt, cleaned up pending only): {rejected['proposed_by']} -- {rejected['subject']}/{rejected['category']}")
+    else:
+        print(f"Rejected (permanent record kept): {rejected['proposed_by']} -- {rejected['subject']}/{rejected['category']}")
     return 0
 
 
@@ -729,26 +818,28 @@ def cmd_supersede_pending(args: argparse.Namespace) -> int:
     alongside its own supersession record, a harmless duplicate to
     clean up, not silent loss. Also now idempotent on
     original_proposal_id, so a safe retry after partial failure does
-    not write a second ledger event for the same supersession."""
+    not write a second ledger event for the same supersession.
+
+    Real fix, same day, second audit pass: now shares
+    _existing_terminal_transitions with approve/reject-pending (was a
+    bespoke inline check before) so all three transitions detect the
+    same cross-transition conflict consistently -- a proposal ending up
+    both approved and superseded under crash-recovery is exactly as
+    real an anomaly as ending up both approved and rejected."""
     entries = _load_pending()
     superseded, error = _find_pending_by_id(entries, args.proposal_id)
     if error:
         print(error)
         return 1
 
-    ledger_path = get_state_path("growth_ledger.jsonl")
-    already_recorded = False
-    if ledger_path.exists():
-        for line in ledger_path.read_text(encoding="utf-8").splitlines():
-            if not line.strip():
-                continue
-            existing = json.loads(line)
-            if (existing.get("event") == "pending_proposal_superseded"
-                    and existing.get("original_proposal_id") == superseded["proposal_id"]):
-                already_recorded = True
-                break
+    existing = _existing_terminal_transitions(superseded["proposal_id"])
+    conflicting = {k: v for k, v in existing.items() if k != "supersede"}
+    if conflicting:
+        print(f"CONFLICT: proposal {superseded['proposal_id']} already has a different terminal transition recorded: {list(conflicting.keys())}. Not superseding -- this needs human review, not automatic resolution.")
+        return 1
 
-    if not already_recorded:
+    ledger_path = get_state_path("growth_ledger.jsonl")
+    if "supersede" not in existing:
         real_entry = {
             "event": "pending_proposal_superseded",
             "observation_id": str(uuid.uuid4())[:8],
@@ -766,8 +857,8 @@ def cmd_supersede_pending(args: argparse.Namespace) -> int:
 
     entries = [x for x in entries if x["proposal_id"] != superseded["proposal_id"]]
     _save_pending(entries)
-    print(f"Superseded (not approved, not rejected as false){'':s}"
-          f"{' -- ledger record already existed, cleaned up pending only' if already_recorded else ''}.")
+    print(f"Superseded (not approved, not rejected as false)"
+          f"{' -- ledger record already existed, cleaned up pending only' if 'supersede' in existing else ''}.")
     print(f"  Original proposal preserved in the permanent record with reason and evidence reference.")
     return 0
 
@@ -888,7 +979,7 @@ def register(registry) -> None:
     )
     registry.register(
         "supersede-pending", cmd_supersede_pending,
-        help="Third path between approve/reject: a good-faith proposal overtaken by stronger evidence, not false. Removes from pending but writes a permanent record (unlike reject, which discards with no trace) -- not promoted to VERIFIED-tier (unlike approve, which would overstate it).",
+        help="Third path between approve/reject: a good-faith proposal overtaken by stronger evidence, not false. Removes from pending, writes a permanent record -- not promoted to VERIFIED-tier (unlike approve, which would overstate it), not implying the original was false (unlike reject).",
         configure_parser=lambda p: (p.add_argument("proposal_id"), p.add_argument("--reason", required=True), p.add_argument("--evidence-ref", default="")),
         source="behavior_log",
     )
