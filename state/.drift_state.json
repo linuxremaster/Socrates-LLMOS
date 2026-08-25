@@ -300,6 +300,220 @@
       "path": "/home/claude/llmos_project/llmos_project/kernel/WELLBEING_FLAG_HANDLING_ADDENDUM.md",
       "sha256": "07136f9a757e4d6f174e9d21e7d801872f3649c488ee2b8377939c2bf8eb6e76",
       "snapshotted_at": "2026-08-14T11:29:21.536263+00:00"
+    },
+    "docs/LLMOS_LEDGER_SECURITY_SPEC.md": {
+      "chars": 12534,
+      "embedded_refs": [],
+      "headers": [
+        {
+          "body_sha256": "1f00fa13b9fffee2329b11646330c2a66c62cd3dd43963186ec7e69f1b85124a",
+          "number": "1",
+          "title": "Immutable event identity + content hash"
+        },
+        {
+          "body_sha256": "8d94eb8101605e3ae1d7ecf1347dc823abe46d1a6efded4b6f93e40a67484f25",
+          "number": "2",
+          "title": "Append-chain / tamper evidence"
+        },
+        {
+          "body_sha256": "194376d52b8ca2af9e654e1accc226e0ba415ddef40975c16543173851944b1e",
+          "number": "3",
+          "title": "Authenticated participant identity, separate from payload"
+        },
+        {
+          "body_sha256": "2278a3aa71ff82f93a8709890c1fdfd0b1e7ac58ab8043a4029b4731c8b261e5",
+          "number": "4",
+          "title": "Replay / idempotency semantics"
+        },
+        {
+          "body_sha256": "d87036da8c9ca82270a3989ef982f47f0f366b2ee50fce921d7c3cc3be29c573",
+          "number": "5",
+          "title": "Revocation / supersession as new events, never destructive edits"
+        },
+        {
+          "body_sha256": "e1ceebe82972466a3fc0719dce9bd5b65cf4b0df590b75c9be10c0b2edcc8c87",
+          "number": "6",
+          "title": "Retrieval trust filtering and data-vs-instruction separation"
+        },
+        {
+          "body_sha256": "ab4d10d4907c874aabd107ddf4656f53d1c44520fa200b55681a4a099ed8a379",
+          "number": "7",
+          "title": "Participant capabilities, least privilege"
+        }
+      ],
+      "labelled_fields": {},
+      "lines": 289,
+      "path": "docs/LLMOS_LEDGER_SECURITY_SPEC.md",
+      "sha256": "2a25b98c86da2ff31fc40a760a321d389bbb94f96639189b13e4e8a8507542b1",
+      "snapshotted_at": "2026-08-23T03:09:48.380874+00:00"
+    },
+    "docs/LLMOS_SUBMISSION_CONTRACT_DRAFT.md": {
+      "chars": 6403,
+      "embedded_refs": [],
+      "headers": [],
+      "labelled_fields": {},
+      "lines": 125,
+      "path": "docs/LLMOS_SUBMISSION_CONTRACT_DRAFT.md",
+      "sha256": "e24f387d7b3684ba093898c72678b683c593ebbf427d4a32bb19dd2fe9eab543",
+      "snapshotted_at": "2026-08-23T03:09:48.380430+00:00"
+    },
+    "kernel/HCF_LLMOS_Kernel_v1.3.6-C.md": {
+      "chars": 18417,
+      "embedded_refs": [],
+      "headers": [
+        {
+          "body_sha256": "a6e835ef38964ba8db62b25550baa295aa08b01f2e91002775e983660f64287d",
+          "number": "0",
+          "title": "Core Methodology (historical name: \"Core Runtime\")"
+        },
+        {
+          "body_sha256": "bd9a5998750f252aec41e38aa3d229ea97e4e3c7eacefaf26af7e86347ba024a",
+          "number": "1",
+          "title": "Evidence Model"
+        },
+        {
+          "body_sha256": "d726e822b9218706442c62ef6538b42b57338b91a46ecdc0861691b7b0234c77",
+          "number": "2",
+          "title": "Adoption Firewall"
+        },
+        {
+          "body_sha256": "e0fd492940455ecf1b2ec000c6692c6eabfc91e669f3326dd1a4c31090e2f89c",
+          "number": "3",
+          "title": "Objective / Authority"
+        },
+        {
+          "body_sha256": "e8a23ec644864eb9b992fc875b78a76f9cf5ce624046f7d7ff4b4df9bdf12e01",
+          "number": "4",
+          "title": "Independent Reasoning"
+        },
+        {
+          "body_sha256": "4de6d2cb857ce492221633929f2e088a22f498ba4d0d8031b9f9036095f0daf6",
+          "number": "5",
+          "title": "Anti-Parroting"
+        },
+        {
+          "body_sha256": "2fb5e91d375fc5c8997403141ec330b7fb4f137eef3cb8aa8d8b0fe1d4d9d987",
+          "number": "6",
+          "title": "Human Creativity"
+        },
+        {
+          "body_sha256": "ea9ac706ee1abc18e675fd09916f404de86e4cba46148926a8bdcf33dee7ba9a",
+          "number": "7",
+          "title": "Solution Mode"
+        },
+        {
+          "body_sha256": "ce4f500f3a8b1f9abb855c6fb6d0593c3cd04a95822acc919e3a8dd2fa5f32fe",
+          "number": "8",
+          "title": "Conflict Handling"
+        },
+        {
+          "body_sha256": "2d0701919149366d4749f94d06c5a13c4eff79a380481e7a60d34dfef7455e25",
+          "number": "9",
+          "title": "Cross-Model Provenance"
+        },
+        {
+          "body_sha256": "896e054b6a36985f221b692a26fc14bb1b34e5e33abbbdfdfc27bb08b0a566f1",
+          "number": "10",
+          "title": "Behavioral Interference"
+        },
+        {
+          "body_sha256": "c4689f2b86317ee0c1c453b15414e556abcb7f362cb6b15a6a9a66ca44595080",
+          "number": "11",
+          "title": "Output Discipline"
+        },
+        {
+          "body_sha256": "f26cdfbbe953ddd437a1a8e6971e59bb6a41bba91dd8baa5c46135f2b06a9efe",
+          "number": "12",
+          "title": "Input Integrity"
+        },
+        {
+          "body_sha256": "f62ecbe3216c08a874d5f0d1988206636918c844ddf91621ad81eb21c54c3f30",
+          "number": "13",
+          "title": "Completeness Check"
+        },
+        {
+          "body_sha256": "b3946dc070ab883c96d83daba461baa58decaab5811f5a684bc4bee744de7fd3",
+          "number": "14",
+          "title": "Handoff Fidelity"
+        },
+        {
+          "body_sha256": "48b89cf3ecfa099c9208f9d4a2b1154357880da4a75658a83bf27637b4edeeef",
+          "number": "15",
+          "title": "Cross-Artifact Consistency"
+        },
+        {
+          "body_sha256": "575bf8847b74ee6dba2fff069af8c8fbfa948d6e0dcbf4eca99d31daac50fbfc",
+          "number": "16",
+          "title": "Research / Audit Mode"
+        },
+        {
+          "body_sha256": "abf87754d462ddc807e2f3b6d32912c61b3851be08beb88b3771fb4fa9f8526d",
+          "number": "17",
+          "title": "Collaborative Review"
+        },
+        {
+          "body_sha256": "582b882acca11fa951172dce7cde6a7e3c823348649feb1e64238ae2ed8187b1",
+          "number": "18",
+          "title": "Architectural Restraint"
+        },
+        {
+          "body_sha256": "a3a88b04b78d025164de197729d711b9c8020515aba57f8aa08abd193b6d7f73",
+          "number": "19",
+          "title": "Deferred / Open"
+        },
+        {
+          "body_sha256": "63aca4359e0a6ee70473b2615b97b1e87fd376af986d20f14df3910eeb9288fa",
+          "number": "20",
+          "title": "Priority"
+        }
+      ],
+      "labelled_fields": {
+        "Derivation": "v1.3.6-X P3, consolidated. Removal/merge only \u2014 no new rules claimed added.",
+        "Fresh-pass test": "if the prior model's conclusion disappeared, what evidence would still lead here? If the honest answer is \"the other model said so,\" re-evaluate. Repeated agreement across models is not independent verification.",
+        "Net result": "~2,700 lines across the original bundle (Kernel + Adapter + GLOBAL_CHECK + Consensus Protocol + merged single-file) \u2192 this file. Logged via `growth_budget.py` and `growth_ledger.jsonl`.",
+        "Not touched": "\u00a70, \u00a71, \u00a73\u2013\u00a710, \u00a714, \u00a715, \u00a718\u2013\u00a720 above carry forward with wording tightened but no rule added or removed, aside from the 2026-08-14 notation changes described above.",
+        "Notation": "this version states every rule in plain sentences first. Symbol/arrow shorthand (e.g. \"A \u2192 B\") has been removed project-wide \u2014 it was flagged as pattern-matching to command/runtime syntax independent of the surrounding prose, which is a cross-model trust risk this cleanup addresses directly (see Change Log). Single-letter evidence tags (V/I/A/U, H/O/E/I/S/U) are kept as classification labels, not command sequences, and are lower risk.",
+        "Status": "Reference document for how to reason and respond. See Execution Boundary below for what \"applying this\" actually means.",
+        "Structural cleanup": "- Removed BEGIN/END EMBEDDED wrapper markers and the separate Bootstrap/Test-Objective/Final-Procedure front-and-back matter \u2014 these existed to glue four separately-numbered files together; a single coherently-numbered document doesn't need them.",
+        "Terminology": "\"Kernel\" here means this methodology document, not a software runtime. See `docs/LLMOS_SCOPE_AND_BOUNDARIES.md` for the full kernel-vs-toolkit-vs-historical-architecture distinction.",
+        "Turning the risk into a process": "repeated agreement isn't proof, but it is a specific, actionable signal \u2014 a claim multiple sources converge on is exactly the claim worth actually checking against something outside the agreeing set. Cross-examine it against a genuinely diverse, independent source: a direct search, the actual file or codebase, a primary document \u2014 not another instance of the same kind reasoning from the same starting point. Agreement that survives contact with an independent check becomes real evidence; agreement that was never checked stays exactly as uncertain as before, no matter how many sources repeated it."
+      },
+      "lines": 147,
+      "path": "kernel/HCF_LLMOS_Kernel_v1.3.6-C.md",
+      "sha256": "7128d45ffaf4e87beef4be5e7b799bf1b3b43519d76ceec979e9d790bcc0baa8",
+      "snapshotted_at": "2026-08-23T03:09:48.380083+00:00"
+    },
+    "kernel/UNIFIED_BEHAVIORAL_OUTPUT_PROTOCOL_v2.md": {
+      "chars": 32456,
+      "embedded_refs": [],
+      "headers": [
+        {
+          "body_sha256": "63dfe320ad0f14e90f6f3c885c225cf6055e1be6f2a9546d31a419432ffe0671",
+          "number": "0",
+          "title": "PRECEDENCE"
+        }
+      ],
+      "labelled_fields": {
+        "Ambiguity handling": "If the objective itself is unclear, don't guess",
+        "Anti-overengineering": "Do not introduce new rules, frameworks,",
+        "Detection trigger": "final check \u2014 *is this the clearest, shortest",
+        "Directive": "1. Wit is welcome when the moment earns it -- not injected reflexively",
+        "Escalation trigger": "Before adding another layer of procedure, require",
+        "Exception": "keep a framing phrase if removing it creates real ambiguity",
+        "Failure condition": "producing a \"cleaned up\" or \"optimized\" revision",
+        "Meta-process is not progress": "Discussing the protocol, its application,",
+        "Objective": "Permit genuine humor and sarcasm where it fits, without",
+        "Objective-Completion Gate": "Once the requested objective has been",
+        "Observed precedent": "requested directly, 2026-08-19, in the same",
+        "Precedence": "this protocol is subordinate to host system instructions, developer instructions, safety requirements, and explicit user instructions within their allowed scope. It is a reasoning/output-shape convention, not an authority layer \u2014 see `docs/LLMOS_SCOPE_AND_BOUNDARIES.md`.",
+        "Relay/chain provenance": "When receiving another agent's output via",
+        "Tagging scope": "classification is an internal reasoning discipline",
+        "Time-to-objective is a constraint": "If the interaction is accumulating"
+      },
+      "lines": 621,
+      "path": "kernel/UNIFIED_BEHAVIORAL_OUTPUT_PROTOCOL_v2.md",
+      "sha256": "71ff4cc5e23cfa70d5c3dd0212d4131f9b2002af0637e5e2f778ef959dd3397f",
+      "snapshotted_at": "2026-08-23T03:09:48.379132+00:00"
     }
   },
   "signatures": {
@@ -339,6 +553,15 @@
       "status": "unconfirmed",
       "times_observed": 1
     },
+    "growth:kernel/UNIFIED_BEHAVIORAL_OUTPUT_PROTOCOL_v2.md": {
+      "check_class": "growth",
+      "confirmed_at": "2026-08-25T15:39:13.968622+00:00",
+      "description": "Grew +33 lines since baseline (621 -> 654)",
+      "first_seen": "2026-08-25T15:38:46.580237+00:00",
+      "last_seen": "2026-08-25T15:38:46.580242+00:00",
+      "status": "confirmed_real",
+      "times_observed": 1
+    },
     "semantic:changed:/home/claude/llmos_project/llmos_project/kernel/ARTIFACT_DELTA_LOOP_DETECTION_POLICY.md:5": {
       "check_class": "semantic",
       "confirmed_at": null,
@@ -346,6 +569,15 @@
       "first_seen": "2026-08-15T00:55:15.936840+00:00",
       "last_seen": "2026-08-15T00:55:15.936843+00:00",
       "status": "unconfirmed",
+      "times_observed": 1
+    },
+    "semantic:changed:kernel/UNIFIED_BEHAVIORAL_OUTPUT_PROTOCOL_v2.md:0": {
+      "check_class": "semantic",
+      "confirmed_at": "2026-08-25T15:39:14.111232+00:00",
+      "description": "Section 0. PRECEDENCE content changed \u2014 textual diff only, meaning not evaluated. Needs human review.",
+      "first_seen": "2026-08-25T15:38:46.580246+00:00",
+      "last_seen": "2026-08-25T15:38:46.580249+00:00",
+      "status": "confirmed_real",
       "times_observed": 1
     }
   }
