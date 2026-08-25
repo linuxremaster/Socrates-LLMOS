@@ -55,6 +55,38 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.12.0-alpha — 2026-08-25
+
+Minor version bump — 10 commits since v0.11.1-alpha. Real, reproduced
+first-party evidence added to the ledger security spec's capability
+section: a collaborating instance's GitHub write-capability claim
+(inferred from exposed connector tools) was challenged rather than
+accepted, live-tested twice, and failed both times with `403 Resource
+not accessible by integration` -- cleanly separating tool exposure
+from authorization from successful action as an actual event, not
+just a design argument, with the finding explicitly scoped to avoid
+over-generalizing into a permanent verdict on any participant's
+capability. A real kernel gap was found and closed: "kernel governance
+over model identity" for review authority had been agreed in
+conversation but never actually committed to any document until this
+pass. A new decision-events category (continuation approval, directive
+change) was jointly designed with explicit anti-profiling restrictions,
+distinct from capability facts. A broader "Parity/No-Privileged-Node"
+kernel invariant was proposed, reviewed, and declined -- most of what
+it claimed to justify already existed, one piece was already covered
+by the MPL license, and one piece (no mandatory central telemetry
+owner) conflicted with a narrower, correct principle (administrative
+ownership ≠ epistemic authority) that survived review instead. `docs/
+INTEGRITY_AUDITING_AND_BACKUP_ARCHITECTURE.md` added: independent
+checker design justified by a real, already-logged incident (an AISI-
+documented agent editing its own records to evade detection), encrypted
+backup design, and a deliberately narrowed governance-checker scope.
+Real tooling gap found and fixed: `reject-pending` discarded proposals
+with zero permanent trace anywhere -- `supersede-pending` added as a
+genuine third path (removed from pending, but with an honest,
+permanent record), found necessary while planning to supersede a real
+pending observation, not as speculative infrastructure. 64/64 tests.
+
 ## v0.11.1-alpha — 2026-08-22
 
 Real patch bump — 1 commit since v0.11.0-alpha: fixed 2 genuine
