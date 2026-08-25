@@ -197,6 +197,35 @@ pattern, applied to every event type, not just observations -- widen
 the existing, proven primitive rather than invent a parallel
 revocation subsystem next to it.
 
+### 5.5. Telemetry promotion chain -- canonical, added 2026-08-25
+
+**Real gap closed here after an external audit found this chain
+stated as "already defined" in `docs/
+INTEGRITY_AUDITING_AND_BACKUP_ARCHITECTURE.md` when it existed nowhere
+canonical -- only in that same draft document's own prose.** Same
+category of gap as the review-authority principle fixed earlier this
+session: design converged in conversation, got written down somewhere
+that implied it was already established, without ever actually being
+established anywhere checkable. Fixed by moving it here.
+
+```
+OBSERVED -> REPEATED -> REPRODUCED -> CANDIDATE -> REVIEWED -> ACCEPTED/REJECTED
+```
+
+Precise, non-optional distinction between the two stages most likely
+to be collapsed into each other: **REPEATED** is mechanical -- the
+same finding logged from raw runs some threshold number of times (a
+count, no judgment required, safe to automate). **REPRODUCED** requires
+an actual, deliberate independent re-run of the specific protocol that
+produced the original finding, under the same conditions, yielding the
+same result -- not just more instances of the original observation
+accumulating. Collapsing REPRODUCED into REPEATED would mean "this
+happened three times" quietly substitutes for "this was independently
+re-verified," which is a different, stronger claim that needs its own
+distinct evidence. Only ACCEPTED findings may produce changes to
+canonical LLMOS source, per the existing telemetry/source separation
+in section 2 of `docs/INTEGRITY_AUDITING_AND_BACKUP_ARCHITECTURE.md`.
+
 ### 6. Retrieval trust filtering and data-vs-instruction separation
 
 Retrieved content carries its status, not just its text:

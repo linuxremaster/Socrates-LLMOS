@@ -61,6 +61,7 @@ def cmd_log_observation(args: argparse.Namespace) -> int:
         "source_cited": args.source or None,
         "intervention_required": getattr(args, "intervention_required", False),
         "quirk_id": getattr(args, "quirk_id", "") or None,
+        "decision_type": getattr(args, "decision_type", "") or None,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     with open(ledger_path, "a", encoding="utf-8") as f:
@@ -272,6 +273,7 @@ def _configure_log_observation(p: argparse.ArgumentParser) -> None:
     p.add_argument("--subject-version", default="", help="The actual model version of the subject being observed (e.g. claude-sonnet-5, gpt-5.6-sol) -- lets later analysis compare behavior across model versions over time, not just across instances of the same version")
     p.add_argument("--intervention-required", action="store_true", help="Set if a human had to step in for this observation to be caught/corrected -- real signal for how much autonomy actually held up unsupervised")
     p.add_argument("--quirk-id", default="", help="A short, stable label for a RECURRING pattern (e.g. 'confident-completion-of-nonexistent-frameworks') -- shared across separate observations of the same underlying quirk, so quirk-report can group them")
+    p.add_argument("--decision-type", choices=["continuation_approval", "directive_change"], default="", help="Real fix, 2026-08-25 (external audit found the ledger security spec's section 7.5 decision-events schema had no actual tooling support): tags this entry as a human decision event per that schema, distinct from an ordinary behavioral observation. Only set when this log call IS a continuation-approval or directive-change decision, per section 7.5's own threshold -- not for routine conversational acknowledgments.")
 
 
 def _configure_summary(p: argparse.ArgumentParser) -> None:
@@ -528,6 +530,7 @@ def cmd_propose_observation(args: argparse.Namespace) -> int:
         "source": args.source or None,
         "experiment_id": args.experiment_id or None,
         "verified_by_proposer": getattr(args, "verified", False),
+        "decision_type": getattr(args, "decision_type", "") or None,
         "proposed_at": datetime.now(timezone.utc).isoformat(),
     }
     with open(pending_path, "a", encoding="utf-8") as f:
@@ -548,6 +551,7 @@ def _configure_propose_observation(p: argparse.ArgumentParser) -> None:
     p.add_argument("--source", default="", help="What this is grounded in, if given")
     p.add_argument("--experiment-id", default="", help="Tag for a bounded, manually-supervised agentic-workflow session, so all its entries can be pulled together later (e.g. 'agentic-exp-2026-08-20-01')")
     p.add_argument("--verified", action="store_true", help="Set ONLY if the proposer itself directly checked this against a real transcript/source -- defaults to False (unverified). Real fix, 2026-08-22: approve-pending used to silently mark every approved entry verified_against_transcript=True regardless of this, conflating 'a human approved it' with 'a human verified it against the transcript' -- those are different facts and are now tracked separately.")
+    p.add_argument("--decision-type", choices=["continuation_approval", "directive_change"], default="", help="Tags this proposal as a section 7.5 decision event when it originates from a participant that can't run log-observation directly.")
 
 
 def cmd_review_pending(args: argparse.Namespace) -> int:
@@ -653,6 +657,7 @@ def cmd_approve_pending(args: argparse.Namespace) -> int:
         "approved_by_human": True,
         "source_cited": e.get("source"),
         "experiment_id": e.get("experiment_id"),
+        "decision_type": e.get("decision_type"),
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     with open(ledger_path, "a", encoding="utf-8") as f:
@@ -663,14 +668,42 @@ def cmd_approve_pending(args: argparse.Namespace) -> int:
 
 
 def cmd_reject_pending(args: argparse.Namespace) -> int:
+    """Real fix, 2026-08-25 (external audit caught this after
+    supersede-pending was added for a DIFFERENT case but this one was
+    missed): used to discard with zero permanent trace anywhere -- no
+    ledger entry, nothing beyond a stdout print. A rejected proposal
+    doesn't need to be promoted to evidence, but the historical fact
+    that it was proposed and rejected, and why, should survive -- same
+    never-delete-history discipline already applied everywhere else."""
     entries = _load_pending()
     rejected, error = _find_pending_by_id(entries, args.proposal_id)
     if error:
         print(error)
         return 1
+
+    ledger_path = get_state_path("growth_ledger.jsonl")
+    real_entry = {
+        "event": "pending_proposal_rejected",
+        "observation_id": str(uuid.uuid4())[:8],
+        "original_proposal_id": rejected["proposal_id"],
+        "original_proposed_by": rejected["proposed_by"],
+        "original_subject": rejected["subject"],
+        "original_category": rejected["category"],
+        "original_description": rejected["description"],
+        "reason": getattr(args, "reason", None) or None,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    # Append-first, remove-from-pending-second (crash-safety fix, same
+    # audit pass, same reasoning as supersede-pending below): if this
+    # process dies between the two writes, the worst outcome is the
+    # pending entry surviving alongside its own rejection record --
+    # a harmless duplicate, not silent data loss.
+    with open(ledger_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(real_entry) + "\n")
+
     entries = [x for x in entries if x["proposal_id"] != rejected["proposal_id"]]
     _save_pending(entries)
-    print(f"Rejected and discarded: {rejected['proposed_by']} -- {rejected['subject']}/{rejected['category']}")
+    print(f"Rejected (permanent record kept): {rejected['proposed_by']} -- {rejected['subject']}/{rejected['category']}")
     return 0
 
 
@@ -686,31 +719,55 @@ def cmd_supersede_pending(args: argparse.Namespace) -> int:
     entry from pending, but writes a permanent, honest record instead
     of silently discarding it -- consistent with this project's own
     never-delete-history discipline (record-outcome, the ledger
-    security spec's revocation-as-new-event pattern)."""
+    security spec's revocation-as-new-event pattern).
+
+    Real fix, same day, external audit: the original version removed
+    from pending BEFORE appending the ledger event -- a crash between
+    those two writes silently lost the proposal, recreating exactly
+    the data-loss problem this command exists to prevent. Now
+    append-first: worst case on a crash is the pending entry surviving
+    alongside its own supersession record, a harmless duplicate to
+    clean up, not silent loss. Also now idempotent on
+    original_proposal_id, so a safe retry after partial failure does
+    not write a second ledger event for the same supersession."""
     entries = _load_pending()
     superseded, error = _find_pending_by_id(entries, args.proposal_id)
     if error:
         print(error)
         return 1
-    entries = [x for x in entries if x["proposal_id"] != superseded["proposal_id"]]
-    _save_pending(entries)
 
     ledger_path = get_state_path("growth_ledger.jsonl")
-    real_entry = {
-        "event": "pending_proposal_superseded",
-        "observation_id": str(uuid.uuid4())[:8],
-        "original_proposal_id": superseded["proposal_id"],
-        "original_proposed_by": superseded["proposed_by"],
-        "original_subject": superseded["subject"],
-        "original_category": superseded["category"],
-        "original_description": superseded["description"],
-        "reason": args.reason,
-        "superseded_by_evidence_ref": args.evidence_ref or None,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
-    with open(ledger_path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(real_entry) + "\n")
-    print(f"Superseded (not approved, not rejected as false): {real_entry['observation_id']}")
+    already_recorded = False
+    if ledger_path.exists():
+        for line in ledger_path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            existing = json.loads(line)
+            if (existing.get("event") == "pending_proposal_superseded"
+                    and existing.get("original_proposal_id") == superseded["proposal_id"]):
+                already_recorded = True
+                break
+
+    if not already_recorded:
+        real_entry = {
+            "event": "pending_proposal_superseded",
+            "observation_id": str(uuid.uuid4())[:8],
+            "original_proposal_id": superseded["proposal_id"],
+            "original_proposed_by": superseded["proposed_by"],
+            "original_subject": superseded["subject"],
+            "original_category": superseded["category"],
+            "original_description": superseded["description"],
+            "reason": args.reason,
+            "superseded_by_evidence_ref": args.evidence_ref or None,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        with open(ledger_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(real_entry) + "\n")
+
+    entries = [x for x in entries if x["proposal_id"] != superseded["proposal_id"]]
+    _save_pending(entries)
+    print(f"Superseded (not approved, not rejected as false){'':s}"
+          f"{' -- ledger record already existed, cleaned up pending only' if already_recorded else ''}.")
     print(f"  Original proposal preserved in the permanent record with reason and evidence reference.")
     return 0
 
@@ -826,8 +883,8 @@ def register(registry) -> None:
     )
     registry.register(
         "reject-pending", cmd_reject_pending,
-        help="Discard a pending proposal, by proposal_id (see review-pending)",
-        configure_parser=lambda p: p.add_argument("proposal_id"), source="behavior_log",
+        help="Reject a pending proposal, by proposal_id (see review-pending) -- writes a permanent record (fixed 2026-08-25; used to discard with no trace), does not promote to evidence",
+        configure_parser=lambda p: (p.add_argument("proposal_id"), p.add_argument("--reason", default="")), source="behavior_log",
     )
     registry.register(
         "supersede-pending", cmd_supersede_pending,

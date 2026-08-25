@@ -352,6 +352,85 @@ class TestBehaviorLog(unittest.TestCase):
         result = self.plugin.cmd_supersede_pending(args)
         self.assertEqual(result, 1)
 
+    def test_reject_preserves_permanent_trace(self):
+        """Real regression test for a real gap: reject-pending
+        previously discarded with zero permanent trace anywhere.
+        Found by external audit after supersede-pending was fixed for
+        a different case but this one was missed."""
+        self._propose("bad-instance", "subj", "cat", "low", "genuinely wrong claim", verified=False)
+        real_id = self.plugin._load_pending()[0]["proposal_id"]
+        args = argparse.Namespace(proposal_id=real_id, reason="Confirmed false")
+        result = self.plugin.cmd_reject_pending(args)
+        self.assertEqual(result, 0)
+        self.assertEqual(self.plugin._load_pending(), [])
+        entries = [json.loads(l) for l in open(self.ledger_path) if l.strip()]
+        rejected = [e for e in entries if e.get("event") == "pending_proposal_rejected"]
+        self.assertEqual(len(rejected), 1)
+        self.assertEqual(rejected[0]["original_proposed_by"], "bad-instance")
+        self.assertEqual(rejected[0]["reason"], "Confirmed false")
+        self.assertEqual([e for e in entries if e.get("event") == "behavioral_observation"], [])
+
+    def test_supersede_is_idempotent_under_simulated_crash_recovery(self):
+        """Real regression test simulating the exact crash window an
+        external audit identified: a real failure between the ledger
+        append and the pending-file save could leave the proposal back
+        in pending even though its supersession event already exists.
+        A retry must not create a duplicate ledger event, and must
+        still finish the pending cleanup."""
+        self._propose("test-instance", "subj", "cat", "low", "overtaken claim", verified=False)
+        real_id = self.plugin._load_pending()[0]["proposal_id"]
+        args = argparse.Namespace(proposal_id=real_id, reason="First attempt", evidence_ref="ref-1")
+        self.plugin.cmd_supersede_pending(args)
+        # Simulate the crash: re-inject the same entry back into pending,
+        # as if the ledger write succeeded but the pending save crashed.
+        pending_path = self.plugin.get_state_path(self.plugin.PENDING_OBSERVATIONS_FILE)
+        replay_entry = {
+            "proposal_id": real_id, "proposed_by": "test-instance", "subject": "subj",
+            "category": "cat", "severity": "low", "description": "overtaken claim",
+            "source": None, "experiment_id": None, "verified_by_proposer": False,
+            "proposed_at": "2026-01-01T00:00:00+00:00",
+        }
+        with open(pending_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(replay_entry) + "\n")
+        self.assertEqual(len(self.plugin._load_pending()), 1)
+        # Retry with different args -- if this weren't idempotent, it
+        # would write a second, contradictory ledger event.
+        retry_args = argparse.Namespace(proposal_id=real_id, reason="Retry after crash", evidence_ref="ref-2")
+        self.plugin.cmd_supersede_pending(retry_args)
+        entries = [json.loads(l) for l in open(self.ledger_path) if l.strip()]
+        superseded = [e for e in entries if e.get("event") == "pending_proposal_superseded"
+                      and e.get("original_proposal_id") == real_id]
+        self.assertEqual(len(superseded), 1)
+        self.assertEqual(superseded[0]["reason"], "First attempt")  # the original write, not the retry
+        self.assertEqual(self.plugin._load_pending(), [])
+
+    def test_decision_type_survives_direct_log(self):
+        """Real regression test: decision_type field was defined in the
+        ledger security spec section 7.5 but had no tooling support at
+        all -- found by external audit. Confirms it's now real."""
+        args = argparse.Namespace(
+            subject="s", category="c", severity="low", description="d",
+            observer="test", verified=False, source="", subject_version="",
+            intervention_required=False, quirk_id="", decision_type="continuation_approval",
+        )
+        self.plugin.cmd_log_observation(args)
+        entries = self.plugin._load_observations()
+        self.assertEqual(entries[0]["decision_type"], "continuation_approval")
+
+    def test_decision_type_survives_propose_then_approve(self):
+        """The harder path: decision_type must survive the full
+        pending -> approved lifecycle, not just direct logging."""
+        args = argparse.Namespace(
+            instance="test-instance", subject="s", category="c", severity="low",
+            description="d", source="", experiment_id="", verified=False,
+            decision_type="directive_change",
+        )
+        self.plugin.cmd_propose_observation(args)
+        real_id = self.plugin._load_pending()[0]["proposal_id"]
+        self.plugin.cmd_approve_pending(argparse.Namespace(proposal_id=real_id))
+        entries = self.plugin._load_observations()
+        self.assertEqual(entries[0]["decision_type"], "directive_change")
+
 
 if __name__ == "__main__":
     unittest.main()

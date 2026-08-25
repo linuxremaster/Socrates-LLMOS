@@ -62,9 +62,12 @@ eligible evidence
 
 An entry existing in the telemetry repo, administered by one person,
 does not make it true. It becomes eligible evidence only by passing
-through the promotion chain already defined (`OBSERVED -> REPEATED ->
-REPRODUCED -> CANDIDATE -> REVIEWED -> ACCEPTED/REJECTED`, per the
-decision-events work earlier this session). Administrative
+through the promotion chain defined canonically in `docs/
+LLMOS_LEDGER_SECURITY_SPEC.md` section 5.5 (`OBSERVED -> REPEATED ->
+REPRODUCED -> CANDIDATE -> REVIEWED -> ACCEPTED/REJECTED`) -- fixed
+2026-08-25 after an external audit correctly found this chain
+described as "already defined" here when it existed nowhere but this
+same document's own prose. Administrative
 centralization and epistemic centralization are different things --
 this project keeps the first for practicality and rejects the second
 by design, not by needing a distributed-consensus mechanism it doesn't
