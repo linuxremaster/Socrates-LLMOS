@@ -324,6 +324,34 @@ class TestBehaviorLog(unittest.TestCase):
         second_read = self.plugin._load_pending()
         self.assertEqual(second_read[0]["proposal_id"], backfilled_id)
 
+    def test_supersede_removes_from_pending_but_preserves_permanent_trace(self):
+        """Real regression test for a real gap: reject-pending discarded
+        with zero permanent trace anywhere. supersede-pending is the
+        third path -- removed from pending, but with an honest,
+        permanent record distinct from both approval (would overstate
+        it as VERIFIED-tier) and rejection (would wrongly imply the
+        original claim was false)."""
+        self._propose("test-instance", "subj", "cat", "low", "overtaken claim", verified=False)
+        real_id = self.plugin._load_pending()[0]["proposal_id"]
+        args = argparse.Namespace(proposal_id=real_id, reason="Overtaken by stronger evidence", evidence_ref="ref-123")
+        result = self.plugin.cmd_supersede_pending(args)
+        self.assertEqual(result, 0)
+        self.assertEqual(self.plugin._load_pending(), [])
+        entries = [json.loads(l) for l in open(self.ledger_path) if l.strip()]
+        superseded = [e for e in entries if e.get("event") == "pending_proposal_superseded"]
+        self.assertEqual(len(superseded), 1)
+        self.assertEqual(superseded[0]["original_proposed_by"], "test-instance")
+        self.assertEqual(superseded[0]["reason"], "Overtaken by stronger evidence")
+        self.assertEqual(superseded[0]["superseded_by_evidence_ref"], "ref-123")
+        # Not present as a normal behavioral_observation -- confirms it
+        # was never promoted to VERIFIED-tier status like approval would.
+        self.assertEqual([e for e in entries if e.get("event") == "behavioral_observation"], [])
+
+    def test_supersede_unknown_id_fails_clearly(self):
+        args = argparse.Namespace(proposal_id="nonexistent", reason="n/a", evidence_ref="")
+        result = self.plugin.cmd_supersede_pending(args)
+        self.assertEqual(result, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

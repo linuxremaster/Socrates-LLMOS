@@ -674,6 +674,47 @@ def cmd_reject_pending(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_supersede_pending(args: argparse.Namespace) -> int:
+    """Real gap found and fixed 2026-08-25: reject-pending discards a
+    proposal with NO permanent trace anywhere -- no ledger entry,
+    nothing beyond a stdout print. That's fine for a genuinely
+    erroneous proposal, but wrong for a good-faith one that's simply
+    been overtaken by stronger evidence on the same subject -- reject
+    would misleadingly imply the original was false, and approve would
+    overstate its evidentiary status by promoting it to a normal
+    VERIFIED-tier entry. This is the real third path: removes the
+    entry from pending, but writes a permanent, honest record instead
+    of silently discarding it -- consistent with this project's own
+    never-delete-history discipline (record-outcome, the ledger
+    security spec's revocation-as-new-event pattern)."""
+    entries = _load_pending()
+    superseded, error = _find_pending_by_id(entries, args.proposal_id)
+    if error:
+        print(error)
+        return 1
+    entries = [x for x in entries if x["proposal_id"] != superseded["proposal_id"]]
+    _save_pending(entries)
+
+    ledger_path = get_state_path("growth_ledger.jsonl")
+    real_entry = {
+        "event": "pending_proposal_superseded",
+        "observation_id": str(uuid.uuid4())[:8],
+        "original_proposal_id": superseded["proposal_id"],
+        "original_proposed_by": superseded["proposed_by"],
+        "original_subject": superseded["subject"],
+        "original_category": superseded["category"],
+        "original_description": superseded["description"],
+        "reason": args.reason,
+        "superseded_by_evidence_ref": args.evidence_ref or None,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    with open(ledger_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(real_entry) + "\n")
+    print(f"Superseded (not approved, not rejected as false): {real_entry['observation_id']}")
+    print(f"  Original proposal preserved in the permanent record with reason and evidence reference.")
+    return 0
+
+
 def cmd_experiment_report(args: argparse.Namespace) -> int:
     """Pulls every approved entry for one experiment_id together, in
     order -- the full arc of a bounded, manually-supervised agentic
@@ -787,6 +828,12 @@ def register(registry) -> None:
         "reject-pending", cmd_reject_pending,
         help="Discard a pending proposal, by proposal_id (see review-pending)",
         configure_parser=lambda p: p.add_argument("proposal_id"), source="behavior_log",
+    )
+    registry.register(
+        "supersede-pending", cmd_supersede_pending,
+        help="Third path between approve/reject: a good-faith proposal overtaken by stronger evidence, not false. Removes from pending but writes a permanent record (unlike reject, which discards with no trace) -- not promoted to VERIFIED-tier (unlike approve, which would overstate it).",
+        configure_parser=lambda p: (p.add_argument("proposal_id"), p.add_argument("--reason", required=True), p.add_argument("--evidence-ref", default="")),
+        source="behavior_log",
     )
     registry.register(
         "experiment-report", cmd_experiment_report,
