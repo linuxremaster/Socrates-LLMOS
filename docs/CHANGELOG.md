@@ -55,6 +55,32 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.13.0-alpha — 2026-08-25
+
+Minor version bump — 3 commits since v0.12.2-alpha (count includes
+this version-bump commit). Fixed 5 real ResourceWarnings in
+`test_behavior_log.py` (unclosed files), confirmed by the same audit
+that verified v0.12.2-alpha's crash-safety fixes and independently
+reconfirmed here before fixing. A large "Token Miser /
+Minimum-Sufficient-State Architecture" proposal was reviewed against
+existing kernel/spec content: most of it was found substantially
+redundant (its core compression-safety list matches "history is
+immutable, attention is compressible" from the ledger security spec
+near-verbatim, and its context-hygiene section explicitly acknowledged
+the overlap itself), and its core transmission model assumed a
+client/orchestrator-controlled context window this project cannot
+implement for a chat-interface instance. Two genuinely new pieces were
+extracted and implemented at a narrower scope: model-routing guidance
+(operational documentation, not toolkit-enforced, grounded in
+already-logged research on routing cost floors) and a real,
+validated `token_metrics` field on `log-observation`/
+`propose-observation` -- deliberately restricted to 4
+objectively-countable fields, explicitly excluding a subjective
+"useful-result-per-token" quality proxy from the original proposal,
+with that exclusion confirmed enforced by a real rejection test, not
+just documented. 3 new regression tests. 74/74 tests passed in this
+development environment.
+
 ## v0.12.2-alpha — 2026-08-25
 
 Real patch bump — 2 commits since v0.12.1-alpha (count includes this
