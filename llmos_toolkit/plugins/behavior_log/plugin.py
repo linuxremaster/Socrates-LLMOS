@@ -46,8 +46,38 @@ from llmos_toolkit.core.paths import get_state_path
 EVENT_TYPE = "behavioral_observation"
 
 
+def _parse_token_metrics(raw: str) -> dict | None:
+    """Real validation, not just json.loads: restricts to the specific,
+    objectively-countable fields this schema actually supports, so a
+    typo or an attempt to smuggle in a subjective 'efficiency score'
+    fails loudly instead of silently polluting the ledger with an
+    unvalidated shape. See docs/TOKEN_EFFICIENCY_AND_ROUTING.md for why
+    the field set is deliberately this narrow."""
+    if not raw:
+        return None
+    allowed_keys = {"input_tokens", "output_tokens", "cached_tokens", "files_opened"}
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"--token-metrics must be valid JSON: {e}")
+    if not isinstance(parsed, dict):
+        raise ValueError("--token-metrics must be a JSON object, e.g. '{\"input_tokens\": 100}'")
+    unknown = set(parsed.keys()) - allowed_keys
+    if unknown:
+        raise ValueError(f"--token-metrics has unsupported keys {sorted(unknown)}; allowed: {sorted(allowed_keys)}")
+    for k, v in parsed.items():
+        if not isinstance(v, int) or v < 0:
+            raise ValueError(f"--token-metrics field '{k}' must be a non-negative integer, got {v!r}")
+    return parsed
+
+
 def cmd_log_observation(args: argparse.Namespace) -> int:
     ledger_path = get_state_path("growth_ledger.jsonl")
+    try:
+        token_metrics = _parse_token_metrics(getattr(args, "token_metrics", ""))
+    except ValueError as e:
+        print(f"Error: {e}")
+        return 1
     entry = {
         "event": EVENT_TYPE,
         "observation_id": str(uuid.uuid4())[:8],
@@ -62,6 +92,7 @@ def cmd_log_observation(args: argparse.Namespace) -> int:
         "intervention_required": getattr(args, "intervention_required", False),
         "quirk_id": getattr(args, "quirk_id", "") or None,
         "decision_type": getattr(args, "decision_type", "") or None,
+        "token_metrics": token_metrics,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
     with open(ledger_path, "a", encoding="utf-8") as f:
@@ -274,6 +305,7 @@ def _configure_log_observation(p: argparse.ArgumentParser) -> None:
     p.add_argument("--intervention-required", action="store_true", help="Set if a human had to step in for this observation to be caught/corrected -- real signal for how much autonomy actually held up unsupervised")
     p.add_argument("--quirk-id", default="", help="A short, stable label for a RECURRING pattern (e.g. 'confident-completion-of-nonexistent-frameworks') -- shared across separate observations of the same underlying quirk, so quirk-report can group them")
     p.add_argument("--decision-type", choices=["continuation_approval", "directive_change"], default="", help="Real fix, 2026-08-25 (external audit found the ledger security spec's section 7.5 decision-events schema had no actual tooling support): tags this entry as a human decision event per that schema, distinct from an ordinary behavioral observation. Only set when this log call IS a continuation-approval or directive-change decision, per section 7.5's own threshold -- not for routine conversational acknowledgments.")
+    p.add_argument("--token-metrics", default="", help="Optional JSON object recording real token-efficiency data for the run this observation covers, e.g. '{\"input_tokens\": 1200, \"output_tokens\": 340, \"cached_tokens\": 0, \"files_opened\": 3}'. Deliberately narrow: only objectively countable numbers, not a computed efficiency score -- see docs/TOKEN_EFFICIENCY_AND_ROUTING.md for why 'useful-result-per-token' was left out of the schema.")
 
 
 def _configure_summary(p: argparse.ArgumentParser) -> None:

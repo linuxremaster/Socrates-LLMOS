@@ -505,6 +505,45 @@ class TestBehaviorLog(unittest.TestCase):
         # not cleaned up as if it were resolved.
         self.assertEqual(len(self.plugin._load_pending()), 1)
 
+    def test_token_metrics_accepts_valid_narrow_schema(self):
+        args = argparse.Namespace(
+            subject="s", category="c", severity="low", description="d",
+            observer="test", verified=False, source="", subject_version="",
+            intervention_required=False, quirk_id="", decision_type="",
+            token_metrics='{"input_tokens": 1200, "output_tokens": 340}',
+        )
+        result = self.plugin.cmd_log_observation(args)
+        self.assertEqual(result, 0)
+        entries = self.plugin._load_observations()
+        self.assertEqual(entries[0]["token_metrics"], {"input_tokens": 1200, "output_tokens": 340})
+
+    def test_token_metrics_rejects_invalid_json_without_writing(self):
+        args = argparse.Namespace(
+            subject="s", category="c", severity="low", description="d",
+            observer="test", verified=False, source="", subject_version="",
+            intervention_required=False, quirk_id="", decision_type="",
+            token_metrics="{not valid json",
+        )
+        result = self.plugin.cmd_log_observation(args)
+        self.assertEqual(result, 1)
+        self.assertEqual(self.plugin._load_observations(), [])
+
+    def test_token_metrics_rejects_the_excluded_subjective_field(self):
+        """Real regression test for the deliberate design choice: the
+        schema was scoped to objectively-countable numbers only,
+        explicitly excluding a computed 'efficiency score' field from
+        the original proposal. This confirms that exclusion is
+        enforced, not just documented."""
+        args = argparse.Namespace(
+            subject="s", category="c", severity="low", description="d",
+            observer="test", verified=False, source="", subject_version="",
+            intervention_required=False, quirk_id="", decision_type="",
+            token_metrics='{"useful_result_per_token": 0.8}',
+        )
+        result = self.plugin.cmd_log_observation(args)
+        self.assertEqual(result, 1)
+        self.assertEqual(self.plugin._load_observations(), [])
+
 
 if __name__ == "__main__":
     unittest.main()
