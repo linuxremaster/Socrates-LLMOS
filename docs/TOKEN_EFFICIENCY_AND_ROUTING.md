@@ -70,6 +70,17 @@ a JSON object with a deliberately narrow, validated field set:
 }
 ```
 
+**`files_opened` is defined precisely, fixed 2026-08-25 after an
+external audit correctly found the original wording ambiguous** (a
+model reading the same file five times could otherwise be reported as
+either 1 or 5, making cross-run comparison meaningless): **total
+successful file-open/read operations during the measured run** --
+every successful open counts, including repeats of the same file. If a
+future need arises to also track distinct files touched, that should
+be a separate, explicitly-named field (`unique_files_opened`), not a
+redefinition of this one -- the two measure genuinely different
+things.
+
 Any other key is rejected, not silently accepted -- invalid input
 fails cleanly with no ledger write, confirmed by direct testing.
 

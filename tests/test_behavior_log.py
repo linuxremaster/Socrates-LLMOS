@@ -544,6 +544,44 @@ class TestBehaviorLog(unittest.TestCase):
         self.assertEqual(result, 1)
         self.assertEqual(self.plugin._load_observations(), [])
 
+    def test_token_metrics_survive_propose_then_approve(self):
+        """Real regression test for a genuine doc/code mismatch found
+        by external audit: token_metrics was documented as supported on
+        propose-observation but never actually implemented -- meaning
+        Gemini/sandboxed participants, the actual intended users of this
+        field, could not preserve token metrics through the ledger at
+        all. Confirms the full path now works end to end."""
+        args = argparse.Namespace(
+            instance="gemini-test", subject="s", category="c", severity="low",
+            description="d", source="", experiment_id="", verified=False,
+            decision_type="", token_metrics='{"input_tokens": 500, "output_tokens": 120}',
+        )
+        self.plugin.cmd_propose_observation(args)
+        real_id = self.plugin._load_pending()[0]["proposal_id"]
+        self.plugin.cmd_approve_pending(argparse.Namespace(proposal_id=real_id))
+        entries = self.plugin._load_observations()
+        self.assertEqual(entries[0]["token_metrics"], {"input_tokens": 500, "output_tokens": 120})
+
+    def test_propose_token_metrics_invalid_json_creates_no_pending_entry(self):
+        args = argparse.Namespace(
+            instance="gemini-test", subject="s", category="c", severity="low",
+            description="d", source="", experiment_id="", verified=False,
+            decision_type="", token_metrics="{bad json",
+        )
+        result = self.plugin.cmd_propose_observation(args)
+        self.assertEqual(result, 1)
+        self.assertEqual(self.plugin._load_pending(), [])
+
+    def test_propose_token_metrics_unsupported_key_creates_no_pending_entry(self):
+        args = argparse.Namespace(
+            instance="gemini-test", subject="s", category="c", severity="low",
+            description="d", source="", experiment_id="", verified=False,
+            decision_type="", token_metrics='{"useful_result_per_token": 0.9}',
+        )
+        result = self.plugin.cmd_propose_observation(args)
+        self.assertEqual(result, 1)
+        self.assertEqual(self.plugin._load_pending(), [])
+
 
 if __name__ == "__main__":
     unittest.main()

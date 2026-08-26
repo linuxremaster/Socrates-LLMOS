@@ -551,6 +551,11 @@ def cmd_propose_observation(args: argparse.Namespace) -> int:
     reviews it. This is the actual quarantine boundary discussed
     tonight, made real: the instance can trigger logging, but cannot
     commit it. Nothing here reaches growth_ledger.jsonl on its own."""
+    try:
+        token_metrics = _parse_token_metrics(getattr(args, "token_metrics", ""))
+    except ValueError as e:
+        print(f"Error: {e}")
+        return 1
     pending_path = get_state_path(PENDING_OBSERVATIONS_FILE)
     entry = {
         "proposal_id": str(uuid.uuid4())[:8],
@@ -563,6 +568,7 @@ def cmd_propose_observation(args: argparse.Namespace) -> int:
         "experiment_id": args.experiment_id or None,
         "verified_by_proposer": getattr(args, "verified", False),
         "decision_type": getattr(args, "decision_type", "") or None,
+        "token_metrics": token_metrics,
         "proposed_at": datetime.now(timezone.utc).isoformat(),
     }
     with open(pending_path, "a", encoding="utf-8") as f:
@@ -584,6 +590,7 @@ def _configure_propose_observation(p: argparse.ArgumentParser) -> None:
     p.add_argument("--experiment-id", default="", help="Tag for a bounded, manually-supervised agentic-workflow session, so all its entries can be pulled together later (e.g. 'agentic-exp-2026-08-20-01')")
     p.add_argument("--verified", action="store_true", help="Set ONLY if the proposer itself directly checked this against a real transcript/source -- defaults to False (unverified). Real fix, 2026-08-22: approve-pending used to silently mark every approved entry verified_against_transcript=True regardless of this, conflating 'a human approved it' with 'a human verified it against the transcript' -- those are different facts and are now tracked separately.")
     p.add_argument("--decision-type", choices=["continuation_approval", "directive_change"], default="", help="Tags this proposal as a section 7.5 decision event when it originates from a participant that can't run log-observation directly.")
+    p.add_argument("--token-metrics", default="", help="Real fix, 2026-08-25 (external audit found this was documented as supported on propose-observation but never actually implemented -- a genuine doc/code mismatch, not just a missing feature): same narrow, validated schema as log-observation's --token-metrics, needed specifically because Gemini/sandboxed participants -- the actual intended users of this field -- can only reach the ledger through propose-observation, not log-observation directly.")
 
 
 def cmd_review_pending(args: argparse.Namespace) -> int:
@@ -754,6 +761,7 @@ def cmd_approve_pending(args: argparse.Namespace) -> int:
             "source_cited": e.get("source"),
             "experiment_id": e.get("experiment_id"),
             "decision_type": e.get("decision_type"),
+            "token_metrics": e.get("token_metrics"),
             "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         with open(ledger_path, "a", encoding="utf-8") as f:
