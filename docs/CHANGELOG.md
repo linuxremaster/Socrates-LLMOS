@@ -55,6 +55,28 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.13.2-alpha — 2026-08-25
+
+Real patch bump — 2 commits since v0.13.1-alpha (count includes this
+version-bump commit). Independent ChatGPT re-audit of v0.13.1-alpha
+found a real, reproducible Python gotcha in `token_metrics`
+validation: `bool` subclasses `int` in Python, so
+`isinstance(True, int)` evaluates `True`, and the original validator
+silently accepted `{"input_tokens": true}` as the integer `1`,
+violating the schema's own non-negative-integer-count definition.
+Confirmed directly before fixing. Changed to `type(v) is not int`,
+which rejects `bool` (and any other `int` subclass) without needing
+explicit exclusions; confirmed real integers, including `0`, remain
+accepted. Tested both the shared validator directly and the actual
+`propose-observation` CLI path, confirming zero pending entries are
+created on rejection. 1 new regression test, 78/78 passed in this
+development environment. This closes out `token_metrics` as
+substantively hardened -- three independent audit rounds (proposal-
+path implementation, `files_opened` definition, and this validator
+edge case) each found something real and each fix was verified
+directly before being trusted, consistent with every other fix this
+session.
+
 ## v0.13.1-alpha — 2026-08-25
 
 Real patch bump — 2 commits since v0.13.0-alpha (count includes this
