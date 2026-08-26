@@ -55,6 +55,28 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.13.1-alpha — 2026-08-25
+
+Real patch bump — 2 commits since v0.13.0-alpha (count includes this
+version-bump commit). Independent ChatGPT re-audit of v0.13.0-alpha
+found a real documentation/implementation mismatch: `token_metrics`
+was documented as supported on both `log-observation` and
+`propose-observation`, but was only actually implemented on the
+former -- meaning Gemini or any sandboxed participant, the actual
+intended users of the feature, could not preserve token metrics
+through the ledger at all, since they can only reach it via
+`propose-observation`'s quarantine path. **Correction stated plainly:
+the v0.13.0-alpha changelog's claim that the field existed on both
+commands was inaccurate at the time** -- left as-is in that entry per
+this project's own never-rewrite-history discipline, corrected here
+instead. Fixed by extending `propose-observation` and
+`approve-pending`'s carry-through, reusing the exact same validator
+rather than a second implementation. Also fixed a genuine definitional
+ambiguity in `files_opened` (unique files vs. total open operations,
+which could silently change what a metric meant across runs) -- now
+explicitly defined as total successful open/read operations. 3 new
+regression tests, 77/77 passed in this development environment.
+
 ## v0.13.0-alpha — 2026-08-25
 
 Minor version bump — 3 commits since v0.12.2-alpha (count includes
