@@ -337,7 +337,8 @@ class TestBehaviorLog(unittest.TestCase):
         result = self.plugin.cmd_supersede_pending(args)
         self.assertEqual(result, 0)
         self.assertEqual(self.plugin._load_pending(), [])
-        entries = [json.loads(l) for l in open(self.ledger_path) if l.strip()]
+        with open(self.ledger_path) as _f:
+            entries = [json.loads(l) for l in _f if l.strip()]
         superseded = [e for e in entries if e.get("event") == "pending_proposal_superseded"]
         self.assertEqual(len(superseded), 1)
         self.assertEqual(superseded[0]["original_proposed_by"], "test-instance")
@@ -363,7 +364,8 @@ class TestBehaviorLog(unittest.TestCase):
         result = self.plugin.cmd_reject_pending(args)
         self.assertEqual(result, 0)
         self.assertEqual(self.plugin._load_pending(), [])
-        entries = [json.loads(l) for l in open(self.ledger_path) if l.strip()]
+        with open(self.ledger_path) as _f:
+            entries = [json.loads(l) for l in _f if l.strip()]
         rejected = [e for e in entries if e.get("event") == "pending_proposal_rejected"]
         self.assertEqual(len(rejected), 1)
         self.assertEqual(rejected[0]["original_proposed_by"], "bad-instance")
@@ -397,7 +399,8 @@ class TestBehaviorLog(unittest.TestCase):
         # would write a second, contradictory ledger event.
         retry_args = argparse.Namespace(proposal_id=real_id, reason="Retry after crash", evidence_ref="ref-2")
         self.plugin.cmd_supersede_pending(retry_args)
-        entries = [json.loads(l) for l in open(self.ledger_path) if l.strip()]
+        with open(self.ledger_path) as _f:
+            entries = [json.loads(l) for l in _f if l.strip()]
         superseded = [e for e in entries if e.get("event") == "pending_proposal_superseded"
                       and e.get("original_proposal_id") == real_id]
         self.assertEqual(len(superseded), 1)
@@ -473,7 +476,8 @@ class TestBehaviorLog(unittest.TestCase):
         self.plugin.cmd_reject_pending(argparse.Namespace(proposal_id=real_id, reason="first reason"))
         self._simulate_crash_recreate_pending(real_id)
         self.plugin.cmd_reject_pending(argparse.Namespace(proposal_id=real_id, reason="second reason"))
-        entries = [json.loads(l) for l in open(self.ledger_path) if l.strip()]
+        with open(self.ledger_path) as _f:
+            entries = [json.loads(l) for l in _f if l.strip()]
         matching = [e for e in entries if e.get("event") == "pending_proposal_rejected"
                     and e.get("original_proposal_id") == real_id]
         self.assertEqual(len(matching), 1)
@@ -492,7 +496,8 @@ class TestBehaviorLog(unittest.TestCase):
         self._simulate_crash_recreate_pending(real_id)
         result = self.plugin.cmd_reject_pending(argparse.Namespace(proposal_id=real_id, reason="conflict attempt"))
         self.assertEqual(result, 1)
-        entries = [json.loads(l) for l in open(self.ledger_path) if l.strip()]
+        with open(self.ledger_path) as _f:
+            entries = [json.loads(l) for l in _f if l.strip()]
         rejections = [e for e in entries if e.get("event") == "pending_proposal_rejected"
                       and e.get("original_proposal_id") == real_id]
         self.assertEqual(len(rejections), 0)
