@@ -66,7 +66,14 @@ def _parse_token_metrics(raw: str) -> dict | None:
     if unknown:
         raise ValueError(f"--token-metrics has unsupported keys {sorted(unknown)}; allowed: {sorted(allowed_keys)}")
     for k, v in parsed.items():
-        if not isinstance(v, int) or v < 0:
+        # Real fix, 2026-08-25 (external audit, verified directly):
+        # isinstance(v, int) is True for bool too, since Python's bool
+        # subclasses int -- {"input_tokens": true} silently deserialized
+        # to the integer 1 and passed validation, violating the schema's
+        # own "non-negative integer count" definition. type(v) is int
+        # rejects bool (and any other int subclass) without needing to
+        # enumerate exclusions.
+        if type(v) is not int or v < 0:
             raise ValueError(f"--token-metrics field '{k}' must be a non-negative integer, got {v!r}")
     return parsed
 

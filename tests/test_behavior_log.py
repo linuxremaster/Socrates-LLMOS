@@ -582,6 +582,34 @@ class TestBehaviorLog(unittest.TestCase):
         self.assertEqual(result, 1)
         self.assertEqual(self.plugin._load_pending(), [])
 
+    def test_token_metrics_rejects_boolean_disguised_as_integer(self):
+        """Real regression test for a genuine Python gotcha, found by
+        external audit and verified directly: bool subclasses int, so
+        isinstance(True, int) is True. The original validator silently
+        accepted {"input_tokens": true} as if it were the integer 1,
+        violating the schema's own non-negative-integer-count
+        definition. Tests the shared validator once (both log-
+        observation and propose-observation call the identical
+        function) plus the actual proposal path end to end, per the
+        audit's own reasoning that one shared-parser test plus one
+        real CLI-path test is sufficient rather than duplicating both
+        commands fully."""
+        with self.assertRaises(ValueError):
+            self.plugin._parse_token_metrics('{"input_tokens": true}')
+        with self.assertRaises(ValueError):
+            self.plugin._parse_token_metrics('{"files_opened": false}')
+        # Confirm real integers, including zero, are unaffected by the fix.
+        self.assertEqual(self.plugin._parse_token_metrics('{"input_tokens": 0}'), {"input_tokens": 0})
+
+        args = argparse.Namespace(
+            instance="gemini-test", subject="s", category="c", severity="low",
+            description="d", source="", experiment_id="", verified=False,
+            decision_type="", token_metrics='{"input_tokens": true}',
+        )
+        result = self.plugin.cmd_propose_observation(args)
+        self.assertEqual(result, 1)
+        self.assertEqual(self.plugin._load_pending(), [])
+
 
 if __name__ == "__main__":
     unittest.main()
