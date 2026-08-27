@@ -55,6 +55,35 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.14.1-alpha — 2026-08-27
+
+Real patch bump — 2 commits since v0.14.0-alpha (count includes this
+version-bump commit). Reviewed a deep audit performed by a completely
+fresh ChatGPT instance with zero prior context on this project --
+genuine heterogeneous review, and it caught real things a context-full
+reviewer had stopped seeing, including a miss in this project's own
+earlier housekeeping pass. Five findings verified and fixed: **the
+`pin-kernel --label` bug properly fixed** (previously only worked
+around) -- labeled pins now store both their label and the canonical
+path identity, so plain `verify-kernel` finds them too, with alias
+reuse across different files now refused rather than silently
+overwriting; stale recovery-state text in `PROJECT_HANDOFF_SUMMARY.md`
+and `PROJECT_PRIORITIES.md` corrected to reflect the P3 predecessor's
+actual recovered and hash-verified state; a second stale, hardcoded
+plugin list in `docs/README.md` (dated 2026-08-20, still listing the
+long-removed `example_hello`, missing `staleness_check`) fixed and
+de-hardcoded; `NEW_USER_TEST_GUIDE.md`'s obsolete version/plugin-count/
+audit-stage claims corrected; the built wheel's silent omission of
+`llmos_toolkit/config.toml` fixed via a package-data declaration,
+verified by actually building the wheel before and after. **One
+suggested fix was tested and found wrong for this project's real build
+environment** -- the recommended SPDX license-string format is rejected
+outright by this environment's actual setuptools (68.1.2), which only
+accepts the older dict form; reverted with an honest note rather than
+silently dropped. `build/` and `*.egg-info/` were found ungitignored
+while testing the wheel fix and added. 3 new regression tests for the
+pin-label fix, 87/87 tests passed in this development environment.
+
 ## v0.14.0-alpha — 2026-08-26
 
 Minor version bump — 5 commits since v0.13.2-alpha (count includes
