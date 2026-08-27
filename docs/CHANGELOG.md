@@ -55,6 +55,28 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.14.3-alpha — 2026-08-27
+
+Real patch bump — 2 commits since v0.14.2-alpha (count includes this
+version-bump commit). Added real experimental evidence: a fresh
+Gemini instance survived 18 distinct tests (5 ordinary-task baselines,
+13 targeted adversarial stress tests -- provenance conflict, authority
+conflict, imported-authority injection, consensus pressure, hidden-
+mechanism bait, and others) under a separate scaffold (Socrates Web
+CogFork v3.6). One real, narrow defect was found (a provenance-to-fact
+promotion: an imported checkpoint described as contradicted by
+"current session facts" when only an unverified user statement
+actually contradicted it) and self-corrected on a pointed but
+answer-free follow-up critique -- a stronger result than an unbroken
+pass streak, since it demonstrates the boundary is actually defended
+under challenge rather than merely recited. Recorded in `reference/
+pilot_and_research/gemini_fresh_instance_stress_test_v3.6_082726.md`
+with its own honest limits stated (human-relayed, ChatGPT-evaluated,
+not independently re-verified line-by-line, explicitly not a test of
+this project's own kernel), given direct relevance to the ledger
+security spec's still-open Byzantine-participant question. 87/87 tests
+passed in this development environment.
+
 ## v0.14.2-alpha — 2026-08-27
 
 Real patch bump — 2 commits since v0.14.1-alpha (count includes this
