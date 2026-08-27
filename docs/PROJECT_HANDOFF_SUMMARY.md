@@ -136,14 +136,37 @@ Exhibit A. 78 source/doc files carry the standard header notice.
   sections already spot-checked (against an 820-line proxy, structurally
   consistent with the same P3 lineage but not this exact file) have not
   yet been re-verified against this authoritative source, and the
-  remaining ~10 sections have never been checked against anything --
-  see the `semantic_spot_check` ledger entry (2026-08-14) for the
-  original partial breakdown: no decision-changing drift found in the
-  4 checked sections (2 minor, non-decision-changing phrasing losses
-  noted); 2 sections initially suspected cut were confirmed correctly
-  preserved as standalone files
-  (`HCF_LLMOS_Compatibility_Adapter_v1_3.md`,
-  `HCF_LLMOS_Precision_Refactor_Calibration_v1.md`) rather than lost.
+  remaining ~10 sections have never been checked against anything.
+
+  **Full original breakdown, restored here in full 2026-08-27 after an
+  external audit correctly found the ledger's compacted skeleton no
+  longer contains it and this document's own pointer to "see the ledger
+  entry" had gone stale** -- recovered from session transcript, not
+  reconstructed from memory:
+
+  | Predecessor section | Fate | Verdict |
+  |---|---|---|
+  | §15 Output Integrity Pipeline | Compressed into current §11 Output Discipline | Faithful |
+  | §16 Research/Audit Mode | Compressed into current §16 | Faithful, minor loss: drops the explicit OBSERVATION→CLASSIFY→HYPOTHESIS→TEST→VERIFY/REJECT→AUTHORIZE pipeline and "do not automatically transfer research-audit state into operational state" |
+  | §17/§17.1 Input Completeness Gate | Merged into current §12 | Faithful, minor loss: drops "don't attribute an upstream relay error to the receiving model" |
+  | §18 Collaborative Review Boundary | Merged into current §17 | Faithful |
+  | §14 Host Adaptation / Compatibility Resolution | Kept standalone, not folded into kernel body | Content preserved in `reference/llmos_architecture_history/HCF_LLMOS_Compatibility_Adapter_v1_3.md`. **Real, sharper open question raised by a 2026-08-27 audit, not resolved by this original check:** that file sits in `reference/`, which root `README.md` explicitly describes as "archived historical material, not actively maintained." Content existing somewhere is not the same claim as content being active, operative kernel behavior a fresh instance would actually be oriented to. Treat as unresolved, not as "preserved" in the stronger sense. |
+  | §18 Precision Refactor procedure (DRIFT→OWNERSHIP→SCOPE→PRESERVATION) | Kept standalone | Same caveat as above -- documented in `reference/llmos_architecture_history/HCF_LLMOS_Precision_Refactor_Calibration_v1.md`, same open question about archived-vs-operative status |
+
+  Two low-stakes wording losses found (noted above); nothing that
+  changed a real decision *in what was checked*. This cleared
+  SPOT-CHECKED, not VERIFIED-EQUIVALENT -- 6 of ~21 predecessor
+  sections addressed, not all.
+
+  **Never checked by this or any pass, confirmed by direct search
+  2026-08-27 -- genuinely open, not merely unconfirmed:** P3 §11
+  Curiosity/investigation; the passive drift monitoring and
+  cross-thread principle reuse portions of P3 §13 Modular Kernel;
+  GLOBAL_CHECK LEARN OFFER; GLOBAL_CHECK Failure Classification. None
+  of these terms or their described mechanisms appear anywhere in
+  either active kernel file (`HCF_LLMOS_Kernel_v1.3.6-C.md`,
+  `UNIFIED_BEHAVIORAL_OUTPUT_PROTOCOL_v2.md`), confirmed by direct
+  search, not inferred from absence in a summary.
   Remaining ~10 sections still unchecked. Kernel header updated to state
   this tier accurately.
 - **RAG is keyword-based (TF-IDF), not semantic**, by deliberate choice —

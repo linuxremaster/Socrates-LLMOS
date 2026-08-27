@@ -62,9 +62,20 @@ default when a real check is warranted:
    original, in a case the original explicitly covered?* If yes, that's a
    drift event — fix the wording or flag it, don't ship it silently.
 3. Log the sections checked and the result (pass / drift found and fixed /
-   drift found and flagged) in one line each. This can go in the same
-   ledger `growth_budget.py` already writes to — add a `"semantic_check"`
-   field to that JSON line rather than starting a second log file.
+   drift found and flagged) in one line each. **Real fix, 2026-08-27,
+   after this exact gap actually happened:** the ledger alone is not a
+   durable home for this record. `ledger-compact` (built later than
+   this policy) legitimately rolls old raw entries into a skeleton
+   summary, which is correct behavior for the ledger's own purpose but
+   silently destroyed the only copy of a spot-check breakdown a
+   currently-active document pointed to as its source of truth. Log to
+   the ledger as before, *and* write the same breakdown directly into
+   whichever active document cites the check's status (a kernel header,
+   a handoff summary) -- not a pointer to the ledger entry, the actual
+   content. A caveat that depends on an external record surviving
+   unchanged is the exact failure §3 below already warns against;
+   ledger compaction just turned out to be a real, concrete way that
+   happens, not only careless repackaging.
 
 This is bounded — a 20-section consolidation is a 20-item pass, not an
 open-ended audit. That boundedness is what keeps it from becoming the next
