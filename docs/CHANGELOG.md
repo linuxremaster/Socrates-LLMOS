@@ -55,6 +55,38 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.14.2-alpha — 2026-08-27
+
+Real patch bump — 2 commits since v0.14.1-alpha (count includes this
+version-bump commit). Reviewed a deep kernel-integrity audit from a
+ChatGPT instance with real 2-hour project orientation, specifically
+scoped to the P3-predecessor recovery. All 7 major claims independently
+verified accurate before acting on any of them. Fixed the provenance
+defect the audit called its most concerning finding: the actual
+detailed spot-check breakdown was recovered from session transcript
+(not reconstructed from memory) and restored directly into
+`PROJECT_HANDOFF_SUMMARY.md` and the kernel header itself -- not a
+pointer to a `growth_ledger.jsonl` entry, which had gone stale the
+moment `ledger-compact`'s deliberate "rotate-don't-archive" behavior
+rolled it into a skeleton with no section-level detail. Fixed the root
+cause in `SEMANTIC_DRIFT_POLICY.md` itself, which had instructed
+logging results to the ledger alone -- now requires writing the same
+content directly into whichever active document depends on it. A real
+correction surfaced during restoration: the accurate count is 6 of ~21
+predecessor sections addressed, not 4 of ~14 as every prior version
+stated. The `reference/`-archival-vs-operative-behavior distinction the
+audit raised was kept explicit rather than smoothed over -- two
+sections found "preserved" in an earlier check live in a directory the
+project's own README calls non-operative archive, a materially weaker
+claim than active kernel behavior. Confirmed by direct search: several
+specific P3 provisions (Curiosity, portions of Modular Kernel,
+GLOBAL_CHECK LEARN OFFER/Failure Classification) are genuinely absent
+from both active kernel files, not merely unconfirmed. No kernel
+content changed beyond the status/provenance corrections -- the audit's
+own recommendation (build the full P3-to-kernel lineage table before
+any kernel rewrite) stands as the next real task. 87/87 tests passed
+in this development environment.
+
 ## v0.14.1-alpha — 2026-08-27
 
 Real patch bump — 2 commits since v0.14.0-alpha (count includes this
