@@ -135,3 +135,42 @@ satisfied or superseded, move it to a dated "resolved" section here
 rather than deleting it silently.
 
 **End Project Priorities and Research Goals**
+
+## Kernel equivalence excavation — 2026-08-26, real findings, action pending
+
+Real leads recovered from prior session transcripts (`/mnt/transcripts/`),
+not yet acted on:
+
+- **The exact 1,428-line predecessor (hash `0fd93baf5538`) was never
+  found in any of the 4 available transcripts.** Every mention across
+  all four is the same carried-forward status text, not a discovery.
+  Likely genuinely predates this project's transcript history.
+- **A confirmed, better proxy exists and was never used.** In the
+  2026-08-21 session, `HCF_LLMOS_v1_3_6-X_P3_Hybrid_SelfContained-1.md`
+  (1090 lines, 68 section headers) was uploaded, diffed directly
+  against the 820-line file already used for the existing 4-section
+  spot-check, and **confirmed as a strict superset** — everything in
+  the smaller file is fully contained, nothing altered or removed.
+  The thread was cut off mid-question ("want" — presumably asking
+  whether to proceed with the extended check) and never resumed.
+- Also uploaded in that same session, not yet examined at all:
+  `GLOBAL_CHECK_Hybrid.md` (199 lines) and
+  `Four_Layer_Control_Architecture_Sandbox.md` (16 lines) —
+  `GLOBAL_CHECK` is specifically one of the original bundle's named
+  components (Kernel + Adapter + GLOBAL_CHECK + Consensus Protocol),
+  so this may cover ground the Kernel-only proxy file can't.
+- **Real possibility there is more unsurfaced material still sitting
+  in these transcripts** — this excavation was itself interrupted by
+  a token-budget constraint, not completed. Worth treating this list
+  as a starting point for a fresh session, not the final result of
+  the search.
+
+**Concrete next step, sized for a fresh session:** recover
+`HCF_LLMOS_v1_3_6-X_P3_Hybrid_SelfContained-1.md` and
+`GLOBAL_CHECK_Hybrid.md` in full from the 2026-08-21 transcript,
+restore both to the project as reference material, and actually run
+the extended spot-check against the remaining ~10 kernel sections that
+`state/growth_ledger.jsonl`'s 2026-08-14 `semantic_spot_check` entry
+already lists by number. A full transcript sweep for any other
+unsurfaced material is worth doing at the same time, given this pass
+wasn't exhaustive.
