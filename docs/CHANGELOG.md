@@ -55,6 +55,38 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.14.0-alpha — 2026-08-26
+
+Minor version bump — 5 commits since v0.13.2-alpha (count includes
+this version-bump commit). Real housekeeping pass: `docs/README.md`
+was missing 12 real documents from the directory guide (including
+every security spec from this session); `llmos_toolkit/README.md` was
+missing `supersede-pending`, `decision_type`, and `token_metrics`
+entirely; found and fixed a genuine bug in `adaptive_drift_logger.py`
+(decimal section numbers like `5.5`/`7.5` were parsed as duplicates of
+`5`/`7`, corrupting section titles too), caught by running the
+project's own tooling on itself, not by external audit. **UBOP v2.9 ->
+v2.10: added A17, Evidence-Seeking Action Rule** -- epistemic caution
+constrains claims, not evidence-seeking action; prefer the cheapest
+sufficient authorized check over continued abstract analysis when
+material uncertainty permits one. Directly, freshly validated by what
+happened next: **the exact original P3 kernel predecessor
+(`HCF_LLMOS_v1.3.6-X_P3.md`) was recovered and independently hash-
+verified** -- SHA-256 `0fd93baf553847d9fe1f5eb6babdb466b247bb5b4ea4aa6b78525199691c687f`,
+1,428 lines, matching the fingerprint recorded in this project's very
+first ledger entry exactly. Missing since 2026-08-16, carried as
+"may be unrecoverable" across four separate session handoffs without
+anyone rechecking, closed by one direct search. Restored to
+`reference/predecessors/`, kernel caveat corrected to reflect the
+source is now authoritative (re-verification of sections against it
+remains a separate, real, not-yet-done next step), kernel re-pinned.
+A real `pin-kernel --label` bug was found and worked around along the
+way -- a custom label creates a new, separate pin entry rather than
+updating the canonical one `verify-kernel` checks, flagged for a
+future fix rather than fixed under time pressure. 6 new regression
+tests for the drift-logger fix. 84/84 tests passed in this development
+environment.
+
 ## v0.13.2-alpha — 2026-08-25
 
 Real patch bump — 2 commits since v0.13.1-alpha (count includes this
