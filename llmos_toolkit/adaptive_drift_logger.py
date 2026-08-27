@@ -56,7 +56,7 @@ from llmos_toolkit.core.paths import get_state_path
 STATE_FILE = get_state_path(".drift_state.json")
 AUDIT_FILE = get_state_path("drift_audit.jsonl")
 
-HEADER_RE = re.compile(r"^#{1,6}\s*(\d+)\.\s*(.*)$", re.MULTILINE)
+HEADER_RE = re.compile(r"^#{1,6}\s*(\d+(?:\.\d+)?)\.\s*(.*)$", re.MULTILINE)
 LABELLED_FIELD_RE = re.compile(r"^\*\*([A-Za-z][A-Za-z0-9 /_\-]{1,40}):\*\*\s*(.+)$", re.MULTILINE)
 EMBEDDED_MARKER_RE = re.compile(
     r"<!--\s*embedded-from:\s*(\S+?)\s*-->\s*\n```[a-zA-Z]*\n(.*?)```",
@@ -144,24 +144,39 @@ class Finding:
 
 
 def check_structural(snapshot: dict) -> list[Finding]:
+    """Real fix, 2026-08-25 (found during a housekeeping pass, not by
+    external audit this time -- the drift tool itself flagged two false
+    'duplicate header' findings on LLMOS_LEDGER_SECURITY_SPEC.md's real
+    5.5 and 7.5 sub-sections). The header regex now captures decimal
+    sub-numbers (5.5) as complete, distinct values instead of truncating
+    to their integer prefix, which was also corrupting section titles
+    (a 5.5 header's title used to start with a spurious '5. ' prefix,
+    visible in the tool's own earlier output). Duplicate/gap detection
+    below uses float() instead of int() so 5.5 and 5 are correctly
+    treated as different, real values -- and gap analysis is now
+    restricted to whole-integer headers only, since 'expected
+    consecutive coverage' doesn't meaningfully apply once intentional
+    sub-numbered inserts like 5.5 exist deliberately between 5 and 6."""
     findings = []
-    numbers = [int(h["number"]) for h in snapshot["headers"]]
+    numbers = [float(h["number"]) for h in snapshot["headers"]]
     seen = set()
     for n in numbers:
         if n in seen:
+            label = str(int(n)) if n == int(n) else str(n)
             findings.append(Finding(
                 "structural", "high",
-                f"Duplicate header number {n}",
-                snapshot["path"], f"structural:dup:{snapshot['path']}:{n}",
+                f"Duplicate header number {label}",
+                snapshot["path"], f"structural:dup:{snapshot['path']}:{label}",
             ))
         seen.add(n)
-    if numbers:
-        expected = set(range(min(numbers), max(numbers) + 1))
-        gaps = sorted(expected - set(numbers))
+    whole_numbers = sorted(int(n) for n in numbers if n == int(n))
+    if whole_numbers:
+        expected = set(range(min(whole_numbers), max(whole_numbers) + 1))
+        gaps = sorted(expected - set(whole_numbers))
         for g in gaps:
             findings.append(Finding(
                 "structural", "review",
-                f"Header numbering gap at {g} (present: {min(numbers)}-{max(numbers)})",
+                f"Header numbering gap at {g} (present: {min(whole_numbers)}-{max(whole_numbers)})",
                 snapshot["path"], f"structural:gap:{snapshot['path']}:{g}",
             ))
     return findings

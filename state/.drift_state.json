@@ -301,6 +301,66 @@
       "sha256": "07136f9a757e4d6f174e9d21e7d801872f3649c488ee2b8377939c2bf8eb6e76",
       "snapshotted_at": "2026-08-14T11:29:21.536263+00:00"
     },
+    "docs/INTEGRITY_AUDITING_AND_BACKUP_ARCHITECTURE.md": {
+      "chars": 9430,
+      "embedded_refs": [],
+      "headers": [
+        {
+          "body_sha256": "62ae829f47d437e3d3fdb95f73fbaef74ac3fd21d987b276f208ee1d4d064b10",
+          "number": "1",
+          "title": "Canonical source stays canonical"
+        },
+        {
+          "body_sha256": "aea17cfce30e099f954d12db0c0bafdd7f606251c51affd5a7a62b75e65ec325",
+          "number": "2",
+          "title": "Telemetry stays separate, and ownership \u2260 authority"
+        },
+        {
+          "body_sha256": "3dc37c17e9f8f258b95895e15cb3fb217cfaa9afe12e2bb53155105d2ef539e3",
+          "number": "3",
+          "title": "Two independent integrity checkers"
+        },
+        {
+          "body_sha256": "58603232c67e8d69d4f3f951bde4141575b1f428210df948f31eaa9399cdf954",
+          "number": "4",
+          "title": "What gets audited, and how narrowly"
+        },
+        {
+          "body_sha256": "f371ed94403b1abcdf393403b8570fcc2391f52cb4fd11adf771246b6aa1981f",
+          "number": "5",
+          "title": "Known-good state, held independently"
+        },
+        {
+          "body_sha256": "34b54de56d0649d33c750dcdd4d53de8c8d5c80137d3c55531c85731ec004193",
+          "number": "6",
+          "title": "Encrypted telemetry backups"
+        },
+        {
+          "body_sha256": "c2208fdddc54a37fb503349c95f5195dbb0d95dfe577b51e8c08e3e75c9af2c9",
+          "number": "7",
+          "title": "Threat model, stated plainly"
+        },
+        {
+          "body_sha256": "103ffe637c594e9be9b13e2bd886100d2e4cbf7ef02c2870c9237bccfc877fa1",
+          "number": "8",
+          "title": "Public posture statement (for `SECURITY.md`)"
+        },
+        {
+          "body_sha256": "6bcfeded1eac082064dfd2386b7722960932967759cad9d621f925a98741d2ec",
+          "number": "9",
+          "title": "Sequencing -- this does not block the Gemini work, and shouldn't"
+        }
+      ],
+      "labelled_fields": {
+        "Explicitly not claimed": "this does not prove every detected change",
+        "Source integrity": "Git state/history, critical file hashes, kernel",
+        "Telemetry integrity": "run provenance, evidence hashes, schema"
+      },
+      "lines": 231,
+      "path": "docs/INTEGRITY_AUDITING_AND_BACKUP_ARCHITECTURE.md",
+      "sha256": "c57828873dbf7776f7a0ae4d5ec71302da0d3f6b126b6201d2939d9c2334b6cc",
+      "snapshotted_at": "2026-08-27T00:54:22.837732+00:00"
+    },
     "docs/LLMOS_LEDGER_SECURITY_SPEC.md": {
       "chars": 12534,
       "embedded_refs": [],
@@ -356,6 +416,16 @@
       "path": "docs/LLMOS_SUBMISSION_CONTRACT_DRAFT.md",
       "sha256": "e24f387d7b3684ba093898c72678b683c593ebbf427d4a32bb19dd2fe9eab543",
       "snapshotted_at": "2026-08-23T03:09:48.380430+00:00"
+    },
+    "docs/TOKEN_EFFICIENCY_AND_ROUTING.md": {
+      "chars": 4556,
+      "embedded_refs": [],
+      "headers": [],
+      "labelled_fields": {},
+      "lines": 96,
+      "path": "docs/TOKEN_EFFICIENCY_AND_ROUTING.md",
+      "sha256": "1da1c1a9afcb3fe79d5572daaebf896d9adebac8d0e0a67b1d86bec3f1ec26a8",
+      "snapshotted_at": "2026-08-27T00:54:22.838097+00:00"
     },
     "kernel/HCF_LLMOS_Kernel_v1.3.6-C.md": {
       "chars": 18417,
@@ -553,14 +623,23 @@
       "status": "unconfirmed",
       "times_observed": 1
     },
+    "growth:docs/LLMOS_LEDGER_SECURITY_SPEC.md": {
+      "check_class": "growth",
+      "confirmed_at": "2026-08-27T00:57:12.026112+00:00",
+      "description": "Grew +130 lines since baseline (289 -> 419)",
+      "first_seen": "2026-08-27T00:54:22.838417+00:00",
+      "last_seen": "2026-08-27T00:57:06.210982+00:00",
+      "status": "confirmed_real",
+      "times_observed": 2
+    },
     "growth:kernel/UNIFIED_BEHAVIORAL_OUTPUT_PROTOCOL_v2.md": {
       "check_class": "growth",
       "confirmed_at": "2026-08-25T15:39:13.968622+00:00",
       "description": "Grew +33 lines since baseline (621 -> 654)",
       "first_seen": "2026-08-25T15:38:46.580237+00:00",
-      "last_seen": "2026-08-25T15:38:46.580242+00:00",
+      "last_seen": "2026-08-27T00:57:06.210967+00:00",
       "status": "confirmed_real",
-      "times_observed": 1
+      "times_observed": 3
     },
     "semantic:changed:/home/claude/llmos_project/llmos_project/kernel/ARTIFACT_DELTA_LOOP_DETECTION_POLICY.md:5": {
       "check_class": "semantic",
@@ -571,13 +650,67 @@
       "status": "unconfirmed",
       "times_observed": 1
     },
+    "semantic:changed:docs/LLMOS_LEDGER_SECURITY_SPEC.md:5": {
+      "check_class": "semantic",
+      "confirmed_at": null,
+      "description": "Section 5. 5. Telemetry promotion chain -- canonical, added 2026-08-25 content changed \u2014 textual diff only, meaning not evaluated. Needs human review.",
+      "first_seen": "2026-08-27T00:54:22.838422+00:00",
+      "last_seen": "2026-08-27T00:54:22.838425+00:00",
+      "status": "unconfirmed",
+      "times_observed": 1
+    },
+    "semantic:changed:docs/LLMOS_LEDGER_SECURITY_SPEC.md:7": {
+      "check_class": "semantic",
+      "confirmed_at": "2026-08-27T00:57:12.401451+00:00",
+      "description": "Section 7. Participant capabilities, least privilege content changed \u2014 textual diff only, meaning not evaluated. Needs human review.",
+      "first_seen": "2026-08-27T00:54:22.838428+00:00",
+      "last_seen": "2026-08-27T00:57:06.211024+00:00",
+      "status": "confirmed_real",
+      "times_observed": 3
+    },
     "semantic:changed:kernel/UNIFIED_BEHAVIORAL_OUTPUT_PROTOCOL_v2.md:0": {
       "check_class": "semantic",
       "confirmed_at": "2026-08-25T15:39:14.111232+00:00",
       "description": "Section 0. PRECEDENCE content changed \u2014 textual diff only, meaning not evaluated. Needs human review.",
       "first_seen": "2026-08-25T15:38:46.580246+00:00",
-      "last_seen": "2026-08-25T15:38:46.580249+00:00",
+      "last_seen": "2026-08-27T00:57:06.210976+00:00",
       "status": "confirmed_real",
+      "times_observed": 3
+    },
+    "semantic:new:docs/LLMOS_LEDGER_SECURITY_SPEC.md:5.5": {
+      "check_class": "semantic",
+      "confirmed_at": "2026-08-27T00:57:12.214347+00:00",
+      "description": "New section 5.5. Telemetry promotion chain -- canonical, added 2026-08-25 \u2014 needs review, not auto-cleared",
+      "first_seen": "2026-08-27T00:57:06.210985+00:00",
+      "last_seen": "2026-08-27T00:57:06.210988+00:00",
+      "status": "confirmed_real",
+      "times_observed": 1
+    },
+    "semantic:new:docs/LLMOS_LEDGER_SECURITY_SPEC.md:7.5": {
+      "check_class": "semantic",
+      "confirmed_at": "2026-08-27T00:57:12.588396+00:00",
+      "description": "New section 7.5. Decision events -- human continuation/redirect authority, \u2014 needs review, not auto-cleared",
+      "first_seen": "2026-08-27T00:57:06.211028+00:00",
+      "last_seen": "2026-08-27T00:57:06.211031+00:00",
+      "status": "confirmed_real",
+      "times_observed": 1
+    },
+    "structural:dup:docs/LLMOS_LEDGER_SECURITY_SPEC.md:5": {
+      "check_class": "structural",
+      "confirmed_at": null,
+      "description": "Duplicate header number 5",
+      "first_seen": "2026-08-27T00:54:22.838380+00:00",
+      "last_seen": "2026-08-27T00:54:22.838391+00:00",
+      "status": "unconfirmed",
+      "times_observed": 1
+    },
+    "structural:dup:docs/LLMOS_LEDGER_SECURITY_SPEC.md:7": {
+      "check_class": "structural",
+      "confirmed_at": null,
+      "description": "Duplicate header number 7",
+      "first_seen": "2026-08-27T00:54:22.838396+00:00",
+      "last_seen": "2026-08-27T00:54:22.838400+00:00",
+      "status": "unconfirmed",
       "times_observed": 1
     }
   }

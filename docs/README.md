@@ -102,10 +102,38 @@ files this session) now routes through `paths.get_state_path()` or
 
 ## docs/
 
-Narrative documentation — README (this file), `MANUAL_START_HERE.md`,
-`NOTICE.md`, `PROJECT_HANDOFF_SUMMARY.md`, `INSTANCE_ORIENTATION_SEQUENCE.md`,
-`CHANGELOG.md`. New readmes, manuals, and changelogs belong here, not
-scattered at project root.
+Narrative documentation, organized by purpose (20 real files as of
+2026-08-25 -- if this count looks stale, that's exactly what
+`staleness-check` and this housekeeping pass exist to catch).
+
+**Orientation/onboarding** (read these first, in roughly this order):
+`MANUAL_START_HERE.md`, `NOTICE.md`, `LLMOS_INTRODUCTION_PROMPT.md`,
+`INSTANCE_ORIENTATION_SEQUENCE.md`, `NEW_USER_TEST_GUIDE.md`.
+
+**Project management:** `PROJECT_HANDOFF_SUMMARY.md`,
+`PROJECT_PRIORITIES.md`, `CHANGELOG.md`,
+`LLMOS_SCOPE_AND_BOUNDARIES.md`, `REGULATORY_SCOPE_NOTE.md`.
+
+**Kernel/policy tooling:** `ADOPTION_CHECK_PROMPT.md` (paste-ready,
+regenerated on every kernel version bump -- never hand-edit),
+`HOUSEKEEPING_AUDIT_CHECKLIST.md`, `DRILL_DOWN_AUDIT_TEMPLATE.md`.
+
+**Security/architecture specs** (the substantial design work from the
+security-hardening pass -- `LLMOS_LEDGER_SECURITY_SPEC.md` is
+canonical where it and a draft disagree): `LLMOS_LEDGER_SECURITY_SPEC.md`,
+`LLMOS_SUBMISSION_CONTRACT_DRAFT.md` (draft, not implemented),
+`INTEGRITY_AUDITING_AND_BACKUP_ARCHITECTURE.md` (draft, not
+implemented), `TOKEN_EFFICIENCY_AND_ROUTING.md`.
+
+**Guides:** `SANDBOX_RUNNER_GUIDE.md`.
+
+**Reference:** `RELATED_RESEARCH.md` (external comparator
+cross-references, not dependencies).
+
+New readmes, manuals, specs, and changelogs belong here, not scattered
+at project root. When adding a new doc, add it to this list in the
+same commit -- this section going stale is a real, repeated finding
+from `staleness-check`-adjacent housekeeping passes, not hypothetical.
 
 ## state/
 
