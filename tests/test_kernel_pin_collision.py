@@ -78,6 +78,47 @@ class TestKernelPinCollision(unittest.TestCase):
         p = self.dir1 / "policy.md"
         self.assertEqual(kernel_pin_key(p), str(p.resolve()))
 
+    def test_labeled_pin_is_visible_to_plain_verify_kernel(self):
+        """Real regression test, external audit 2026-08-27 (independently
+        confirmed by directly hitting this bug the same session): a
+        labeled pin used to be stored ONLY under its label, but plain
+        verify-kernel (no --label, the normal call) always looks up the
+        canonical path key -- so pinning with a label made a subsequent,
+        completely ordinary verification of the SAME unchanged file
+        report UNPINNED (or match a stale entry left from an earlier,
+        different pin). Confirms a labeled pin now updates both
+        identities."""
+        import io, contextlib
+        target = self.dir1 / "policy.md"
+        core_cli.cmd_pin_kernel(argparse.Namespace(kernel_file=str(target), label="my custom label"))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = core_cli.cmd_verify_kernel(argparse.Namespace(kernel_file=str(target), label=None))
+        self.assertEqual(rc, 0, buf.getvalue())
+        self.assertIn("MATCH", buf.getvalue())
+
+    def test_label_reuse_for_a_different_file_is_refused(self):
+        """The other half of the same fix: silently letting a label be
+        reused for a different file could quietly repoint someone's
+        expected canonical entry. Must refuse, not overwrite."""
+        core_cli.cmd_pin_kernel(argparse.Namespace(
+            kernel_file=str(self.dir1 / "policy.md"), label="shared-label"))
+        result = core_cli.cmd_pin_kernel(argparse.Namespace(
+            kernel_file=str(self.dir2 / "policy.md"), label="shared-label"))
+        self.assertEqual(result, 1)
+        pins = json.loads(self.pins_path.read_text())
+        # dir1's canonical entry must be untouched by the refused attempt
+        self.assertEqual(pins["shared-label"]["path"], str((self.dir1 / "policy.md").resolve()))
+
+    def test_relabeling_the_same_file_still_works(self):
+        """The collision check must not block a legitimate re-pin of the
+        SAME file under the SAME label after a real edit."""
+        target = self.dir1 / "policy.md"
+        core_cli.cmd_pin_kernel(argparse.Namespace(kernel_file=str(target), label="my-label"))
+        target.write_text("edited content")
+        result = core_cli.cmd_pin_kernel(argparse.Namespace(kernel_file=str(target), label="my-label"))
+        self.assertEqual(result, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

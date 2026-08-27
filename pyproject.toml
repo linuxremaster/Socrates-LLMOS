@@ -13,6 +13,15 @@ description = "Socrates LLMOS toolkit for kernel integrity, drift inspection, re
 readme = "llmos_toolkit/README.md"
 requires-python = ">=3.11"
 license = {text = "MPL-2.0"}
+# Note, 2026-08-27: an external audit (fresh instance, no prior
+# context) recommended the SPDX expression form (license = "MPL-2.0")
+# to fix a setuptools deprecation warning. Tested directly before
+# accepting: this environment's actual setuptools (68.1.2) REJECTS the
+# SPDX string form outright and only accepts this dict form -- the
+# suggested fix would have broken the build, not fixed a warning. The
+# project's own stated floor (setuptools>=61.0) predates SPDX license
+# support entirely. Reverted; flagged rather than silently dropped, in
+# case a future setuptools bump makes the newer form appropriate then.
 dependencies = [
     "numpy>=1.24.0",
 ]
@@ -23,3 +32,12 @@ llmos = "llmos_toolkit.core.cli:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["llmos_toolkit*"]
+
+[tool.setuptools.package-data]
+# Real fix, 2026-08-27 (external audit, fresh instance, verified
+# directly before fixing): config.toml lives inside the llmos_toolkit
+# package directory but wasn't declared as package data, so a built
+# wheel silently omitted it -- the documented config file wouldn't
+# actually ship. setuptools only includes .py files by default; any
+# other file inside a package needs explicit declaration here.
+llmos_toolkit = ["config.toml"]

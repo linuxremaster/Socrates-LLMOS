@@ -23,8 +23,9 @@ cd socrates_llmos
 pip install -e . --break-system-packages --no-build-isolation
 ```
 
-**Expected result:** ends with `Successfully installed llmos-toolkit-0.1.0`
-and no red error text.
+**Expected result:** ends with `Successfully installed llmos-toolkit-<version>`
+(check `docs/CHANGELOG.md` for the current version if you want to
+confirm it matches) and no red error text.
 
 ## Step 2: See what's available
 
@@ -32,8 +33,10 @@ and no red error text.
 llmos --list-commands
 ```
 
-**Expected result:** a line saying `Discovered 13 plugin(s)`, followed
-by a list of commands with a one-line description each.
+**Expected result:** a line saying `Discovered N plugin(s)` (the exact
+count changes as plugins are added -- what matters is that it's a
+positive number and the command doesn't error), followed by a list of
+commands with a one-line description each.
 
 ## Step 3: Run the main health check
 
@@ -41,8 +44,9 @@ by a list of commands with a one-line description each.
 llmos audit-all
 ```
 
-**Expected result:** two checks run — a secret scan and a kernel
-integrity check. Secret scan should say `PASSED`. Kernel check may say
+**Expected result:** four stages run -- secret scan, kernel
+cryptographic pin verification, governance/scope documentation
+presence, and regulatory/provider doc staleness (advisory). Secret scan should say `PASSED`. Kernel check may say
 `FAILED: No kernel_pins.json` the very first time — that's normal, not
 a bug. If it fails, run:
 

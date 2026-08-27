@@ -126,16 +126,22 @@ Exhibit A. 78 source/doc files carry the standard header notice.
 ## 6. Known open items — logged, not built
 
 - **Kernel consolidation equivalence is SPOT-CHECKED (partial), not fully
-  verified.** The exact 1,428-line file the original consolidation ran
-  against (sha256_12 `0fd93baf5538`, per `growth_ledger.jsonl`'s first
-  entry) has not been located and may be unrecoverable. A structurally-
-  consistent 820-line snapshot from the same P3 lineage was supplied
-  2026-08-14 and used to spot-check 4 of ~14 merged/compressed kernel
-  sections against `SEMANTIC_DRIFT_POLICY.md`'s protocol — see the
-  `semantic_spot_check` ledger entry for the full breakdown. Result: no
-  decision-changing drift found in the 4 checked sections (2 minor,
-  non-decision-changing phrasing losses noted); 2 sections initially
-  suspected cut were confirmed correctly preserved as standalone files
+  verified.** **Update, 2026-08-26: the exact 1,428-line predecessor has
+  been recovered and independently hash-verified** -- `reference/
+  predecessors/HCF_LLMOS_v1.3.6-X_P3.md`, SHA-256
+  `0fd93baf553847d9fe1f5eb6babdb466b247bb5b4ea4aa6b78525199691c687f`,
+  matching the fingerprint (`sha256_12` `0fd93baf5538`) recorded in
+  `growth_ledger.jsonl`'s first entry exactly. This corrects the source
+  material's status; it does not by itself complete the check. The 4
+  sections already spot-checked (against an 820-line proxy, structurally
+  consistent with the same P3 lineage but not this exact file) have not
+  yet been re-verified against this authoritative source, and the
+  remaining ~10 sections have never been checked against anything --
+  see the `semantic_spot_check` ledger entry (2026-08-14) for the
+  original partial breakdown: no decision-changing drift found in the
+  4 checked sections (2 minor, non-decision-changing phrasing losses
+  noted); 2 sections initially suspected cut were confirmed correctly
+  preserved as standalone files
   (`HCF_LLMOS_Compatibility_Adapter_v1_3.md`,
   `HCF_LLMOS_Precision_Refactor_Calibration_v1.md`) rather than lost.
   Remaining ~10 sections still unchecked. Kernel header updated to state

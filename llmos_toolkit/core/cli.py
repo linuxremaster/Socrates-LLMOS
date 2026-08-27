@@ -144,14 +144,48 @@ def cmd_pin_kernel(args: argparse.Namespace) -> int:
     # the hash was never actually checked during verification, just dead
     # data. Using the resolved absolute path as the key fixes both: no
     # collision, and the path itself is now what's being verified.
-    label = args.label or kernel_pin_key(path)
-    pins[label] = {
-        "path": kernel_pin_key(path),
+    canonical_key = kernel_pin_key(path)
+
+    # Real bug caught by a second, independent external audit 2026-08-27
+    # (confirmed by directly hitting it this same session): a labeled pin
+    # was stored ONLY under its label, but plain verify-kernel (no --label,
+    # the normal way it's called) always looks up the canonical path key --
+    # so pinning with a label caused normal verification of the SAME
+    # unchanged file to report UNPINNED or, worse, keep matching a stale
+    # entry left under the canonical key from an earlier, unlabeled pin.
+    # Fixed: a labeled pin now writes BOTH identities, so either lookup
+    # path finds current data. Alias reuse for a different file is refused
+    # rather than silently overwriting a canonical entry that a plain
+    # verify-kernel call for the OTHER file depends on.
+    if args.label:
+        existing_canonical_entry = pins.get(args.label)
+        if (existing_canonical_entry is not None
+                and existing_canonical_entry.get("path") != canonical_key):
+            print(f"Refused: label '{args.label}' is already pinned to a "
+                  f"different file ({existing_canonical_entry.get('path')}). "
+                  f"Choose a different label, or pin-kernel that file "
+                  f"without --label to update its canonical entry directly.")
+            return 1
+        entry = {
+            "path": canonical_key,
+            "sha256": digest,
+            "pinned_at": datetime.now(timezone.utc).isoformat(),
+        }
+        pins[args.label] = entry
+        pins[canonical_key] = dict(entry)
+        _save_kernel_pins(pins)
+        print(f"Pinned '{args.label}' -> {digest[:16]}… ({KERNEL_PIN_FILE})")
+        print(f"  Also updated canonical entry '{canonical_key}' so plain "
+              f"verify-kernel (no --label) sees this pin too.")
+        return 0
+
+    pins[canonical_key] = {
+        "path": canonical_key,
         "sha256": digest,
         "pinned_at": datetime.now(timezone.utc).isoformat(),
     }
     _save_kernel_pins(pins)
-    print(f"Pinned '{label}' -> {digest[:16]}… ({KERNEL_PIN_FILE})")
+    print(f"Pinned '{canonical_key}' -> {digest[:16]}… ({KERNEL_PIN_FILE})")
     return 0
 
 

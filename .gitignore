@@ -7,3 +7,10 @@ __pycache__/
 .env
 *.env
 !*.env.example
+
+# Python build artifacts -- genuine gap found 2026-08-27 while testing
+# a packaging fix directly (pip wheel build), confirmed these weren't
+# excluded and would have been picked up by `git add -A`.
+build/
+dist/
+*.egg-info/

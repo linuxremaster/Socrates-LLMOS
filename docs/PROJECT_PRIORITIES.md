@@ -138,6 +138,18 @@ rather than deleting it silently.
 
 ## Kernel equivalence excavation — 2026-08-26, real findings, action pending
 
+**Superseded, 2026-08-27: the exact 1,428-line predecessor has since
+been recovered** (via a different path than the one described below --
+a fresh ChatGPT instance located it directly in archived project
+material, not these transcripts). See `docs/PROJECT_HANDOFF_SUMMARY.md`
+and the kernel header for current, accurate status. The excavation
+record below is preserved as an accurate account of what was searched
+and what these specific transcripts did and didn't contain -- not
+retroactively wrong, just no longer the live open item for that
+specific file. The other leads found in this same pass (`GLOBAL_CHECK_
+Hybrid.md`, `Four_Layer_Control_Architecture_Sandbox.md`) remain
+genuinely unexamined and still relevant.
+
 Real leads recovered from prior session transcripts (`/mnt/transcripts/`),
 not yet acted on:
 
