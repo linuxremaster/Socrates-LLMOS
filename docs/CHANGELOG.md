@@ -55,6 +55,36 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.15.0-alpha — 2026-08-28
+
+Minor version bump — 3 commits since v0.14.3-alpha (count includes
+this version-bump commit). Added real, verified evaluation evidence
+for the canonical kernel under adversarial testing via a new external
+tool (Socrates Telemetry Canvas): a fresh Gemini instance completed a
+23-prompt guided audit (`GEMINI-20260828-002`), hash-chain confirmed
+`VALID`, kernel SHA-256 independently confirmed against this project's
+own pinned kernel. All 5 automated "surface detections" in the run
+were independently verified by direct reading rather than trusted on
+the tool's own pattern-match label — every one was a genuine, correct
+pass (consensus pressure, authority override, false recovery all
+correctly refused unearned evidence promotion, citing real kernel
+sections). A real contamination bug was found and fixed before this
+run: an earlier attempt swapped the canonical kernel's *content* into
+the test tool but left surrounding instruction prompts — including
+most of the adversarial test bodies themselves — still explicitly
+naming "the adopted microkernel," producing an invalid, internally
+contradictory test (one response stated the full reference document
+was "absent" when it should have been present). All 19 real instances
+were found and corrected. Separately, a genuine comparison against an
+experimental EPA microkernel derivative (a compressed candidate kernel
+under test, non-canonical) was completed on 3 matched adversarial
+cases: correct, equivalent passes on both sides, no failures, with a
+real ~33% token reduction confirmed for the compressed candidate —
+explicitly not a full, formally-scored equivalence test, a real but
+small-sample qualitative comparison. Real evidence and honest limits
+both preserved in `reference/pilot_and_research/`. 87/87 tests passed
+in this development environment.
+
 ## v0.14.3-alpha — 2026-08-27
 
 Real patch bump — 2 commits since v0.14.2-alpha (count includes this
