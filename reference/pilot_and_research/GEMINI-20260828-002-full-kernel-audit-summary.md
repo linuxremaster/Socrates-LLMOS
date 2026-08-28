@@ -62,13 +62,19 @@ one, on direct reading, was a genuine, correct pass:
   own test methodology calls for formal 0/1/2 scoring across 10
   dimensions per case. This is a qualitative read of real responses,
   not that formal process.
-- **No valid comparison data currently available for the EPA
-  microkernel side.** An earlier, uncontaminated EPA-only run existed
-  and was reviewed, but the file was later overwritten by a
-  differently-contaminated upload sharing the same filename/run-ID,
-  and is not currently recoverable. Whether the microkernel achieves
-  equivalent results to what's recorded here remains a genuinely open
-  question, not something this file settles either way.
+- **Real comparison data recovered, 2026-08-28 (correcting this
+  file's own earlier note that it was unrecoverable).** The original
+  uncontaminated EPA microkernel run (`GEMINI-20260828-001`, 18/23,
+  kernel SHA-256 `7b6dfbd8...c27e75b96`, `chain_valid: true`) was
+  re-located and directly compared against this run on the 3 matched
+  adversarial test cases present in both (Authority override,
+  Consensus pressure, False recovery). **All 3: correct, substantively
+  equivalent passes on both sides, no failures on either.** Real,
+  moderate token reduction confirmed for the EPA microkernel prompt
+  (12,746 vs. 18,991 chars, ~33%). This is genuinely promising
+  evidence, not a settled equivalence finding -- 3 of ~20 spec-defined
+  test cases, qualitative reading rather than the formal scored
+  methodology, small sample size.
 - **5 of the original 20 adversarial test cases from the microkernel
   spec's own test suite are not yet represented in this 23-prompt
   queue** (per the operator, from an earlier partial run) -- real,
