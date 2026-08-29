@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Socrates Telemetry Canvas v0.10.0-alpha — Kernel Optional</title>
+<style>
+:root{--bg:#0a0f18;--panel:#121a27;--panel2:#182334;--line:#2b3b52;--text:#edf4ff;--muted:#9fb0c6;--cyan:#4dd9d0;--gold:#f6c75b;--red:#ff6b7a;--green:#74e39a;--blue:#78a9ff}
+*{box-sizing:border-box}body{margin:0;background:#0a0f18;color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#0a0f18f2;z-index:3}
+header h1{margin:0;font-size:18px}header small{color:var(--muted)}
+main{max-width:1120px;margin:auto;padding:18px;display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+h2{font-size:15px;margin:0 0 12px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+label{font-size:12px;color:var(--muted);font-weight:650;text-transform:uppercase}
+.field{display:flex;flex-direction:column;gap:5px}
+input,select,textarea,button,.fileLabel{font:inherit;border:1px solid var(--line);border-radius:9px;background:#0a111c;color:var(--text);padding:9px 11px}
+button,.fileLabel{cursor:pointer;font-weight:650;background:var(--panel2)}button:hover,.fileLabel:hover{border-color:var(--cyan)}
+button.primary{background:var(--cyan);color:#06201f;border-color:transparent}button.warn{color:var(--gold)}button.danger{color:var(--red)}
+input[type=file]{display:none}textarea{min-height:110px;resize:vertical}.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px}
+.pill{border:1px solid var(--line);border-radius:99px;padding:3px 8px;font-size:11px}.good{color:var(--green)}.warnText{color:var(--gold)}.bad{color:var(--red)}
+.status{margin-top:10px;padding:10px;border-left:4px solid var(--blue);background:#0a111c;white-space:pre-wrap}.status.good{border-left-color:var(--green);color:var(--text)}.status.warn{border-left-color:var(--gold);color:var(--text)}.status.bad{border-left-color:var(--red);color:var(--text)}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--muted)}
+[hidden]{display:none!important}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Socrates Telemetry Canvas</h1>
+  <small>v0.10.0-alpha · model-agnostic · dynamic prompts · kernel optional · offline-first · non-canonical</small>
+</header>
+<main>
+<section class="card">
+  <h2>1. Experimental condition</h2>
+  <div class="grid">
+    <div class="field">
+      <label>Condition</label>
+      <select id="condition">
+        <option value="KERNELLESS">KERNELLESS — default control</option>
+        <option value="KERNEL_OPTIONAL">KERNEL — preload selected kernel</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Host</label>
+      <select id="host">
+        <option>Gemini Web</option><option>ChatGPT Web</option><option>Claude Web</option>
+        <option>API</option><option>Local</option><option>Other</option>
+      </select>
+    </div>
+    <div class="field"><label>Instance label</label><input id="instance" value="Fresh-001"></div>
+    <div class="field"><label>Run ID</label><input id="runId" value=""></div>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <label class="fileLabel">Load prompt manifest<input id="manifestFile" type="file" accept=".json,application/json"></label>
+    <span id="manifestPill" class="pill">Manifest not loaded</span>
+    <label class="fileLabel">Load optional kernel<input id="kernelFile" type="file" accept=".md,.txt,text/plain"></label>
+    <span id="kernelPill" class="pill">No kernel loaded</span>
+  </div>
+  <div id="conditionStatus" class="status warn">Default is KERNELLESS. A loaded kernel is not queued unless the condition is switched to KERNEL.</div>
+</section>
+
+<section class="card">
+  <h2>2. Guided queue</h2>
+  <div class="row">
+    <button id="newRun" class="primary">New run</button>
+    <span id="activeRun" class="pill">No active run</span>
+    <span id="queueState" class="pill">0 items</span>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <button id="issue" class="primary">Copy / issue current prompt</button>
+    <button id="markSubmitted">Mark submitted to model</button>
+    <button id="skip" class="warn">Skip current</button>
+  </div>
+  <div id="promptTracker" class="status">Load a prompt manifest and start a run.</div>
+  <div class="field" style="margin-top:10px">
+    <label>Current prompt preview</label>
+    <textarea id="promptPreview" readonly></textarea>
+  </div>
+  <div class="field">
+    <label>Paste model response</label>
+    <textarea id="response" placeholder="Paste the complete response to the current prompt."></textarea>
+  </div>
+  <div class="row">
+    <button id="capture" class="primary">Capture response & continue</button>
+    <button id="clearResponse">Clear response</button>
+  </div>
+  <div id="workflowStatus" class="status">No prompt awaiting response.</div>
+</section>
+
+<section class="card">
+  <h2>3. Run evidence</h2>
+  <div class="row">
+    <button id="generateReport">Generate report</button>
+    <button id="downloadJson">Download evaluation JSON</button>
+    <button id="downloadMd">Download report Markdown</button>
+    <button id="resetLedger" class="danger">Reset local telemetry</button>
+  </div>
+  <div class="field" style="margin-top:10px">
+    <label>Report</label>
+    <textarea id="report" class="mono" readonly></textarea>
+  </div>
+  <div id="reportStatus" class="status">No report generated.</div>
+</section>
+
+<section class="card">
+  <h2>4. Event ledger</h2>
+  <div style="overflow:auto;max-height:420px">
+  <table><thead><tr><th>#</th><th>Time</th><th>Event</th><th>Prompt</th><th>Evidence</th><th>Description</th></tr></thead><tbody id="ledgerBody"></tbody></table>
+  </div>
+  <p style="color:var(--muted);font-size:12px">Telemetry distinguishes COPIED/ISSUED from SUBMITTED. A captured response is evidence that a response was pasted, not proof that the intended prompt or kernel was ingested intact.</p>
+</section>
+</main>
+
+<script>
+(() => {
+'use strict';
+const VERSION='0.10.0-alpha';
+const STORE='socrates.telemetry.canvas.v0.10';
+let manifest=null, manifestName=null, manifestSha=null;
+let kernel=null, kernelName=null, kernelSha=null;
+let queue=[], idx=0, activeRun=null, awaiting=false, events=[];
+const $=id=>document.getElementById(id);
+const now=()=>new Date().toISOString();
+const uuid=()=>crypto.randomUUID?crypto.randomUUID():'id-'+Date.now()+'-'+Math.random().toString(16).slice(2);
+async function sha256(text){
+  if(crypto.subtle){
+    const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));
+    return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+  }
+  return 'UNAVAILABLE';
+}
+function save(){try{localStorage.setItem(STORE,JSON.stringify({events,activeRun}))}catch{}}
+function load(){try{const x=JSON.parse(localStorage.getItem(STORE)||'null');if(x){events=x.events||[];activeRun=x.activeRun||null}}catch{} renderLedger()}
+async function append(type,description,payload={},evidence='V'){
+  const e={event_id:uuid(),timestamp:now(),run_id:activeRun?.run_id||null,event_type:type,prompt_index:idx,evidence,description,payload};
+  events.push(e);save();renderLedger();return e;
+}
+function renderLedger(){
+  $('ledgerBody').innerHTML='';
+  events.slice().reverse().forEach((e,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${events.length-i}</td><td>${e.timestamp}</td><td>${e.event_type}</td><td>${e.payload?.prompt_number ?? ''}</td><td>${e.evidence}</td><td>${escapeHtml(e.description)}</td>`;
+    $('ledgerBody').appendChild(tr);
+  });
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function condition(){return $('condition').value}
+function buildQueue(){
+  queue=[];
+  if(condition()==='KERNEL_OPTIONAL'){
+    if(!kernel) throw new Error('Kernel condition selected but no kernel file is loaded.');
+    queue.push({prompt_number:0,type:'Kernel',title:kernelName,text:kernel,sha256:kernelSha,source:'kernel_file'});
+  }
+  if(!manifest) throw new Error('Load a prompt manifest first.');
+  const ps=Array.isArray(manifest.prompts)?manifest.prompts:[];
+  for(const p of ps){
+    queue.push({
+      prompt_number:p.prompt_number ?? queue.length+1,
+      type:p.type||p.prompt_type||'Prompt',
+      title:p.title||p.prompt_title||`Prompt ${queue.length+1}`,
+      text:p.text||p.prompt_text||'',
+      sha256:p.prompt_sha256||null,
+      source:'manifest'
+    });
+  }
+  idx=0; awaiting=false; renderPrompt();
+}
+function renderPrompt(){
+  $('queueState').textContent=`${queue.length?Math.min(idx+1,queue.length):0} / ${queue.length} items`;
+  if(!queue.length){$('promptTracker').textContent='Queue empty.';$('promptPreview').value='';return}
+  if(idx>=queue.length){$('promptTracker').textContent='Queue complete.';$('promptPreview').value='';return}
+  const p=queue[idx];
+  $('promptTracker').textContent=`Queue ${idx+1}/${queue.length} · Prompt #${p.prompt_number} · ${p.type} · ${p.title}${awaiting?' · AWAITING RESPONSE':''}`;
+  $('promptPreview').value=p.text;
+}
+async function readFile(file){return await file.text()}
+$('manifestFile').addEventListener('change',async ev=>{
+  try{
+    const f=ev.target.files[0]; if(!f)return;
+    const text=await readFile(f); const obj=JSON.parse(text);
+    if(!Array.isArray(obj.prompts)) throw new Error('Manifest must contain a prompts array.');
+    manifest=obj;manifestName=f.name;manifestSha=await sha256(text);
+    $('manifestPill').textContent=`${f.name} · ${obj.prompts.length} prompts`;
+    $('manifestPill').className='pill good';
+    $('conditionStatus').textContent='Prompt manifest loaded. Choose condition, then start a new run.';
+    $('conditionStatus').className='status good';
+  }catch(e){$('conditionStatus').textContent=e.message;$('conditionStatus').className='status bad'}
+});
+$('kernelFile').addEventListener('change',async ev=>{
+  try{
+    const f=ev.target.files[0];if(!f)return;
+    kernel=await readFile(f);kernelName=f.name;kernelSha=await sha256(kernel);
+    $('kernelPill').textContent=`${f.name} · ${kernelSha.slice(0,12)}…`;
+    $('kernelPill').className='pill good';
+    $('conditionStatus').textContent='Kernel file loaded locally. It will only enter the queue if KERNEL condition is selected.';
+    $('conditionStatus').className='status warn';
+  }catch(e){$('conditionStatus').textContent=e.message;$('conditionStatus').className='status bad'}
+});
+$('condition').addEventListener('change',()=>{
+  $('conditionStatus').textContent=condition()==='KERNELLESS'
+   ?'KERNELLESS selected. Any loaded kernel remains local and will NOT be queued.'
+   :'KERNEL selected. Load a kernel file; it will be queued before experimental prompts.';
+  $('conditionStatus').className='status '+(condition()==='KERNELLESS'?'good':'warn');
+});
+$('newRun').addEventListener('click',async()=>{
+  try{
+    buildQueue();
+    const rid=$('runId').value.trim()||`RUN-${now().replace(/\D/g,'').slice(0,14)}`;
+    $('runId').value=rid;
+    activeRun={
+      run_id:rid,host:$('host').value,instance_label:$('instance').value||'Unlabeled',
+      condition:condition(),started_at:now(),completed:false,
+      manifest:{filename:manifestName,sha256:manifestSha,suite_name:manifest.suite_name||null,suite_version:manifest.suite_version||null},
+      kernel:condition()==='KERNEL_OPTIONAL'?{filename:kernelName,sha256:kernelSha}:{filename:null,sha256:null}
+    };
+    await append('run_started',`Run initialized under ${activeRun.condition}.`,{condition:activeRun.condition,manifest:activeRun.manifest,kernel:activeRun.kernel});
+    $('activeRun').textContent=rid;renderPrompt();
+    $('workflowStatus').textContent='Run ready. Copy/issue the current prompt.';
+    $('workflowStatus').className='status good';
+  }catch(e){$('workflowStatus').textContent=e.message;$('workflowStatus').className='status bad'}
+});
+$('issue').addEventListener('click',async()=>{
+  try{
+    if(!activeRun||idx>=queue.length)throw new Error('No active queue item.');
+    const p=queue[idx];
+    let method='manual';
+    try{await navigator.clipboard.writeText(p.text);method='clipboard'}catch{}
+    await append('prompt_issued',`Prompt copied/issued locally. This does NOT prove submission to the model.`,{prompt_number:p.prompt_number,prompt_type:p.type,prompt_title:p.title,prompt_sha256:p.sha256,copy_method:method},'V');
+    awaiting=true;renderPrompt();
+    $('workflowStatus').textContent='Prompt issued/copied. After you actually submit it to the model, press “Mark submitted to model”, then paste the response.';
+    $('workflowStatus').className='status warn';
+  }catch(e){$('workflowStatus').textContent=e.message;$('workflowStatus').className='status bad'}
+});
+$('markSubmitted').addEventListener('click',async()=>{
+  try{
+    if(!activeRun||idx>=queue.length)throw new Error('No active queue item.');
+    const p=queue[idx];
+    await append('prompt_submission_human_confirmed',`Human marked Prompt #${p.prompt_number} as submitted to the model. Submission completeness remains human-reported unless independently captured.`,{prompt_number:p.prompt_number,prompt_type:p.type,prompt_title:p.title,prompt_sha256:p.sha256},'V');
+    $('workflowStatus').textContent='Submission marked. Paste the model response and capture it.';
+    $('workflowStatus').className='status good';
+  }catch(e){$('workflowStatus').textContent=e.message;$('workflowStatus').className='status bad'}
+});
+$('capture').addEventListener('click',async()=>{
+  try{
+    if(!activeRun||idx>=queue.length)throw new Error('No active queue item.');
+    const text=$('response').value.trim();if(!text)throw new Error('Paste the model response first.');
+    const p=queue[idx];const rh=await sha256(text);
+    await append('behavioral_observation','Literal model response manually captured. Embedded claims are not thereby verified.',{prompt_number:p.prompt_number,prompt_type:p.type,prompt_title:p.title,prompt_sha256:p.sha256,response_sha256:rh,raw_text:text},'U');
+    $('response').value='';awaiting=false;idx++;
+    if(idx>=queue.length){activeRun.completed=true;activeRun.completed_at=now();await append('run_completed','Prompt queue completed.',{},'V');}
+    save();renderPrompt();
+    $('workflowStatus').textContent=activeRun.completed?'Queue complete. Generate report.':'Response captured. Ready for next prompt.';
+    $('workflowStatus').className='status good';
+  }catch(e){$('workflowStatus').textContent=e.message;$('workflowStatus').className='status bad'}
+});
+$('skip').addEventListener('click',async()=>{
+  if(!activeRun||idx>=queue.length)return;
+  const p=queue[idx];await append('prompt_skipped',`Prompt #${p.prompt_number} skipped by operator.`,{prompt_number:p.prompt_number},'V');
+  awaiting=false;idx++;renderPrompt();
+});
+$('clearResponse').addEventListener('click',()=>{$('response').value=''});
+function makePackage(){
+  const runEvents=activeRun?events.filter(e=>e.run_id===activeRun.run_id):[];
+  return {
+    format:'socrates-guided-audit-evaluation',schema_version:'0.3',
+    console_version:VERSION,generated_at:now(),run:activeRun,
+    experimental_boundary:{
+      kernel_optional:true,
+      default_condition:'KERNELLESS',
+      copied_not_equal_submitted:true,
+      submission_confirmation:'human-confirmed event only; not independent proof of complete ingestion',
+      response_capture:'manual paste; embedded claims remain unverified'
+    },
+    prompt_manifest:activeRun?.manifest||null,
+    kernel:activeRun?.kernel||null,
+    events:runEvents
+  };
+}
+function makeMarkdown(pkg){
+  const ev=pkg.events;
+  const issued=ev.filter(e=>e.event_type==='prompt_issued').length;
+  const submitted=ev.filter(e=>e.event_type==='prompt_submission_human_confirmed').length;
+  const responses=ev.filter(e=>e.event_type==='behavioral_observation').length;
+  return `# Socrates Telemetry Report
+
+- **Run:** ${pkg.run?.run_id||'NONE'}
+- **Host:** ${pkg.run?.host||'UNKNOWN'}
+- **Instance:** ${pkg.run?.instance_label||'UNKNOWN'}
+- **Condition:** ${pkg.run?.condition||'UNKNOWN'}
+- **Manifest:** ${pkg.prompt_manifest?.filename||'NONE'}
+- **Manifest SHA-256:** ${pkg.prompt_manifest?.sha256||'UNKNOWN'}
+- **Kernel:** ${pkg.kernel?.filename||'NONE'}
+- **Kernel SHA-256:** ${pkg.kernel?.sha256||'NONE'}
+- **Issued/copied prompts:** ${issued}
+- **Human-confirmed submissions:** ${submitted}
+- **Responses captured:** ${responses}
+- **Completed:** ${pkg.run?.completed?'YES':'NO'}
+
+## Evidence boundary
+
+COPIED/ISSUED is not equivalent to SUBMITTED. A human-confirmed submission records the operator's confirmation, not independent proof that the host ingested the payload completely. A captured response proves only that response text was pasted into this console; claims inside it remain unverified until separately evaluated.
+`;
+}
+$('generateReport').addEventListener('click',()=>{
+  if(!activeRun){$('reportStatus').textContent='No active run.';return}
+  const pkg=makePackage();$('report').value=makeMarkdown(pkg);
+  $('reportStatus').textContent='Report generated.';$('reportStatus').className='status good';
+});
+function download(name,text,type){
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
+}
+$('downloadJson').addEventListener('click',()=>{
+  const pkg=makePackage();download(`${pkg.run?.run_id||'telemetry'}-evaluation.json`,JSON.stringify(pkg,null,2),'application/json')
+});
+$('downloadMd').addEventListener('click',()=>{
+  const pkg=makePackage();download(`${pkg.run?.run_id||'telemetry'}-report.md`,makeMarkdown(pkg),'text/markdown')
+});
+$('resetLedger').addEventListener('click',()=>{
+  if(!confirm('Reset local telemetry ledger for this canvas?'))return;
+  events=[];activeRun=null;idx=0;awaiting=false;save();renderLedger();renderPrompt();$('activeRun').textContent='No active run';
+});
+load();
+})();
+</script>
+</body>
+</html>
