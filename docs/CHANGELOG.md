@@ -55,6 +55,29 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.15.3-alpha — 2026-08-29
+
+Real patch bump — 2 commits since v0.15.2-alpha (count includes this
+version-bump commit). The Telemetry Canvas was promoted from
+`reference/` (archived, non-maintained) to `projects/telemetry_canvas/`
+(active project status, same as `depolarize` and `relay_console`).
+This request was genuinely ambiguous between two readings with very
+different stakes — an organizational status move, versus actually
+building automated ingestion into the LLMOS runtime, the latter
+explicitly `PENDING` in an already-adopted architecture document —
+resolved with a direct clarifying question rather than guessed;
+confirmed as the organizational move only. `git mv` used throughout so
+real file history was preserved rather than delete-and-recreate.
+`docs/TELEMETRY_CANVAS_LLMOS_RELATIONSHIP.md` — previously only
+reviewed and adopted conversationally on the ChatGPT side, never
+actually committed to this repository — was brought in properly,
+since the new cross-references this move required would otherwise
+have pointed at a file that didn't exist here. A second, unrelated,
+pre-existing staleness was also fixed while touching the same
+section: `relay_console` was missing from `docs/README.md`'s
+`projects/` listing entirely. 87/87 tests passed in this development
+environment.
+
 ## v0.15.2-alpha — 2026-08-29
 
 Real patch bump — 2 commits since v0.15.1-alpha (count includes this
