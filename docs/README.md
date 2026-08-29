@@ -125,7 +125,11 @@ security-hardening pass -- `LLMOS_LEDGER_SECURITY_SPEC.md` is
 canonical where it and a draft disagree): `LLMOS_LEDGER_SECURITY_SPEC.md`,
 `LLMOS_SUBMISSION_CONTRACT_DRAFT.md` (draft, not implemented),
 `INTEGRITY_AUDITING_AND_BACKUP_ARCHITECTURE.md` (draft, not
-implemented), `TOKEN_EFFICIENCY_AND_ROUTING.md`.
+implemented), `TOKEN_EFFICIENCY_AND_ROUTING.md`,
+`TELEMETRY_CANVAS_LLMOS_RELATIONSHIP.md` (adopted -- defines the
+Canvas as a human-clocked bridge, explicitly not integrated into the
+LLMOS runtime; read this before assuming anything under
+`projects/telemetry_canvas/` connects automatically to anything here).
 
 **Guides:** `SANDBOX_RUNNER_GUIDE.md`.
 
@@ -162,6 +166,14 @@ Actual work-product that *uses* the kernel/toolkit — not part of the
 LLMOS infrastructure itself.
 - `depolarize/` — the anti-bias/de-escalation prompt, its requirements
   ledger, maintenance toolkit, and changelog
+- `relay_console/` — browser-based multi-instance LLM relay console
+  (frontend + backend)
+- `telemetry_canvas/` — single-file HTML/JS console for human-clocked
+  telemetry capture from web-based LLM instances (hash-chained
+  events, surface detection, EPA tagging); non-canonical, not
+  integrated into the LLMOS runtime -- see `docs/
+  TELEMETRY_CANVAS_LLMOS_RELATIONSHIP.md` for the current, correct
+  relationship between this tool and LLMOS proper
 - `threat_response/` — the draft corrective-action reference guide
 
 Future unrelated projects go here as new sibling folders, each self-

@@ -90,11 +90,11 @@ storage migration itself), not by code review alone. SHA-256
 `1812b678c1b5b5560a4004c92167b6d8358ea9a82fd6bfd410ff456938219c62`.
 
 **Both files preserved here, real SHA-256 for direct verification:**
-- `../Socrates_Telemetry_Canvas_v0.9.2-alpha.html` — active lineage.
-- `../Socrates_Telemetry_Canvas_v0.9.1-alpha_kernel-optional.html` —
+- `Socrates_Telemetry_Canvas_v0.9.2-alpha.html` — active lineage.
+- `archive/Socrates_Telemetry_Canvas_v0.9.1-alpha_kernel-optional.html` —
   `1967c9e6752bce8b0ba0fc7f3affee1bc7342361dbd5e48d58d9bf30b34e7c53`
   — superseded, preserved as real history, not deleted.
-- `abandoned/Socrates_Telemetry_Canvas_v0.10.0_kernel-optional.html` —
+- `archive/Socrates_Telemetry_Canvas_v0.10.0_kernel-optional.html` —
   `0599897916c5dda5418b4f8cb614edb7dd77c52774d12865375bfa386c09d604`
   — preserved, not deleted, explicitly not the successor to v0.9.0.
 
