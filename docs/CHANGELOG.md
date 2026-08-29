@@ -55,6 +55,33 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.15.2-alpha — 2026-08-29
+
+Real patch bump — 2 commits since v0.15.1-alpha (count includes this
+version-bump commit). Telemetry Canvas `v0.9.2-alpha` added as the new
+active lineage, superseding `v0.9.1-alpha` (preserved, not deleted).
+Delivered as a "cosmetic" cleanup; direct diff against the known-good
+v0.9.1 baseline showed it is substantially more than that, and every
+real change was independently verified by executing the actual code,
+not by review alone. **Fixes a genuine latent bug in v0.9.1:**
+`prompt_number` now travels as data on each queue item instead of
+being inferred from raw array position, so the *displayed* prompt
+number no longer shifts depending on whether a kernel happens to be
+loaded (v0.9.1 used raw array index, which v0.9.1's own kernel-optional
+feature made unstable). Adds real model-agnostic generalization (an
+actual host `<select>` replacing hardcoded "Gemini Web," matching the
+tool's own "model-agnostic" label), an automatic
+`condition: KERNEL_OPTIONAL/KERNELLESS` field recorded from real
+observed state rather than an operator-set label, and backward-
+compatible storage-key migration so an existing v0.8-lineage ledger
+loads and copies forward correctly rather than appearing empty.
+Verified directly: all 14 self-tests pass, hash-chain append/verify/
+tamper-detection intact, kernel load and mid-session swap both correct,
+`buildEvaluationPackage` works correctly despite its `PROMPTS`/`QUEUE`
+split (the one place a real regression risk existed), and the storage
+migration itself tested with realistic legacy data, not just reviewed.
+87/87 tests passed in this development environment.
+
 ## v0.15.1-alpha — 2026-08-29
 
 Real patch bump — 2 commits since v0.15.0-alpha (count includes this
