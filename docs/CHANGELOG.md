@@ -55,6 +55,38 @@ being added, not asserted:
   counting unverified outcomes) — each fixed and re-verified against
   the actual codebase, not just the claim.
 
+## v0.15.1-alpha — 2026-08-29
+
+Real patch bump — 2 commits since v0.15.0-alpha (count includes this
+version-bump commit). Real, tested telemetry tool lineage committed
+under `reference/pilot_and_research/telemetry_tools/`:
+**`v0.9.1-alpha`, the active kernel-optional telemetry canvas** --
+built by taking the proven `v0.9.0-alpha` (real hash-chaining, real
+self-tests, real deterministic surface detection, confirmed across 6
+prior real audit runs) and applying only the one intended change:
+hardcoded kernel replaced with an optional file upload, following the
+prompt-manifest loader's existing pattern exactly. A real, separate
+`v0.10.0-alpha` was found to have accidentally dropped ~32 of 41
+functions in an unintended near-rewrite -- including all self-tests,
+all hash-chaining/tamper-evidence, and all surface detection -- and is
+preserved (not deleted) as an explicitly abandoned branch, with a full
+decision record (`TELEMETRY_v0.10.0_ABANDONMENT_DECISION.md`)
+documenting the real function-level diff and why v0.9.1 was built from
+v0.9.0 instead. Every claim in the fix was verified by actually
+executing the code in a Node harness with mocked browser APIs, not
+just code review: kernel loading and mid-session kernel *swapping*
+both confirmed correct; hash-chain append and `verifyChain()` confirmed
+working, including a deliberate tamper test that was correctly
+detected at the right index with the right reason; self-tests
+confirmed passing in both kernel-loaded and no-kernel configurations.
+A real regression was caught and fixed mid-process (empty-queue page
+load crashed `renderPrompt()`, a path the original always-has-a-kernel
+architecture had never exercised). A second, independent ChatGPT
+instance verified the delivered artifact separately, catching one real
+remaining defect (a stale `<title>` tag still reading v0.9.0) before
+this commit, now fixed and re-verified. 87/87 tests passed in this
+development environment.
+
 ## v0.15.0-alpha — 2026-08-28
 
 Minor version bump — 3 commits since v0.14.3-alpha (count includes
