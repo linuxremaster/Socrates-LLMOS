@@ -4,6 +4,72 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at http://mozilla.org/MPL/2.0/.
 -->
 
+> # ⛔ RETIRED — NOT FOR SUCCESSION USE
+>
+> **This copy is RETIRED as of 2026-09-25.** It is preserved as failure
+> evidence and historical provenance only. Do not use it to bootstrap an
+> instance.
+>
+> **Same-version collision (VERIFIED).** Two materially different files
+> shipped under the nominal version `v0.2`:
+>
+> ```text
+> THIS COPY (docs/)      5e7d15b9cf6ee7c3c3a51f008a483d75033332831fc0ca9726d9773b651c487a
+> PACKAGE COPY           7a2bee57a8c3a6bf41f12f9fdf51a79cf201b44619fcf585e4ed5b2d220ff6ab
+>   (Orientation/02_SUCCESSION/ in ORIENTATION.zip)
+> ```
+>
+> The files are byte-identical except for **one load-bearing line** —
+> item 1 of the six-item bootstrap:
+>
+> ```text
+> THIS COPY     "read first, nothing else until the EPISTEMIC_PEER_CHECK
+>                is complete"                                    ← WRONG
+> PACKAGE COPY  "Read after baseline orientation when assuming a
+>                predecessor's active role"                      ← repair
+> ```
+>
+> `SEMANTIC DIVERGENCE != TEXTUAL DIVERGENCE` — a one-line collision is
+> more dangerous than a large one, because it survives casual comparison.
+>
+> **Why this copy is wrong.** It instructs a receiving instance to read a
+> succession artifact *before* baseline orientation. That inverts the
+> entry path and contradicts the canonical orientation baseline
+> (`Origin_Orientation_v0.1.9.md`), whose own BOOT INSTRUCTION directs an
+> instance to read it first and treat `SUCCESSION/` as pull-only.
+>
+> **Scope boundary this collision violated:**
+>
+> ```text
+> ORIENTATION       what project have I joined, and which rules do I accept?
+>   != SUCCESSION   what state do I need to continue a predecessor's role?
+>   != ROLE ELIGIBILITY   am I cleared to operate in that role?
+> ```
+>
+> A lean handoff is **succession-scoped**. It is never the orientation
+> entry point.
+>
+> **Current status of Lean Handoff v0.2 as a whole:**
+>
+> ```text
+> THIS COPY (5e7d15b9)     RETIRED — preserved as failure evidence
+> PACKAGE COPY (7a2bee57)  SUPERSEDE — carries a duplicated-phrase patch
+>                          defect in item 1; not promoted here
+> SAFE FOR SUCCESSION      NO — neither v0.2 copy is currently usable
+> RECOMMENDED SOURCE       NEW SUCCESSOR (v0.3) REQUIRED — PENDING,
+>                          deliberately not created by this cleanup
+> ```
+>
+> **Authorship.** The defective read-first ordering in this copy
+> originated with Claude and was repaired downstream without a version
+> bump. Recording that here so the failure is inheritable rather than
+> rediscovered.
+>
+> ---
+>
+> *Everything below this line is the retired v0.2 text, unchanged.*
+
+
 # Lean Handoff Template v0.2
 
 **Status:** PROPOSED / NON-CANONICAL

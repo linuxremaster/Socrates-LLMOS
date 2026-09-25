@@ -42,17 +42,29 @@ None modify the canonical kernel automatically by being present.
 
 ---
 
-## TIER 3 — PENDING COMMIT (agreed in conversation, not yet in repo)
+## TIER 3 — CLEARED (all former Tier 3 items are now committed)
 
-These were drafted and reviewed but not committed. They need
-to be written into real files and committed to exist durably.
+**STATUS CORRECTION 2026-09-25.** This section previously read
+"PENDING COMMIT (agreed in conversation, not yet in repo)" and listed
+the four artifacts below as absent. That was stale: commit `72dae51`
+is the commit that added them. The inventory described four files as
+missing from the repository it was sitting in.
 
-| What | Target location | What it says | Priority |
-|---|---|---|---|
-| Continuity-channel amendment | `docs/` | Adds `CONTINUITY_CHANNELS` + `CONTINUITY_CHANNEL_EVIDENCE` fields to instance/handoff records. Channels are distinct from each other and from `SUBSTRATE_VERSION`. | HIGH — needed before multi-instance testing |
-| Epistemic/project-action authority amendment | `docs/` | Human retains project/action authority; models retain epistemic pushback rights; neither collapses into the other; project authority subordinate to host/safety constraints | HIGH — directly addresses current fresh-instance friction |
-| `SUBSTRATE_VERSION` as a distinct field | `docs/` or schema | Separate from continuity channel — records whether the underlying model itself stayed constant between observations | MEDIUM |
-| Lean handoff v0.2 template | `docs/` | Six-item only bootstrap: lean handoff + canonical kernel + frozen candidate + current management delta + pilot checklist + pull-only for everything else | HIGH — directly addresses the successor failure mode diagnosed 2026-09-11 |
+Corrected disposition — all four are now:
+
+```text
+PRESENT IN REPOSITORY  +  PROPOSED / NON-CANONICAL
+```
+
+Presence is not adoption. No canonical promotion follows from a file
+existing in `docs/`.
+
+| What | Location | Status |
+|---|---|---|
+| `CONTINUITY_CHANNEL_AMENDMENT_v0_1.md` | `docs/` | PRESENT / PROPOSED |
+| `EPISTEMIC_AND_PROJECT_AUTHORITY_AMENDMENT_v0_1.md` | `docs/` | PRESENT / PROPOSED |
+| `SUBSTRATE_VERSION_FIELD_SPEC_v0_1.md` | `docs/` | PRESENT / PROPOSED |
+| `LEAN_HANDOFF_TEMPLATE_v0_2.md` | `docs/` | PRESENT / **RETIRED** — see the retirement notice in that file. Same-version collision; not safe for succession; v0.3 successor PENDING. |
 
 ---
 
@@ -74,15 +86,19 @@ mandatory in the actual orientation sequence
 (`docs/INSTANCE_ORIENTATION_SEQUENCE.md`), pointing to the amendment.
 This makes the diagnostic actually run rather than be skippable.
 
-Second: commit the Lean Handoff v0.2 template as a real, hash-able
-artifact.
+Second: produce Lean Handoff **v0.3**. v0.2 shipped as two different
+files under one version; both are now unusable for succession. The
+minimum repair is known (package-copy content, duplicated-phrase fix,
+version bump, predecessor pointer to both v0.2 hashes, bounded
+succession test) but is deliberately not performed by this cleanup.
 
 ---
 
 ## GOVERNANCE DECISION NEEDED
 
-To move Tier 3 items into Tier 2: draft and commit. No new audit cycle
-needed — they've been reviewed and agreed.
+Tier 3 is cleared — those items are committed. Presence in the
+repository is not adoption; they remain PROPOSED / NON-CANONICAL until
+an explicit project-authority decision.
 
 To move Tier 2 items into Tier 1 (canonical): requires a deliberate
 adoption decision from the project authority. The Epistemic Peer

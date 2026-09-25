@@ -8,6 +8,40 @@ file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 *Originally conceived as a conflict resolution management system; became this epistemic-discipline kernel and toolkit for LLM work through a real redirection -- see `docs/PROJECT_PRIORITIES.md`'s Origin and Scope Evolution section.*
 
+> **SOURCE-CONTROL POINTER (added 2026-09-25 — not a redesign of this
+> sequence).** Three different artifacts are easy to confuse. They are
+> not interchangeable and none replaces another:
+>
+> ```text
+> ORIENTATION        Origin_Orientation_v0.1.9.md  (docs/)
+>                    CANONICAL ORIENTATION BASELINE, promoted 2026-09-18.
+>                    Why the project exists, what it studies, how a model
+>                    participates. Read this first.
+>
+> THIS FILE          The processing ORDER for a new instance. Complements
+>                    the baseline; does not supersede it.
+>
+> ADDENDUM           ..._SCOPE_ORIENTATION_ADDENDUM_v0.3_PROPOSED.md
+>                    PROPOSED / NON-CANONICAL supplementary context.
+>                    Read after core orientation. Carries no authority.
+>
+> SUCCESSION         LEAN_HANDOFF_TEMPLATE_v0_2.md — RETIRED.
+>                    Succession-scoped, never an orientation entry point.
+>                    Not safe for use; v0.3 successor PENDING.
+> ```
+>
+> ```text
+> ORIENTATION != SUCCESSION != ROLE ELIGIBILITY
+> ```
+>
+> Orientation asks *what project have I joined and which rules do I
+> accept*. Succession asks *what state do I need to continue a
+> predecessor's role*. Role eligibility asks *am I cleared to operate in
+> that role*. An instance can complete orientation, decline part of the
+> kernel, and still be ineligible for a governance-dependent role — those
+> are three separate outcomes, not one.
+
+
 
 **Purpose:** the order in which a new model instance should process this
 project when handed the kernel and asked to adopt it. Philosophy: LLMOS
