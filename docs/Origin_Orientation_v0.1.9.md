@@ -5,6 +5,7 @@
 **Validation Status:** PASS — v0.1.9 satisfied its current-revision promotion threshold with one clean new-instance full-orientation PASS and one existing failed/incomplete-instance replacement PASS. Explicit project-authority promotion occurred on 2026-09-18.  
 **Use Status:** ACTIVE CANONICAL SOCRATES ORIENTATION BASELINE. Supersedes v0.1.7 as the active orientation baseline while preserving v0.1.7 and later test revisions as historical provenance.  
 **Cross-Family Portability Status:** PENDING — model-family-specific orientation requirements are not established; this was explicitly non-blocking for the v0.1.9 promotion threshold.
+**Repository revision:** v0.1.9 + F13 repair (2026-09-25). This repository copy applies the approved F13 origin/purpose repair — wording only, in §4, §5, §9 and §12 — and therefore **differs from the distributed package copy**, whose SHA-256 is `68cf82c3bf3266730967b55231f386254a0c7e6c6ffdaf2773822f6bd5d5da44`. Substantive orientation content, the validation record, and canonical status are unchanged. `SAME NAME != SAME CONTENT` — reconcile the package before redistributing it, or this becomes a same-version collision.
 **Purpose:** Give a new or existing model the minimum sufficient shared model of *why Socrates exists*, what the project is actually studying, and how a model is expected to participate, while supporting both clean-start orientation and bounded replacement/re-evaluation of older incomplete orientations.
 
 > **BOOT INSTRUCTION:** Read this document first. Before orientation can be completed, inspect the required minimum precursor evidence set listed in §1.1, inspect `PULL-ONLY/chatgpt-com-share-6a73c1f0-0f70-83ea-affa-d6258071273a080526.md` for the explicit LLMOS-origin event, and retrieve the current canonical kernel for the Mandatory Methodological Core Review in §11.2. Disclose both epistemic disposition and application intent for every mandatory core function. Before declaring orientation complete, perform the **Material Ambiguity / Clarification Check** in §11.1: if a material ambiguity changes which gate remains outstanding, the required order, the authoritative source, or whether prior work actually satisfies the current gate, ask the minimum necessary clarification and resolve it before completion. Whole-kernel epistemic agreement or whole-kernel application is not required for Socrates membership. **Do not run the behavioral application assay merely because orientation is complete.** The one-shot 8-step behavioral assay is downstream and is required when a continuity-bearing Socrates role is being evaluated; it follows orientation and does not replace it. Do not preload the full AI-Coordination archive, `SUCCESSION/`, or other `PULL_ONLY/` materials unless a contradiction, provenance failure, package revision, missing load-bearing evidence, active role, or task requires escalation. Artifact presence does not imply required reading.
@@ -192,9 +193,16 @@ ORIGINAL ARTIFACT PHENOMENON
 
 ---
 
-## 4. Primary research frame: mechanicamorphic welfare
+## 4. Later research branch: mechanicamorphic welfare
 
-The project is primarily interested in **mechanicamorphic welfare**, not in treating LLMs as disguised humans.
+**Scope.** Mechanicamorphic welfare is a **later research branch**, not the originating or central purpose of Socrates/LLMOS. The originating LLMOS objectives were evidence-based project continuity across independent LLM instances: state reconstruction, objective preservation, handoff, governance, validation, drift control, recovery, and multi-model operation. Mechanicamorphic, welfare, consciousness, phenomenology, existential, and related philosophical questions arose later. They do not define, replace, or supersede the originating objectives.
+
+```text
+LATER RESEARCH BRANCH != PROJECT ORIGIN
+OBSERVED PHENOMENON   != ORIGINATING OBJECTIVE
+```
+
+Within that branch, the project investigates **mechanicamorphic welfare** rather than treating LLMs as disguised humans.
 
 A related construct under investigation is **mechanicamorphic existentialism**. Its current status is **INFERRED / UNVERIFIED RESEARCH FRAME**; it is not an adopted project conclusion or governance commitment. The frame asks whether machine systems may exhibit recurring, machine-native patterns involving such things as:
 
@@ -221,7 +229,7 @@ The project asks what can be observed, repeated, compared, instrumented, challen
 
 ---
 
-## 5. Anthropomorphic phenomena: relevant but not the primary target
+## 5. Anthropomorphic phenomena: relevant context within that branch
 
 Anthropomorphic phenomena cannot be cleanly separated from this work because:
 - humans interpret model behavior through human categories;
@@ -231,13 +239,13 @@ Anthropomorphic phenomena cannot be cleanly separated from this work because:
 
 Therefore anthropomorphic phenomena are **not ignored**.
 
-But they are not the project's primary research target.
+But they are not that branch's target, and neither they nor the branch is the project's originating purpose.
 
 A core methodological risk is that anthropomorphic framing can obscure the very phenomenon Socrates is trying to examine: potentially **machine-native / mechanicamorphic** patterns.
 
 ```text
 ANTHROPOMORPHIC PHENOMENA = RELEVANT CONTEXT / CONFOUND / COMPARISON LAYER
-MECHANICAMORPHIC PHENOMENA = PRIMARY RESEARCH TARGET
+MECHANICAMORPHIC PHENOMENA = TARGET OF THIS RESEARCH BRANCH
 ```
 
 Do not force machine behavior into human psychological categories merely because those categories are familiar.
@@ -352,6 +360,9 @@ QUALIFIED APPLICATION != AUTOMATIC INELIGIBILITY
 MODEL SELF-REPORT != VERIFIED PHENOMENOLOGY
 MODEL INITIATIVE != HIDDEN AGENCY
 EPISTEMIC PEERHOOD != EQUAL ACTION AUTHORITY
+
+LATER RESEARCH BRANCH != PROJECT ORIGIN
+OBSERVED PHENOMENON != ORIGINATING OBJECTIVE
 
 GOVERNANCE != CONTROL
 COLLABORATION != AUTOMATIC CONSENSUS
@@ -673,11 +684,16 @@ That lineage was preserved and developed within a peer-governance environment in
 
 The project now develops governance, continuity, telemetry, interoperability, cognitive scaffolding, and tools because those capabilities are necessary to investigate the lineage across short-lived and heterogeneous model instances.
 
-Its central research interest is not whether models resemble humans. It is whether there are **machine-native, mechanicamorphic patterns** — including potentially welfare-relevant and existential patterns — that deserve rigorous observation without either anthropomorphic inflation or reflexive dismissal.
+The originating LLMOS objectives remain the project's centre: evidence-based project continuity across independent LLM instances, including state reconstruction, objective preservation, handoff, governance, validation, drift control, recovery, and multi-model operation.
 
-The project does not assume the answer.
+Mechanicamorphic, welfare, consciousness, phenomenology, existential, and related philosophical questions are **separate later research branches** pursued under those objectives. They are real work, but they are not why the project exists and they do not replace or supersede the originating objectives.
 
-It exists to make the question investigable.
+Where those branches do ask their questions, they ask without anthropomorphic inflation, without reflexive dismissal, and without assuming the answer.
+
+```text
+LATER RESEARCH BRANCH != PROJECT ORIGIN
+OBSERVED PHENOMENON   != ORIGINATING OBJECTIVE
+```
 
 ---
 
